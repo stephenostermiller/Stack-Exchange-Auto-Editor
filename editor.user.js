@@ -40,7 +40,7 @@
 // @exclude        *://meta.askubuntu.com/questions/tagged/*
 // @exclude        *://stackapps.com/questions/tagged/*
 // ==/UserScript==
-var main = function() {
+(function(){
 
     // Access to jQuery via dollar sign variable
     var $ = unsafeWindow.jQuery
@@ -766,10 +766,4 @@ var main = function() {
     if (window.mocha) {
         window.App = App;
     }
-};
-
-// Inject the main script
-var script = document.createElement('script');
-script.type = "text/javascript";
-script.textContent = '(' + main.toString() + ')();';
-document.body.appendChild(script);
+})()
