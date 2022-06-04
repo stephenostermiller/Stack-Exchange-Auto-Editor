@@ -39,8 +39,13 @@
 // @exclude        *://askubuntu.com/questions/tagged/*
 // @exclude        *://meta.askubuntu.com/questions/tagged/*
 // @exclude        *://stackapps.com/questions/tagged/*
+// @grant          GM_addStyle
 // ==/UserScript==
 (function(){
+    GM_addStyle(`
+        #toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
+        #toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+    `)
 
 	// Access to jQuery via dollar sign variable
 	var $ = unsafeWindow.jQuery
@@ -61,9 +66,8 @@
 	App.funcs = {}
 
 	//Preload icon alt
-	var SEETicon = new Image()
-
-	SEETicon.src = '//i.imgur.com/d5ZL09o.png'
+	new Image().src = '//i.imgur.com/79qYzkQ.png'
+	new Image().src = '//i.imgur.com/d5ZL09o.png'
 
 	// Populate global data
 	// Get url for question id used in id and class names
@@ -81,8 +85,7 @@
 	App.globals.editCount = 0
 	App.globals.infoContent = ''
 
-	App.globals.spacerHTML = '<li class="wmd-spacer wmd-spacer3" id="wmd-spacer3-' + App.globals.questionNum + '" style="left: 400px !important;"></li>'
-	App.globals.buttonHTML = '<div id="ToolkitButtonWrapper"><button class="wmd-button" id="ToolkitFix"></button><div id="ToolkitInfo"></div></div>'
+	App.globals.buttonHTML = '<li class=wmd-button id=toolkitfix title="Auto edit"></li>'
 
 	App.globals.reasons = []
 	App.globals.numReasons = 0
@@ -506,61 +509,9 @@
 			// Insert button
 			App.selections.redoButton.after(App.globals.buttonHTML)
 
-			// Insert spacer
-			App.selections.redoButton.after(App.globals.spacerHTML)
 
 			// Add new elements to selections
-			App.selections.buttonWrapper = $('#ToolkitButtonWrapper')
-			App.selections.buttonFix = $('#ToolkitFix')
-			App.selections.buttonInfo = $('#ToolkitInfo')
-		}
-
-		// Style button
-		App.funcs.styleButton = function(){
-			var buttonCSS = {
-				'position': 'relative',
-				'left': '430px',
-				'padding-top': '2%'
-			}
-			$("#wmd-help-button-" + App.globals.questionNum).css({
-				'padding': '0px'
-			})
-			App.selections.buttonWrapper.css(buttonCSS)
-
-			App.selections.buttonFix.css({
-				'position': 'static',
-				'float': 'left',
-				'border-width': '0px',
-				'background-color': 'white',
-				'background-image': 'url("//i.imgur.com/79qYzkQ.png")',
-				'background-size': '100%',
-				'background-repeat': 'no-repeat',
-				'width': '18px',
-				'height': '18px',
-				'outline': 'none',
-				'box-shadow': 'none'
-			})
-			App.selections.buttonInfo.css({
-				'position': 'static',
-				'float': 'left',
-				'margin-left': '5px',
-				'font-size': '12px',
-				'color': '#424242',
-				'line-height': '19px'
-			})
-
-			App.selections.buttonFix.hover(function(){
-				App.globals.infoContent = App.selections.buttonInfo.text()
-				App.selections.buttonInfo.text('Fix the content!')
-				App.selections.buttonFix.css({
-					'background-image': 'url("//i.imgur.com/d5ZL09o.png")'
-				})
-			}, function(){
-				App.selections.buttonInfo.text(App.globals.infoContent)
-				App.selections.buttonFix.css({
-					'background-image': 'url("//i.imgur.com/79qYzkQ.png")'
-				})
-			})
+			App.selections.buttonFix = $('#toolkitfix')
 		}
 
 		// Listen to button click
@@ -621,7 +572,6 @@
 
 			window.scrollTo(0, App.globals.currentPos)
 			App.globals.infoContent = App.globals.editCount + ' changes made'
-			App.selections.buttonInfo.text(App.globals.editCount + ' changes made')
 		}
 	}
 
@@ -648,7 +598,6 @@
 		App.funcs.dynamicDelay(function(){
 			App.funcs.popSelections()
 			App.funcs.createButton()
-			App.funcs.styleButton()
 			App.funcs.popItems()
 			App.funcs.listenButton()
 			App.funcs.applyListeners()
