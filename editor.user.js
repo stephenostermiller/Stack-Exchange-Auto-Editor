@@ -106,7 +106,6 @@
 	// Define order in which mods affect here
 	App.globals.order = ["omit", "edit", "replace"]
 
-
 	// Define edit rules
 	App.edits = {
 		i: {
