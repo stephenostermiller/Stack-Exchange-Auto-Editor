@@ -474,13 +474,13 @@ var main = function() {
 
         // Wait for relevant dynamic content to finish loading
         App.funcs.dynamicDelay = function(callback, id, inline) {
-	    setTimeout(function() {
-	        App.selections.buttonBar = $('#wmd-button-bar-' + id);
-	        App.selections.buttonBar.unbind();
-	        setTimeout(function() {
-		    callback();
-	        }, 0);
-	    }, 500);
+            setTimeout(function() {
+                App.selections.buttonBar = $('#wmd-button-bar-' + id);
+                App.selections.buttonBar.unbind();
+                setTimeout(function() {
+                callback();
+                }, 0);
+            }, 500);
         };
 
         // Populate or refresh DOM selections
