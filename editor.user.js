@@ -478,7 +478,7 @@
                 App.selections.buttonBar = $('#wmd-button-bar-' + id);
                 App.selections.buttonBar.unbind();
                 setTimeout(function() {
-                callback();
+                    callback();
                 }, 0);
             }, 500);
         };
