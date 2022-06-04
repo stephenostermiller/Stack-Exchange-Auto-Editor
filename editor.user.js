@@ -748,8 +748,8 @@
         return data
     }
     setTimeout(function() { // Allow post to load entirely
-        if ($(".edit-post")[0]) { // User has editing privileges; wait for button press
-            $(".edit-post").click(function(e) {
+        if ($(".js-edit-post")[0]) { // User has editing privileges; wait for button press
+            $(".js-edit-post").click(function(e) {
                 App.init(true, e.target.href.match(/\d/g).join("")); // If there are multiple posts, we need to pass the post ID
             })
         } else if ($(".reviewable-post")[0]) { // H&I review queue
