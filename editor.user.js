@@ -41,6 +41,10 @@
 // @exclude        *://stackapps.com/questions/tagged/*
 // ==/UserScript==
 var main = function() {
+
+    // Access to jQuery via dollar sign variable
+    var $ = unsafeWindow.jQuery
+
     // Define app namespace
     var App = {};
 
