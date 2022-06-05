@@ -42,10 +42,10 @@
 // @grant          GM_addStyle
 // ==/UserScript==
 (function(){
-    GM_addStyle(`
-        #toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
-        #toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
-    `)
+	GM_addStyle(`
+		#toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
+		#toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+	`)
 
 	// Access to jQuery via dollar sign variable
 	var $ = unsafeWindow.jQuery
@@ -85,7 +85,17 @@
 	App.globals.editCount = 0
 	App.globals.infoContent = ''
 
-	App.globals.buttonHTML = '<li class=wmd-button id=toolkitfix title="Auto edit"></li>'
+	App.globals.buttonFix = $('<li class=wmd-button id=toolkitfix title="Auto edit"></li>').click(function(e){
+		e.preventDefault()
+		if (!App.globals.editsMade){
+			// Refresh item population
+			App.funcs.popItems()
+
+			// Pipe data through editing modules
+			App.pipe(App.items, App.globals.pipeMods, App.globals.order)
+			App.globals.editsMade = true
+		}
+	})
 
 	App.globals.reasons = []
 	App.globals.numReasons = 0
@@ -450,30 +460,6 @@
 			return out
 		}
 
-		App.funcs.applyListeners = function(){ // Removes default Stack Exchange listeners; see https://github.com/AstroCB/Stack-Exchange-Editor-Toolkit/issues/43
-			function removeEventListeners(e){
-				if (e.which === 13){
-					if (e.metaKey || e.ctrlKey){
-						// CTRL/CMD + Enter -> Activate the auto-editor
-						App.selections.buttonFix.click()
-						this.focus()
-					} else {
-						// It's impossible to remove the event listeners, so we have to clone the element without any listeners
-						var elClone = this.cloneNode(true)
-						this.parentNode.replaceChild(elClone,
-							this)
-						App.selections.submitButton.click()
-					}
-				}
-			}
-
-			// Tags box
-			App.selections.tagField.keydown(removeEventListeners)
-
-			// Edit summary box
-			App.selections.summaryBox.keydown(removeEventListeners)
-		}
-
 		// Wait for relevant dynamic content to finish loading
 		App.funcs.dynamicDelay = function(callback, id, inline){
 			setTimeout(function(){
@@ -488,11 +474,10 @@
 		// Populate or refresh DOM selections
 		App.funcs.popSelections = function(){
 			App.selections.redoButton = $('#wmd-redo-button-' + App.globals.questionNum)
-			App.selections.bodyBox = $("#wmd-input-" + App.globals.questionNum)
-			App.selections.titleBox = $(".ask-title-field")
-			App.selections.summaryBox = $("#edit-comment-" + App.globals.questionNum)
+			App.selections.bodyBox = $(".js-post-body-field")
+			App.selections.titleBox = $(".js-post-title-field")
+			App.selections.summaryBox = $('.js-post-edit-comment-field')
 			App.selections.tagField = $($(".tag-editor")[0])
-			App.selections.submitButton = $("#submit-button-" + App.globals.questionNum)
 		}
 
 		// Populate edit item sets from DOM selections
@@ -507,26 +492,7 @@
 		// Insert editing button(s)
 		App.funcs.createButton = function(){
 			// Insert button
-			App.selections.redoButton.after(App.globals.buttonHTML)
-
-
-			// Add new elements to selections
-			App.selections.buttonFix = $('#toolkitfix')
-		}
-
-		// Listen to button click
-		App.funcs.listenButton = function(){
-			App.selections.buttonFix.click(function(e){
-				e.preventDefault()
-				if (!App.globals.editsMade){
-					// Refresh item population
-					App.funcs.popItems()
-
-					// Pipe data through editing modules
-					App.pipe(App.items, App.globals.pipeMods, App.globals.order)
-					App.globals.editsMade = true
-				}
-			})
+			App.selections.redoButton.after(App.globals.buttonFix)
 		}
 
 		// Figure out the last selected element before pressing the button so we can return there after focusing the summary field
@@ -599,8 +565,6 @@
 			App.funcs.popSelections()
 			App.funcs.createButton()
 			App.funcs.popItems()
-			App.funcs.listenButton()
-			App.funcs.applyListeners()
 			App.funcs.setLastFocus()
 		}, targetID, inline)
 	}
@@ -695,20 +659,20 @@
 
 		return data
 	}
-	setTimeout(function(){ // Allow post to load entirely
-		if ($(".js-edit-post")[0]){ // User has editing privileges; wait for button press
-			$(".js-edit-post").click(function(e){
-				App.init(true, e.target.href.match(/\d/g).join("")); // If there are multiple posts, we need to pass the post ID
-			})
-		} else if ($(".reviewable-post")[0]){ // H&I review queue
-			App.globals.questionNum = $(".reviewable-post")[0].getAttribute("class").match(/\d/g).join("")
-			$($(".review-actions")[0].children[0]).click(function(e){
-				App.init(true, App.globals.questionNum)
-			})
-		} else { // User does not have editing privileges or is editing on question page; start immediately
-			App.init(false)
-		}
-	}, 1000)
+
+	if ($(".js-edit-post")[0]){ // User has editing privileges; wait until edit link is used
+		$(".js-edit-post").click(function(e){
+			App.init(true, e.target.href.match(/\d+/g));
+		})
+	} else if ($(".reviewable-post")[0]){ // H&I review queue
+		App.globals.questionNum = $(".reviewable-post")[0].getAttribute("class").match(/\d/g).join("")
+		$($(".review-actions")[0].children[0]).click(function(e){
+			App.init(true, App.globals.questionNum)
+		})
+	} else { // User does not have editing privileges or is editing on question page; start immediately
+		console.log("User does not have editing privileges")
+		App.init(false)
+	}
 
 	// Only set when running tests
 	if (window.mocha){
