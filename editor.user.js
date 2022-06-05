@@ -119,23 +119,31 @@
 	// Define order in which mods affect here
 	App.globals.order = ["omit", "edit", "replace"]
 
+	function capitalizeWord(word, re){
+		if (!re) re = word
+		re = re.replace(/ /g, "\\s*")
+		re = re.replace(/([a-z])([A-Z])/g, "$1\\s*$2")
+		return {
+			expr: new RegExp("(^|\\s)(?:"+re+")\\b(\\S|)(?!\\S)","igm"),
+			replacement: "$1"+word+"$2",
+			reason: "capitalize " + word
+		}
+	}
+
+	function capitalizeWordAndVersion(word, re, separator){
+		if (!separator) separator = ""
+		if (!re) re = word
+		re = re.replace(/ /g, "\\s*")
+		re = re.replace(/([a-z])([A-Z])/g, "$1\\s*$2")
+		return {
+			expr: new RegExp("(^|\\s)(?:"+re+")"+(separator==" "?"\\s+":"")+"([0-9]+)\\b(\\S|)(?!\\S)","igm"),
+			replacement: "$1"+word+separator+"$2$3",
+			reason: "capitalize " + word
+		}
+	}
+
 	// Define edit rules
 	App.edits = {
-		i: {
-			expr: /(^|\s|\()i(\s|,|\.|!|\?|;|\/|\)|'|$)/gm,
-			replacement: "$1I$2",
-			reason: "the pronoun 'I' should be capitalized"
-		},
-		so: {
-			expr: /(^|\s)[Ss]tack\s*overflow|StackOverflow(.|$)/gm,
-			replacement: "$1Stack Overflow$2",
-			reason: "'Stack Overflow' is the legal name"
-		},
-		se: {
-			expr: /(^|\s)[Ss]tack\s*exchange|StackExchange(.|$)/gm,
-			replacement: "$1Stack Exchange$2",
-			reason: "'Stack Exchange' is the legal name"
-		},
 		expansionSO: {
 			expr: /(^|\s)SO(\s|,|\.|!|\?|;|\/|\)|$)/gm,
 			replacement: "$1Stack Overflow$2",
@@ -146,50 +154,10 @@
 			replacement: "$1Stack Exchange$2",
 			reason: "'SE' expansion"
 		},
-		javascript: {
-			expr: /(^|\s)[Jj]ava\s*[Ss]cript(.|$)/gm,
-			replacement: "$1JavaScript$2",
-			reason: "'JavaScript' is the proper capitalization"
-		},
-		jsfiddle: {
-			expr: /(^|\s)[Jj][Ss]\s*[Ff]iddle(.|$)/gm,
-			replacement: "$1JSFiddle$2",
-			reason: "'JSFiddle' is the currently accepted capitalization"
-		},
 		caps: {
 			expr: /^(?!https?)([a-z])/gm,
 			replacement: "$1",
 			reason: "copy edited"
-		},
-		jquery: {
-			expr: /(^|\s)[Jj][Qq]uery(.|$)/gm,
-			replacement: "$1jQuery$2",
-			reason: "'jQuery' is the proper capitalization"
-		},
-		html: {
-			expr: /(^|\s)[Hh]tml([5]?)\b(\S|)(?!\S)/gm,
-			replacement: "$1HTML$2$3",
-			reason: "HTML stands for HyperText Markup Language"
-		},
-		css: {
-			expr: /(^|\s)[Cc]ss\b(\S|)(?!\S)/gm,
-			replacement: "$1CSS$2",
-			reason: "CSS stands for Cascading Style Sheets"
-		},
-		json: {
-			expr: /(^|\s)[Jj]son\b(\S|)(?!\S)/gm,
-			replacement: "$1JSON$2",
-			reason: "JSON stands for JavaScript Object Notation"
-		},
-		ajax: {
-			expr: /(^|\s)ajax\b(\S|)(?!\S)/gm,
-			replacement: "$1AJAX$2",
-			reason: "AJAX stands for Asynchronous JavaScript and XML"
-		},
-		angular: {
-			expr: /[Aa]ngular[Jj][Ss]/g,
-			replacement: "AngularJS",
-			reason: "'AngularJS is the proper capitalization"
 		},
 		thanks: {
 			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
@@ -201,83 +169,38 @@
 			replacement: ", $1",
 			reason: "punctuation & spacing"
 		},
-		php: {
-			expr: /(^|\s)[Pp]hp\b(\S|)(?!\S)/gm,
-			replacement: "$1PHP$2",
-			reason: "PHP stands for PHP: Hypertext Preprocessor"
-		},
 		hello: {
-			expr: /(?:^|\s)(hi\s+guys|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\.|!|\ )/gmi,
+			expr: /(?:^|\s)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?[\.\!\,](?:\s+|$)/gmi,
 			replacement: "",
-			reason: "greetings like '$1' are unnecessary noise"
+			reason: "Remove greeting"
 		},
 		edit: {
 			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
 			replacement: "",
 			reason: "Stack Exchange has an advanced revision history system: 'Edit' or 'Update' is unnecessary"
 		},
-		mysite: {
-			expr: /mysite\./g,
-			replacement: "example.",
-			reason: "links to mysite.domain are not allowed: use example.domain instead"
+		exampleDom1: {
+			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:co\.)?[a-z]{2}))\b/g,
+			replacement: "$1.example",
+			reason: "approved example domain"
+		},
+		exampleDom2: {
+			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:co\.)?[a-z]{2}))\b/g,
+			replacement: "$1.example",
+			reason: "approved example domain"
 		},
 		c: {
 			expr: /(^|\s)c(#|\++|\s|$)/gm,
 			replacement: "$1C$2",
 			reason: "C$2 is the proper capitalization"
 		},
-		java: {
-			expr: /(^|\s)java\b(\S|)(?!\S)/gmi,
-			replacement: "$1Java$2",
-			reason: "Java should be capitalized"
-		},
-		sql: {
-			expr: /(^|\s)[Ss]ql\b(\S|)(?!\S)/gm,
-			replacement: "$1SQL$2",
-			reason: "SQL is the proper capitalization"
-		},
-		sqlite: {
-			expr: /(^|\s)[Ss]qlite([0-9]*)\b(\S|)(?!\S)/gm,
-			replacement: "$1SQLite$2$3",
-			reason: "SQLite is the proper capitalization"
-		},
-		android: {
-			expr: /(^|\s)android\b(\S|)(?!\S)/gmi,
-			replacement: "$1Android$2",
-			reason: "Android should be capitalized"
-		},
-		oracle: {
-			expr: /(^|\s)oracle\b(\S|)(?!\S)/gmi,
-			replacement: "$1Oracle$2",
-			reason: "Oracle should be capitalized"
-		},
-		windows: {
-			expr: /(win|windows(?:\ ?)(\s[0-9]+))\b(\S|)(?!\S)/igm,
-			replacement: "Windows$2$3",
-			reason: "Windows should be capitalized"
-		},
-		windowsXP: {
-			expr: /(win|windows(?:\ ?)(\sxp))\b(\S|)(?!\S)/igm,
-			replacement: "Windows XP$3",
-			reason: "Windows XP should be capitalized"
-		},
-		windowsVista: {
-			expr: /(win|windows(?:\ ?)(\svista))\b(\S|)(?!\S)/igm,
-			replacement: "Windows Vista$3",
-			reason: "Windows Vista should be capitalized"
-		},
-		ubuntu: {
-			expr: /(ubunto|ubunut|ubunutu|ubunu|ubntu|ubutnu|ubanto[o]+|unbuntu|ubunt|ubutu)\b(\S|)(?!\S)/igm,
-			replacement: "Ubuntu$2",
-			reason: "corrected Ubuntu spelling"
-		},
-		linux: {
-			expr: /(linux)\b(\S|)(?!\S)/igm,
-			replacement: "Linux$2",
-			reason: "Linux should be capitalized"
+		im: {
+			expr: /(^|\s)[Ii]'?m\b(\S|)(?!\S)/gm,
+			replacement: "$1I'm$2",
+			reason: "capitalize I'm"
 		},
 		apostrophes: {
-			expr: /(^|\s)(can|doesn|don|won|hasn|isn|didn)t(\s|$)/gmi,
+			expr: /(^|\s)(can|doesn|don|won|hasn|isn|didn)t\b(\S|)(?!\S)/gmi,
 			replacement: "$1$2't$3",
 			reason: "English contractions use apostrophes"
 		},
@@ -296,41 +219,45 @@
 			replacement: "$1",
 			reason: "no need to yell"
 		},
-		wordpress: {
-			expr: /[Ww]ordpress/g,
-			replacement: "WordPress",
-			reason: "'WordPress' is the proper capitalization"
-		},
-		google: {
-			expr: /(google)\b(\S|)(?!\S)/igm,
-			replacement: "Google$2",
-			reason: "Google is the proper capitalization"
-		},
-		mysql: {
-			expr: /(mysql)\b(\S|)(?!\S)/igm,
-			replacement: "MySQL$2",
-			reason: "MySQL is the proper capitalization"
-		},
-		apache: {
-			expr: /(apache)\b(\S|)(?!\S)/igm,
-			replacement: "Apache$2",
-			reason: "Apache is the proper capitalization"
-		},
-		git: {
-			expr: /(^|\s)(git|GIT)\b(\S|)(?!\S)/gm,
-			replacement: "$1Git$3",
-			reason: "Git is the proper capitalization"
-		},
 		harddisk: {
 			expr: /(hdd|harddisk)\b(\S|)(?!\S)/igm,
 			replacement: "hard disk$2",
 			reason: "Hard disk is the proper usage"
 		},
-		github: {
-			expr: /\b([gG]ithub|GITHUB)\b(\S|)(?!\S)/gm,
-			replacement: "GitHub$2",
-			reason: "GitHub is the proper capitalization"
-		}
+		ajax: capitalizeWord("AJAX"),
+		android: capitalizeWord("Android"),
+		angular: capitalizeWord("AngularJS"),
+		apache: capitalizeWord("Apache"),
+		api: capitalizeWord("API"),
+		css: capitalizeWord("CSS"),
+		git: capitalizeWord("Git"),
+		github: capitalizeWord("GitHub"),
+		google: capitalizeWord("Google"),
+		html: capitalizeWord("HTML"),
+		htmlfive: capitalizeWord("HTML5"),
+		i: capitalizeWord("I"),
+		java: capitalizeWord("Java"),
+		javascript: capitalizeWord("JavaScript"),
+		jquery: capitalizeWord("jQuery"),
+		jsfiddle: capitalizeWord("JSFiddle", "js\\s*fiddle"),
+		json: capitalizeWord("JSON"),
+		linux: capitalizeWord("Linux"),
+		mysql: capitalizeWord("MySQL"),
+		oracle: capitalizeWord("Oracle"),
+		php: capitalizeWord("PHP"),
+		se: capitalizeWord("Stack Exchange"),
+		so: capitalizeWord("Stack Overflow"),
+		sql: capitalizeWord("SQL"),
+		sqlite: capitalizeWord("SQLite"),
+		sqliteVersion: capitalizeWordAndVersion("SQLite"),
+		ubuntu: capitalizeWord("Ubuntu","ubunt[ou]*|ubunut[ou]*|ubun[ou]+|ubnt[ou]+|ubutn[ou]*|ubant[ou]*|unbunt[ou]*|ubunt|ubut[ou]+"),
+		uri: capitalizeWord("URI"),
+		url: capitalizeWord("URL"),
+		windows: capitalizeWord("Windows"),
+		windowsVersion: capitalizeWordAndVersion("Windows", "win|windows", " "),
+		windowsVista: capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
+		windowsXP: capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
+		wordpress: capitalizeWord("WordPress")
 	}
 
 	// Populate funcs
@@ -583,12 +510,14 @@
 
 	App.globals.pipeMods.edit = function(data){
 		// Visually confirm edit - SE makes it easy because the jQuery color animation plugin seems to be there by default
-		App.selections.bodyBox.animate({
-			backgroundColor: '#c8ffa7'
-		}, 10)
-		App.selections.bodyBox.animate({
-			backgroundColor: '#fff'
-		}, 1000)
+		if(App.selections.bodyBox){
+			App.selections.bodyBox.animate({
+				backgroundColor: '#c8ffa7'
+			}, 10)
+			App.selections.bodyBox.animate({
+				backgroundColor: '#fff'
+			}, 1000)
+		}
 
 		// Loop through all editing rules
 		for (var j in App.edits){
@@ -617,7 +546,7 @@
 				}
 			}
 			// Quickly focus the summary field to show generated edit summary, and then jump back
-			App.selections.summaryBox.focus()
+			if (App.selections.summaryBox) App.selections.summaryBox.focus()
 
 			// Asynchronous to get in both focuses
 			setTimeout(function(){
@@ -662,20 +591,151 @@
 
 	if ($(".js-edit-post")[0]){ // User has editing privileges; wait until edit link is used
 		$(".js-edit-post").click(function(e){
-			App.init(true, e.target.href.match(/\d+/g));
+			App.init(true, e.target.href.match(/\d+/g))
 		})
 	} else if ($(".reviewable-post")[0]){ // H&I review queue
-		App.globals.questionNum = $(".reviewable-post")[0].getAttribute("class").match(/\d/g).join("")
+		App.globals.questionNum = $(".reviewable-post")[0].getAttribute("class").match(/\d+/g)
 		$($(".review-actions")[0].children[0]).click(function(e){
 			App.init(true, App.globals.questionNum)
 		})
-	} else { // User does not have editing privileges or is editing on question page; start immediately
-		console.log("User does not have editing privileges")
-		App.init(false)
 	}
 
-	// Only set when running tests
-	if (window.mocha){
-		window.App = App
+	function runTests(){
+		console.log("RUNNING TESTS")
+
+		App.init(false)
+
+		var compareEdits = [
+			//{ input: 'Lorum ipsum. Hope it helps!', expected: 'Lorum ipsum.', desc: 'Remove "hope it helps"' },
+			{ input: 'Hello! Lorum ipsum.', expected: 'Lorum ipsum.', desc: 'Remove greeting' },
+			{ input: 'http://mydomain.com/', expected: 'http://mydomain.example/', desc: 'Example domain' },
+			{ input: 'visit site.tld', expected: 'visit site.example', desc: 'Example domain' },
+			{ input: '`ourhome.net`', expected: '`ourhome.example`', desc: 'Example domain' },
+			{ input: 'Dont you?', expected: 'Don\'t you?', desc: 'Contraction' },
+			{ input: 'I dont.', expected: 'I don\'t.', desc: 'Contraction' },
+		]
+
+		var compareNoEdits = [
+			{ input: 'I am using git://github.com/foo/bar.git to work.', expected: 'I am using git://github.com/foo/bar.git to work.', desc: 'git URLs' },
+			{ input: 'a foo.html b', expected: 'a foo.html b', desc: '.html suffix' },
+			{ input: 'send IM to', expected: 'send IM to', desc: 'IM all caps instant message' },
+		]
+
+		// Add additional combinations to test here:
+		var combos = [
+			{ in: ['Javascript', 'Java script', 'java script', 'javascript', 'Java Script'], out: 'JavaScript'},
+			{ in: ['Stackexchange', 'Stack exchange', 'stack exchange', 'StackExchange', 'stackexchange', 'SE'], out: 'Stack Exchange'},
+			{ in: ['Stackoverflow', 'Stack overflow', 'stack overflow', 'StackOverflow', 'stackoverflow', 'SO'], out: 'Stack Overflow'},
+			{ in: ['ajax'], out: 'AJAX'},
+			{ in: ['android'], out: 'Android'},
+			{ in: ['angularjs', 'Angularjs', 'angularJs', 'angularJS', 'AngularJs'], out: 'AngularJS'},
+			{ in: ['apache', 'Apache', 'APACHE'], out: 'Apache'},
+			{ in: ['c#'], out: 'C#'},
+			{ in: ['c+'], out: 'C+'},
+			{ in: ['c++'], out: 'C++'},
+			{ in: ['css', 'Css'], out: 'CSS'},
+			{ in: ['git', 'GIT'], out: 'Git'},
+			{ in: ['github', 'GITHUB', 'Github'], out: 'GitHub'},
+			{ in: ['google', 'gOOgle', 'GOOGLE'], out: 'Google'},
+			{ in: ['hdd', 'Hdd', 'HDD', 'harddisk', 'Harddisk', 'HardDisk', 'HARDDISK'], out: 'hard disk'},
+			{ in: ['html', 'Html'], out: 'HTML'},
+			{ in: ['html5', 'Html5'], out: 'HTML5'},
+			{ in: ['ios', 'iOs', 'ioS', 'IOS', 'Ios', 'IoS'], out: 'iOS'},
+			{ in: ['ios8', 'iOs8', 'ioS8', 'IOS8', 'Ios8', 'IoS8'], out: 'iOS 8'},
+			{ in: ["i'm","im"], out: "I'm"},
+			{ in: ['java'], out: 'Java'},
+			{ in: ['jquery', 'Jquery', 'JQuery', 'jQuery'], out: 'jQuery'},
+			{ in: ['jsfiddle', 'Jsfiddle', 'JsFiddle', 'JSfiddle', 'jsFiddle', 'JS Fiddle', 'js fiddle'], out: 'JSFiddle'},
+			{ in: ['json', 'Json'], out: 'JSON'},
+			{ in: ['linux'], out: 'Linux'},
+			{ in: ['mysql', 'mySql', 'MySql', 'mySQL', 'MYSQL'], out: 'MySQL'},
+			{ in: ['oracle'], out: 'Oracle'},
+			{ in: ['php', 'Php'], out: 'PHP'},
+			{ in: ['sql', 'Sql'], out: 'SQL'},
+			{ in: ['sqlite', 'Sqlite'], out: 'SQLite'},
+			{ in: ['sqlite3', 'Sqlite3'], out: 'SQLite3'},
+			{ in: ['ubunto', 'ubunut', 'ubunutu', 'ubunu', 'ubntu', 'ubutnu', 'ubantoo', 'ubantooo', 'unbuntu', 'ubunt', 'ubutu'], out: 'Ubuntu'},
+			{ in: ['win 7', 'WIN 7', 'windows 7', 'WINDOWS 7'], out: 'Windows 7'},
+			{ in: ['win 95', 'windows 95', 'WIN 95', 'WINDOWS 95'], out: 'Windows 95'},
+			{ in: ['win vista', 'WIN VISTA', 'windows vista', 'windows VISTA'], out: 'Windows Vista'},
+			{ in: ['win xp', 'WIN XP', 'windows xp', 'windows XP'], out: 'Windows XP'},
+			{ in: ['wordpress', 'Wordpress'], out: 'WordPress'},
+		]
+
+		function addOneComparison(collection, item, word, desc){
+			collection.push({
+				input: 'I am using ' + word + ' to work.',
+				expected: 'I am using ' + item.out + ' to work.',
+				desc: desc + item.out
+			 })
+
+			collection.push({
+				input: 'I am using ' + word + '.',
+				expected: 'I am using ' + item.out + '.',
+				desc: desc + item.out + ' at the end of a sentence'
+			 })
+		}
+
+		function addComparisons (item){
+			item.in.forEach(function (word){
+				addOneComparison(compareEdits, item, word, word + '/')
+			})
+
+			addOneComparison(compareNoEdits, item, item.out, 'false positive for ')
+
+			if (item.exclude){
+				item.exclude.forEach(function (word){
+					addOneComparison(compareNoEdits, item, word, word + '/')
+				})
+			}
+		}
+
+		combos.forEach(function (item){
+			addComparisons(item)
+		})
+
+		function expectEql(actual, expected){
+			if (actual != expected){
+				console.log("Actual: '" + actual + "' Expected: '" + expected + "'");
+			}
+		}
+
+		function compareOne (item, attribute){
+			App.globals.reasons = []
+			var data = [{
+				body: '',
+				title: '',
+				summary: ''
+			}]
+
+			data[0][attribute] = item.input
+			App.globals.pipeMods.edit(data)
+			expectEql(data[0][attribute], item.expected)
+		}
+
+		function compareOneExclusion (item, attribute){
+			App.globals.reasons = []
+			var data = [{
+				body: '',
+				title: '',
+				summary: ''
+			}]
+
+			data[0][attribute] = item.input
+			App.globals.pipeMods.edit(data)
+			expectEql(data[0][attribute], item.expected)
+			expectEql(data[0].summary, '')
+		}
+
+		compareEdits.forEach(function (item){
+			compareOne(item, 'body')
+			compareOne(item, 'title')
+		})
+
+		compareNoEdits.forEach(function (item){
+			compareOneExclusion(item, 'body')
+			compareOneExclusion(item, 'title')
+		})
 	}
+	runTests()
 })()
