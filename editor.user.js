@@ -114,6 +114,7 @@
 			replacement: ", $1",
 			reason: "Grammar"
 		},{
+			// Remove spaces before punctuation
 			expr: /[ ]+([,\!\?\.\:])/g,
 			replacement: "$1",
 			reason: "Grammar"
@@ -122,6 +123,7 @@
 			replacement: "[]",
 			reason: "Remove default alt text"
 		},{
+			// Capitalize first letter of each line
 			expr: /^([a-z])/g,
 			replacement: (function(d, m){
 				return m.toUpperCase()
