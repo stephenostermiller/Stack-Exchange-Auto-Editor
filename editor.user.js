@@ -68,15 +68,15 @@
 		{
 			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
 			replacement: "",
-			reason: "Remove fluff"
+			reason: "Remove niceties"
 		},{
 			expr: /(?:(?:^|\s)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?\s*[\.\!\,]?)+(?:\s+|$)/gmi,
 			replacement: "",
-			reason: "Remove fluff"
+			reason: "Remove niceties"
 		},{
 			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
 			replacement: "",
-			reason: "Stack Exchange has an advanced revision history system: 'Edit' or 'Update' is unnecessary"
+			reason: "Remove edit indicator"
 		},{
 			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
 			replacement: "$1.example",
@@ -132,6 +132,8 @@
 		}
 	]
 
+	// Create a rule for expanding the given abbreviation with the given replacement
+	// Rule will not be case sensitive, so abbrev should be all caps
 	function expandAbbrev(abbrev, replace){
 		return {
 			expr: new RegExp("(^|\\s)(?:"+abbrev+")\\b(\\S|)(?!\\S)","gm"),
@@ -140,6 +142,10 @@
 		}
 	}
 
+	// Create a rule for converting the given word into its exact given case.
+	// The regex parameter is optional, if none is given, it is auto-created from the word
+	// The auto created regex inserts white space for camel case words, a custom regex
+	// should be created if other white space removal desired
 	function capitalizeWord(word, re){
 		if (!re) re = word
 		re = re.replace(/ /g, "\\s*")
@@ -151,6 +157,9 @@
 		}
 	}
 
+	// Create a rule for word capitalization same as above, but followed by 
+	// a numeric version. The separator can be used to Specify whether or 
+	// not a space in included in the output: FooBar8 vs FooBar 8
 	function capitalizeWordAndVersion(word, re, separator){
 		if (!separator) separator = ""
 		if (!re) re = word
@@ -162,11 +171,6 @@
 			reason: "Spelling"
 		}
 	}
-
-	GM_addStyle(`
-		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
-		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
-	`)
 
 	// Replace chunks where replacements shouldn't be made with a placeholder
 	// And record removed blocks in a list so they can be reinserted later
@@ -192,7 +196,8 @@
 			/~{7}[^~][\s\S]*?~{7}/,
 			/~{8}[^~][\s\S]*?~{8}/,
 			/~{9}[^~][\s\S]*?~{9}/,
-			/~{10}[^~][\s\S]*?~{10}/
+			/~{10}[^~][\s\S]*?~{10}/ // Arbitrarily large code fences are possible, but have to stop somewhere
+			// Combine all the above into a single massive regex With "or" between each piece
 		].map(function(r) {return r.source}).join(')|(?:') + ")","gm"), function(match){
 			replacedStrings.push(match)
 			return placeHolder
@@ -260,18 +265,20 @@
 
 	function edit(data){
 		data.body = omitCode(data.body)
-
 		// Loop through all editing rules
 		$.each(editRules, function(x, rule){
+			// Fix both the title and the body
 			$.each(["title","body"], function(x, type){
 				var fix = fixIt(data[type], rule.expr, rule.replacement, rule.reason)
 				if (fix){
+					// Store reasons as hash keys in a map to prevent duplicates
 					if (fix.reason) reasons[fix.reason] = 1
 					data[type] = fix.output
 				}
 			})
 		})
 
+		// Create a summary of all the reasons
 		$.each(reasons, function (reason) {
 			if (!data.summary) data.summary = ''
 			// Check that summary is not getting too long
@@ -281,9 +288,14 @@
 		})
 
 		data.body = replaceCode(data.body)
-
 		return data
 	}
+
+	// Button styling
+	GM_addStyle(`
+		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
+		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+	`)
 
 	// Continually monitor for newly created editing widgets
 	setInterval(function(){
@@ -292,6 +304,7 @@
 			if (!$(this).find('.toolkitfix').length){
 				// Create and add the button
 				var button = $('<li class="wmd-button toolkitfix" title="Auto edit">').click(function(e){
+					// button was clicked, do all the replacements
 					e.preventDefault()
 					buttonBar = $(this).parents('.wmd-button-bar')
 					postId = buttonBar.attr('id').match(/[0-9]+/)[0]
@@ -424,7 +437,6 @@
 			i = "Lorum"+t.s+t.c+t.s+"ipsum"
 			expectEql(omitCode(i), "Lorum"+t.s+placeHolder+t.s+"ipsum",i)
 		})
-
 	}
 	runTests()
 })()
