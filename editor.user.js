@@ -1,50 +1,159 @@
 // ==UserScript==
-// @name           Stack-Exchange-Editor-Toolkit
-// @author         Cameron Bernhardt (AstroCB)
-// @developer      Jonathan Todd (jt0dd)
-// @developer      sathyabhat
-// @contributor    Unihedron
-// @license        MIT
-// @namespace      http://github.com/AstroCB
-// @version        1.5.2
-// @description    Fix common grammar/usage annoyances on Stack Exchange posts with a click
-// @match          *://*.stackexchange.com/questions/*
-// @match          *://stackoverflow.com/questions/*
-// @match          *://stackoverflow.com/review/helper/*
-// @match          *://meta.stackoverflow.com/questions/*
-// @match          *://serverfault.com/questions/*
-// @match          *://meta.serverfault.com/questions/*
-// @match          *://superuser.com/questions/*
-// @match          *://meta.superuser.com/questions/*
-// @match          *://askubuntu.com/questions/*
-// @match          *://meta.askubuntu.com/questions/*
-// @match          *://stackapps.com/questions/*
-// @match          *://*.stackexchange.com/posts/*
-// @match          *://stackoverflow.com/posts/*
-// @match          *://meta.stackoverflow.com/posts/*
-// @match          *://serverfault.com/posts/*
-// @match          *://meta.serverfault.com/posts/*
-// @match          *://superuser.com/posts/*
-// @match          *://meta.superuser.com/posts/*
-// @match          *://askubuntu.com/posts/*
-// @match          *://meta.askubuntu.com/posts/*
-// @match          *://stackapps.com/posts/*
-// @exclude        *://*.stackexchange.com/questions/tagged/*
-// @exclude        *://stackoverflow.com/questions/tagged/*
-// @exclude        *://meta.stackoverflow.com/questions/tagged/*
-// @exclude        *://serverfault.com/questions/tagged/*
-// @exclude        *://meta.serverfault.com/questions/*
-// @exclude        *://superuser.com/questions/tagged/*
-// @exclude        *://meta.superuser.com/questions/tagged/*
-// @exclude        *://askubuntu.com/questions/tagged/*
-// @exclude        *://meta.askubuntu.com/questions/tagged/*
-// @exclude        *://stackapps.com/questions/tagged/*
-// @grant          GM_addStyle
+// @name Stack-Exchange-Editor-Toolkit
+// @author Stephen Ostermiller
+// @author Cameron Bernhardt (AstroCB)
+// @developer Jonathan Todd (jt0dd)
+// @developer sathyabhat
+// @contributor Unihedron
+// @license MIT
+// @namespace http://github.com/AstroCB
+// @version 1.5.2
+// @description Fix common grammar/usage annoyances on Stack Exchange posts with a click
+// @match https://*.stackexchange.com/questions/*
+// @match https://*.stackexchange.com/review/*
+// @match https://*.stackoverflow.com/*questions/*
+// @match https://*.stackoverflow.com/review/*
+// @match https://*.askubuntu.com/questions/*
+// @match https://*.askubuntu.com/review/*
+// @match https://*.superuser.com/questions/*
+// @match https://*.superuser.com/review/*
+// @match https://*.serverfault.com/questions/*
+// @match https://*.serverfault.com/review/*
+// @match https://*.mathoverflow.net/questions/*
+// @match https://*.mathoverflow.net/review/*
+// @match https://*.stackapps.com/questions/*
+// @match https://*.stackapps.com/review/*
+// @grant GM_addStyle
 // ==/UserScript==
 (function(){
+	var editRules = [
+		capitalizeWord("AJAX"),
+		capitalizeWord("Android"),
+		capitalizeWord("AngularJS"),
+		capitalizeWord("Apache"),
+		capitalizeWord("API"),
+		capitalizeWord("CSS"),
+		capitalizeWord("Git"),
+		capitalizeWord("GitHub"),
+		capitalizeWord("Google"),
+		capitalizeWord("HTML"),
+		capitalizeWord("HTML5"),
+		capitalizeWord("I"),
+		capitalizeWord("iOS"),
+		capitalizeWordAndVersion("iOS", null, " "),
+		capitalizeWord("Java"),
+		capitalizeWord("JavaScript"),
+		capitalizeWord("jQuery"),
+		capitalizeWord("JSFiddle", "js\\s*fiddle"),
+		capitalizeWord("JSON"),
+		capitalizeWord("Linux"),
+		capitalizeWord("MySQL"),
+		capitalizeWord("Oracle"),
+		capitalizeWord("PHP"),
+		expandAbbrev("SE", "Stack Exchange"),
+		expandAbbrev("SO", "Stack Overflow"),
+		capitalizeWord("Stack Exchange"),
+		capitalizeWord("Stack Overflow"),
+		capitalizeWord("SQL"),
+		capitalizeWord("SQLite"),
+		capitalizeWordAndVersion("SQLite"),
+		capitalizeWord("Ubuntu","ubunt[ou]*|ubunut[ou]*|ubun[ou]+|ubnt[ou]+|ubutn[ou]*|ubant[ou]*|unbunt[ou]*|ubunt|ubut[ou]+"),
+		capitalizeWord("URI"),
+		capitalizeWord("URL"),
+		capitalizeWord("Windows"),
+		capitalizeWordAndVersion("Windows", "win|windows", " "),
+		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
+		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
+		capitalizeWord("WordPress"),
+		{
+			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
+			replacement: "",
+			reason: "Remove fluff"
+		},{
+			expr: /(?:(?:^|\s)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?\s*[\.\!\,]?)+(?:\s+|$)/gmi,
+			replacement: "",
+			reason: "Remove fluff"
+		},{
+			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
+			replacement: "",
+			reason: "Stack Exchange has an advanced revision history system: 'Edit' or 'Update' is unnecessary"
+		},{
+			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
+			replacement: "$1.example",
+			reason: "Use example domain"
+		},{
+			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
+			replacement: "$1.example",
+			reason: "Use example domain"
+		},{
+			expr: /(^|\s)c(#|\++|\s|$)/gm,
+			replacement: "$1C$2",
+			reason: "Spelling"
+		},{
+			expr: /(^|\s)[Ii]'?m\b(\S|)(?!\S)/gm,
+			replacement: "$1I'm$2",
+			reason: "Spelling"
+		},{
+			expr: /(^|\s)(can|doesn|don|won|hasn|isn|didn)t\b(\S|)(?!\S)/gmi,
+			replacement: "$1$2't$3",
+			reason: "Spelling"
+		},{
+			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
+			replacement: "$1",
+			reason: "no need to yell"
+		},{
+			expr: /(hdd|harddisk)\b(\S|)(?!\S)/igm,
+			replacement: "hard disk$2",
+			reason: "Spelling"
+		},{
+			expr: /,([^\s])/g,
+			replacement: ", $1",
+			reason: "Grammar"
+		},{
+			expr: /[ ]+([,\!\?\.\:])/g,
+			replacement: "$1",
+			reason: "Grammar"
+		},{
+			expr: /\[enter image description here\]/g,
+			replacement: "[]",
+			reason: "Remove default alt text"
+		}
+	]
+
+	function expandAbbrev(abbrev, replace){
+		return {
+			expr: new RegExp("(^|\\s)(?:"+abbrev+")\\b(\\S|)(?!\\S)","gm"),
+			replacement: "$1"+replace+"$2",
+			reason: "Spelling"
+		}
+	}
+
+	function capitalizeWord(word, re){
+		if (!re) re = word
+		re = re.replace(/ /g, "\\s*")
+		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
+		return {
+			expr: new RegExp("(^|\\s)(?:"+re+")\\b(\\S|)(?!\\S)","igm"),
+			replacement: "$1"+word+"$2",
+			reason: "Spelling"
+		}
+	}
+
+	function capitalizeWordAndVersion(word, re, separator){
+		if (!separator) separator = ""
+		if (!re) re = word
+		re = re.replace(/ /g, "\\s*")
+		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
+		return {
+			expr: new RegExp("(^|\\s)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)\\b(\\S|)(?!\\S)","igm"),
+			replacement: "$1"+word+separator+"$2$3",
+			reason: "Spelling"
+		}
+	}
+
 	GM_addStyle(`
-		#toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
-		#toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
+		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
 	`)
 
 	// Access to jQuery via dollar sign variable
@@ -62,9 +171,6 @@
 	// Place "global" app data here
 	App.globals = {}
 
-	// Place "helper" functions here
-	App.funcs = {}
-
 	//Preload icon alt
 	new Image().src = '//i.imgur.com/79qYzkQ.png'
 	new Image().src = '//i.imgur.com/d5ZL09o.png'
@@ -75,9 +181,7 @@
 
 	// Get question num from URL
 	App.globals.questionNum = App.globals.URL.match(/\/(\d+)\//g)
-	if (App.globals.questionNum){
-		App.globals.questionNum = App.globals.questionNum[0].split("/").join("")
-	}
+	App.globals.questionNum = App.globals.questionNum?App.globals.questionNum[1]:null
 
 	// Define variables for later use
 	App.globals.barReady = false
@@ -85,19 +189,7 @@
 	App.globals.editCount = 0
 	App.globals.infoContent = ''
 
-	App.globals.buttonFix = $('<li class=wmd-button id=toolkitfix title="Auto edit"></li>').click(function(e){
-		e.preventDefault()
-		if (!App.globals.editsMade){
-			// Refresh item population
-			App.funcs.popItems()
-
-			// Pipe data through editing modules
-			App.pipe(App.items, App.globals.pipeMods, App.globals.order)
-			App.globals.editsMade = true
-		}
-	})
-
-	App.globals.reasons = []
+	App.globals.reasons = {}
 	App.globals.numReasons = 0
 
 	App.globals.replacedStrings = {
@@ -119,392 +211,183 @@
 	// Define order in which mods affect here
 	App.globals.order = ["omit", "edit", "replace"]
 
-	function capitalizeWord(word, re){
-		if (!re) re = word
-		re = re.replace(/ /g, "\\s*")
-		re = re.replace(/([a-z])([A-Z])/g, "$1\\s*$2")
-		return {
-			expr: new RegExp("(^|\\s)(?:"+re+")\\b(\\S|)(?!\\S)","igm"),
-			replacement: "$1"+word+"$2",
-			reason: "capitalize " + word
-		}
-	}
+	// This is where the magic happens: this function takes a few pieces of information and applies edits to the post with a couple exceptions
+	function fixIt(input, expression, replacement, reasoning){
+		if (!input) return
+		// Scan the post text using the expression to see if there are any matches
+		var match = input.search(expression)
+		// If so, increase the number of edits performed (used later for edit summary formation)
+		if (match !== -1){
+			App.globals.editCount++
 
-	function capitalizeWordAndVersion(word, re, separator){
-		if (!separator) separator = ""
-		if (!re) re = word
-		re = re.replace(/ /g, "\\s*")
-		re = re.replace(/([a-z])([A-Z])/g, "$1\\s*$2")
-		return {
-			expr: new RegExp("(^|\\s)(?:"+re+")"+(separator==" "?"\\s+":"")+"([0-9]+)\\b(\\S|)(?!\\S)","igm"),
-			replacement: "$1"+word+separator+"$2$3",
-			reason: "capitalize " + word
-		}
-	}
+			// Later, this will store what is removed for the first case
+			var phrase
 
-	// Define edit rules
-	App.edits = {
-		expansionSO: {
-			expr: /(^|\s)SO(\s|,|\.|!|\?|;|\/|\)|$)/gm,
-			replacement: "$1Stack Overflow$2",
-			reason: "'SO' expansion"
-		},
-		expansionSE: {
-			expr: /(^|\s)SE(\s|,|\.|!|\?|;|\/|\)|$)/gm,
-			replacement: "$1Stack Exchange$2",
-			reason: "'SE' expansion"
-		},
-		caps: {
-			expr: /^(?!https?)([a-z])/gm,
-			replacement: "$1",
-			reason: "copy edited"
-		},
-		thanks: {
-			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
-			replacement: "",
-			reason: "'$1' is unnecessary noise"
-		},
-		commas: {
-			expr: /,([^\s])/g,
-			replacement: ", $1",
-			reason: "punctuation & spacing"
-		},
-		hello: {
-			expr: /(?:^|\s)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?[\.\!\,](?:\s+|$)/gmi,
-			replacement: "",
-			reason: "Remove greeting"
-		},
-		edit: {
-			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
-			replacement: "",
-			reason: "Stack Exchange has an advanced revision history system: 'Edit' or 'Update' is unnecessary"
-		},
-		exampleDom1: {
-			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:co\.)?[a-z]{2}))\b/g,
-			replacement: "$1.example",
-			reason: "approved example domain"
-		},
-		exampleDom2: {
-			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:co\.)?[a-z]{2}))\b/g,
-			replacement: "$1.example",
-			reason: "approved example domain"
-		},
-		c: {
-			expr: /(^|\s)c(#|\++|\s|$)/gm,
-			replacement: "$1C$2",
-			reason: "C$2 is the proper capitalization"
-		},
-		im: {
-			expr: /(^|\s)[Ii]'?m\b(\S|)(?!\S)/gm,
-			replacement: "$1I'm$2",
-			reason: "capitalize I'm"
-		},
-		apostrophes: {
-			expr: /(^|\s)(can|doesn|don|won|hasn|isn|didn)t\b(\S|)(?!\S)/gmi,
-			replacement: "$1$2't$3",
-			reason: "English contractions use apostrophes"
-		},
-		ios: {
-			expr: /\b(?:ios|iOs|ioS|IOS|Ios|IoS|ioS)\b(\S|)(?!\S)/gm,
-			replacement: "iOS$1",
-			reason: "the proper usage is 'iOS'"
-		},
-		iosnum: {
-			expr: /\b(?:ios|iOs|ioS|IOS|Ios|IoS|ioS)([0-9]?)\b(\S|)(?!\S)/gm,
-			replacement: "iOS $1$2",
-			reason: "the proper usage is 'iOS' followed by a space and the version number"
-		},
-		caps: {
-			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
-			replacement: "$1",
-			reason: "no need to yell"
-		},
-		harddisk: {
-			expr: /(hdd|harddisk)\b(\S|)(?!\S)/igm,
-			replacement: "hard disk$2",
-			reason: "Hard disk is the proper usage"
-		},
-		ajax: capitalizeWord("AJAX"),
-		android: capitalizeWord("Android"),
-		angular: capitalizeWord("AngularJS"),
-		apache: capitalizeWord("Apache"),
-		api: capitalizeWord("API"),
-		css: capitalizeWord("CSS"),
-		git: capitalizeWord("Git"),
-		github: capitalizeWord("GitHub"),
-		google: capitalizeWord("Google"),
-		html: capitalizeWord("HTML"),
-		htmlfive: capitalizeWord("HTML5"),
-		i: capitalizeWord("I"),
-		java: capitalizeWord("Java"),
-		javascript: capitalizeWord("JavaScript"),
-		jquery: capitalizeWord("jQuery"),
-		jsfiddle: capitalizeWord("JSFiddle", "js\\s*fiddle"),
-		json: capitalizeWord("JSON"),
-		linux: capitalizeWord("Linux"),
-		mysql: capitalizeWord("MySQL"),
-		oracle: capitalizeWord("Oracle"),
-		php: capitalizeWord("PHP"),
-		se: capitalizeWord("Stack Exchange"),
-		so: capitalizeWord("Stack Overflow"),
-		sql: capitalizeWord("SQL"),
-		sqlite: capitalizeWord("SQLite"),
-		sqliteVersion: capitalizeWordAndVersion("SQLite"),
-		ubuntu: capitalizeWord("Ubuntu","ubunt[ou]*|ubunut[ou]*|ubun[ou]+|ubnt[ou]+|ubutn[ou]*|ubant[ou]*|unbunt[ou]*|ubunt|ubut[ou]+"),
-		uri: capitalizeWord("URI"),
-		url: capitalizeWord("URL"),
-		windows: capitalizeWord("Windows"),
-		windowsVersion: capitalizeWordAndVersion("Windows", "win|windows", " "),
-		windowsVista: capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
-		windowsXP: capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
-		wordpress: capitalizeWord("WordPress")
-	}
+			// Store the original input text
+			var originalInput = input
 
-	// Populate funcs
-	App.popFuncs = function(){
-		// This is where the magic happens: this function takes a few pieces of information and applies edits to the post with a couple exceptions
-		App.funcs.fixIt = function(input, expression, replacement, reasoning){
-			// Scan the post text using the expression to see if there are any matches
-			var match = input.search(expression)
-			// If so, increase the number of edits performed (used later for edit summary formation)
-			if (match !== -1){
-				App.globals.editCount++
+			// Then, perform the edits using replace()
+			// What follows is a series of exceptions, which I will explain below; I perform special actions by overriding replace()
+			// This is used for removing things entirely without giving a replacement; it matches the expression and then replaces it with nothing
+			if (replacement === ""){
+				input = input.replace(expression, function(data, match1){
+					// Save what is removed for the edit summary (see below)
+					phrase = match1
 
-				// Later, this will store what is removed for the first case
-				var phrase
+					// Replace with nothing
+					return ""
+				})
 
-				// Store the original input text
-				var originalInput = input
+				// This is an interesting tidbit: if you want to make the edit summaries dynamic, you can keep track of a match that you receive
+				// from overriding the replace() function and then use that in the summary
+				reasoning = reasoning.replace("$1", phrase)
+				// Fix all caps
+			} else if (reasoning === "no need to yell"){
+				input = input.replace(expression, function(data, match1){
+					return match1.substring(0, 1).toUpperCase() + match1.substring(1).toLowerCase()
+				})
+				// This is used to capitalize letters; it merely takes what is matched, uppercases it, and replaces what was matched with the uppercased version
+			} else if (replacement === "$1"){
+				input = input.replace(expression, function(data, match1){
+					return match1.toUpperCase()
+				})
 
-				// Then, perform the edits using replace()
-				// What follows is a series of exceptions, which I will explain below; I perform special actions by overriding replace()
-				// This is used for removing things entirely without giving a replacement; it matches the expression and then replaces it with nothing
-				if (replacement === ""){
-					input = input.replace(expression, function(data, match1){
-						// Save what is removed for the edit summary (see below)
-						phrase = match1
+				// I can use C, C#, and C++ capitalization in one rule
+			} else if (replacement === "$1C$2"){
+				var newPhrase
+				input = input.replace(expression, function(data, match1, match2){
+					newPhrase = match2
+					return match1 + "C" + match2
+				})
+				reasoning = reasoning.replace("$2", newPhrase)
 
-						// Replace with nothing
-						return ""
-					})
-
-					// This is an interesting tidbit: if you want to make the edit summaries dynamic, you can keep track of a match that you receive
-					// from overriding the replace() function and then use that in the summary
-					reasoning = reasoning.replace("$1", phrase)
-					// Fix all caps
-				} else if (reasoning === "no need to yell"){
-					input = input.replace(expression, function(data, match1){
-						return match1.substring(0, 1).toUpperCase() + match1.substring(1).toLowerCase()
-					})
-					// This is used to capitalize letters; it merely takes what is matched, uppercases it, and replaces what was matched with the uppercased version
-				} else if (replacement === "$1"){
-					input = input.replace(expression, function(data, match1){
-						return match1.toUpperCase()
-					})
-
-					// I can use C, C#, and C++ capitalization in one rule
-				} else if (replacement === "$1C$2"){
-					var newPhrase
-					input = input.replace(expression, function(data, match1, match2){
-						newPhrase = match2
-						return match1 + "C" + match2
-					})
-					reasoning = reasoning.replace("$2", newPhrase)
-
-					// iOS numbering/spacing fixes
-				} else if (replacement === "iOS $2"){
-					input = input.replace(expression, function(data, match1){
-						if (match1.match(/\d/)){ // Is a number
-							return "iOS " + match1
-						}
-
-						return "iOS" + match1
-					})
-					// Check for "i.e." edge case
-				} else if (replacement === "$1I$2"){
-					input = input.replace(expression, function(data, match1, match2){
-						if (match2 === "." && input.charAt(input.indexOf(data) + 3) === "e"){ // Is an "i.e." case
-							return match1 + "i" + match2
-						} else { // Regular "i" case
-							return match1 + "I" + match2
-						}
-					})
-					// Default: just replace it with the indicated replacement
-				} else {
-					input = input.replace(expression, replacement)
-				}
-
-				// Check whether anything was changed
-				if (input === originalInput){
-					return null
-				} else {
-					// Return a dictionary with the reasoning for the fix and what is edited (used later to prevent duplicates in the edit summary)
-					return {
-						reason: reasoning,
-						fixed: input
+				// iOS numbering/spacing fixes
+			} else if (replacement === "iOS $2"){
+				input = input.replace(expression, function(data, match1){
+					if (match1.match(/\d/)){ // Is a number
+						return "iOS " + match1
 					}
-				}
+
+					return "iOS" + match1
+				})
+				// Check for "i.e." edge case
+			} else if (replacement === "$1I$2"){
+				input = input.replace(expression, function(data, match1, match2){
+					if (match2 === "." && input.charAt(input.indexOf(data) + 3) === "e"){ // Is an "i.e." case
+						return match1 + "i" + match2
+					} else { // Regular "i" case
+						return match1 + "I" + match2
+					}
+				})
+				// Default: just replace it with the indicated replacement
 			} else {
-				// If nothing needs to be fixed, return null
+				input = input.replace(expression, replacement)
+			}
+
+			// Check whether anything was changed
+			if (input === originalInput){
 				return null
-			}
-		}
-
-		// Omit code
-		App.funcs.omitCode = function(str, type){
-			str = str.replace(App.globals.checks[type], function(match){
-				App.globals.replacedStrings[type].push(match)
-				return App.globals.placeHolders[type]
-			})
-			return str
-		}
-
-		// Replace code
-		App.funcs.replaceCode = function(str, type){
-			for (var i = 0; i < App.globals.replacedStrings[type].length; i++){
-				str = str.replace(App.globals.placeHolders[type],
-					App.globals.replacedStrings[type][i])
-			}
-			return str
-		}
-
-		// Eliminate duplicates in array (awesome method I found on SO, check it out!)
-		// From AstroCB: the original structure of the edit formation prevents duplicates.
-		// Unless you changed that structure somehow, this shouldn't be needed.
-		App.funcs.eliminateDuplicates = function(arr){
-			var i, len = arr.length,
-				out = [],
-				obj = {}
-
-			for (i = 0; i < len; i++){
-				obj[arr[i]] = 0
-			}
-			for (i in obj){
-				if (obj.hasOwnProperty(i)){ // Prevents messiness of for..in statements
-					out.push(i)
+			} else {
+				// Return a dictionary with the reasoning for the fix and what is edited (used later to prevent duplicates in the edit summary)
+				return {
+					reason: reasoning,
+					fixed: input
 				}
 			}
-			return out
+		} else {
+			// If nothing needs to be fixed, return null
+			return null
 		}
+	}
 
-		// Wait for relevant dynamic content to finish loading
-		App.funcs.dynamicDelay = function(callback, id, inline){
-			setTimeout(function(){
-				App.selections.buttonBar = $('#wmd-button-bar-' + id)
-				App.selections.buttonBar.unbind()
-				setTimeout(function(){
-					callback()
-				}, 0)
-			}, 500)
+	// Omit code
+	function omitCode(str, type){
+		str = str.replace(App.globals.checks[type], function(match){
+			App.globals.replacedStrings[type].push(match)
+			return App.globals.placeHolders[type]
+		})
+		return str
+	}
+
+	// Replace code
+	function replaceCode (str, type){
+		for (var i = 0; i < App.globals.replacedStrings[type].length; i++){
+			str = str.replace(App.globals.placeHolders[type],
+							  App.globals.replacedStrings[type][i])
 		}
+		return str
+	}
 
-		// Populate or refresh DOM selections
-		App.funcs.popSelections = function(){
-			App.selections.redoButton = $('#wmd-redo-button-' + App.globals.questionNum)
-			App.selections.bodyBox = $(".js-post-body-field")
-			App.selections.titleBox = $(".js-post-title-field")
-			App.selections.summaryBox = $('.js-post-edit-comment-field')
-			App.selections.tagField = $($(".tag-editor")[0])
+	// Populate or refresh DOM selections
+	function popSelections(){
+		App.selections.bodyBox = $('#wmd-input-' + App.globals.postId)
+		App.selections.titleBox = $(".js-post-title-field")
+		App.selections.summaryBox = $('.js-post-edit-comment-field')
+		App.selections.tagField = $($(".tag-editor")[0])
+	}
+
+	// Populate edit item sets from DOM selections
+	function popItems(){
+		App.items[0] = {
+			title: App.selections.titleBox?App.selections.titleBox.val():'',
+			body: App.selections.bodyBox.val(),
+			summary: ''
 		}
+	}
 
-		// Populate edit item sets from DOM selections
-		App.funcs.popItems = function(){
-			App.items[0] = {
-				title: App.selections.titleBox.val(),
-				body: App.selections.bodyBox.val(),
-				summary: ''
-			}
+	// Figure out the last selected element before pressing the button so we can return there after focusing the summary field
+	function setLastFocus(){
+		App.selections.titleBox.click(function(){
+			App.globals.lastSelectedElement = $(this)
+		})
+
+		App.selections.bodyBox.click(function(){
+			App.globals.lastSelectedElement = $(this)
+		})
+
+		App.selections.summaryBox.click(function(){
+			App.globals.lastSelectedElement = $(this)
+		})
+
+		App.selections.tagField.click(function(){
+			App.globals.lastSelectedElement = $(this)
+		})
+	}
+
+	// Handle pipe output
+	function output(data){
+		if (!App.selections.bodyBox) return
+
+		if (App.selections.titleBox) App.selections.titleBox.val(data[0].title)
+		App.selections.bodyBox.val(data[0].body)
+
+		if (App.selections.summaryBox.val()){
+			data[0].summary = " " + data[0].summary; // Add a leading space if there's something already in the box
 		}
+		App.selections.summaryBox.val(App.selections.summaryBox.val() + data[0].summary)
 
-		// Insert editing button(s)
-		App.funcs.createButton = function(){
-			// Insert button
-			App.selections.redoButton.after(App.globals.buttonFix)
-		}
-
-		// Figure out the last selected element before pressing the button so we can return there after focusing the summary field
-		App.funcs.setLastFocus = function(){
-			App.selections.titleBox.click(function(){
-				App.globals.lastSelectedElement = $(this)
-			})
-
-			App.selections.bodyBox.click(function(){
-				App.globals.lastSelectedElement = $(this)
-			})
-
-			App.selections.summaryBox.click(function(){
-				App.globals.lastSelectedElement = $(this)
-			})
-
-			App.selections.tagField.click(function(){
-				App.globals.lastSelectedElement = $(this)
-			})
-		}
-
-		// Handle pipe output
-		App.funcs.output = function(data){
-			App.selections.titleBox.val(data[0].title)
-			App.selections.bodyBox.val(data[0].body)
-
-			if (App.selections.summaryBox.val()){
-				data[0].summary = " " + data[0].summary; // Add a leading space if there's something already in the box
-			}
-			App.selections.summaryBox.val(App.selections.summaryBox.val() + data[0].summary)
-
-			// Update the comment: focusing on the input field to remove placeholder text, but scroll back to the user's original location
-			App.globals.currentPos = document.body.scrollTop
-			if ($("#wmd-input")){
-				$("#wmd-input").focus()
-				$("#edit-comment").focus()
-				$("#wmd-input").focus()
-			} else {
-				$(".wmd-input")[0].focus()
-				$(".edit-comment")[0].focus()
-				$(".wmd-input")[0].focus()
-			}
-
-			window.scrollTo(0, App.globals.currentPos)
-			App.globals.infoContent = App.globals.editCount + ' changes made'
-		}
+		App.globals.infoContent = App.globals.editCount + ' changes made'
+		App.selections.bodyBox[0].dispatchEvent(new Event('keypress', {which:17}))
+		if (App.globals.lastSelectedElement) App.globals.lastSelectedElement.focus()
 	}
 
 	// Pipe data through modules in proper order, returning the result
 	App.pipe = function(data, mods, order){
-		var modName
-		for (var i in order){
-			if (order.hasOwnProperty(i)){
-				modName = order[i]
-				data = mods[modName](data)
-			}
+		for (var i=0; i<order.length; i++){
+			data = mods[order[i]](data)
 		}
-		App.funcs.output(data)
-	}
-
-	// Init app
-	App.init = function(inline, targetID){
-		// Check if there was an ID passed (if not, use question ID from URL)
-		if (!targetID){
-			targetID = App.globals.questionNum
-		}
-
-		App.popFuncs()
-		App.funcs.dynamicDelay(function(){
-			App.funcs.popSelections()
-			App.funcs.createButton()
-			App.funcs.popItems()
-			App.funcs.setLastFocus()
-		}, targetID, inline)
+		output(data)
 	}
 
 	App.globals.pipeMods.omit = function(data){
-		data[0].body = App.funcs.omitCode(data[0].body, "block")
-		data[0].body = App.funcs.omitCode(data[0].body, "inline")
+		data[0].body = omitCode(data[0].body, "block")
+		data[0].body = omitCode(data[0].body, "inline")
 		return data
 	}
 
 	App.globals.pipeMods.replace = function(data){
-		data[0].body = App.funcs.replaceCode(data[0].body, "block")
-		data[0].body = App.funcs.replaceCode(data[0].body, "inline")
+		data[0].body = replaceCode(data[0].body, "block")
+		data[0].body = replaceCode(data[0].body, "inline")
 		return data
 	}
 
@@ -520,105 +403,84 @@
 		}
 
 		// Loop through all editing rules
-		for (var j in App.edits){
-			if (App.edits.hasOwnProperty(j)){
-				// Check body
-				var fix = App.funcs.fixIt(data[0].body, App.edits[j].expr,
-					App.edits[j].replacement, App.edits[j].reason)
-				if (fix){
-					App.globals.reasons[App.globals.numReasons] = fix.reason
-					data[0].body = fix.fixed
-					App.globals.numReasons++
-					App.edits[j].fixed = true
-				}
+		for (var j=0; j<editRules.length; j++){
+			var fix = fixIt(data[0].body, editRules[j].expr, editRules[j].replacement, editRules[j].reason)
+			if (fix){
+				if (fix.reason) App.globals.reasons[fix.reason] = 1
+				data[0].body = fix.fixed
+				App.globals.numReasons++
+				editRules[j].fixed = true
+			}
 
-				// Check title
-				fix = App.funcs.fixIt(data[0].title, App.edits[j].expr,
-					App.edits[j].replacement, App.edits[j].reason)
-				if (fix){
-					data[0].title = fix.fixed
-					if (!App.edits[j].fixed){
-						App.globals.reasons[App.globals.numReasons] =
-							fix.reason
-						App.globals.numReasons++
-						App.edits[j].fixed = true
-					}
+			// Check title
+			fix = fixIt(data[0].title, editRules[j].expr,	editRules[j].replacement, editRules[j].reason)
+			if (fix){
+				data[0].title = fix.fixed
+				if (!editRules[j].fixed){
+				if (fix.reason) App.globals.reasons[fix.reason] = 1
+					App.globals.numReasons++
+					editRules[j].fixed = true
 				}
 			}
-			// Quickly focus the summary field to show generated edit summary, and then jump back
-			if (App.selections.summaryBox) App.selections.summaryBox.focus()
-
-			// Asynchronous to get in both focuses
-			setTimeout(function(){
-				if (App.globals.lastSelectedElement){
-					App.globals.lastSelectedElement.focus()
-				} else {
-					window.scrollTo(0, 0)
-				}
-			}, 0)
 		}
 
-		// Eliminate duplicate reasons
-		App.globals.reasons = App.funcs.eliminateDuplicates(App.globals.reasons)
-
-		for (var z = 0; z < App.globals.reasons.length; z++){
+		$.each(App.globals.reasons, function (reason) {
 			// Check that summary is not getting too long
 			if (data[0].summary.length < 200){
 
-				// Capitalize first letter
-				if (z === 0){
-					data[0].summary += App.globals.reasons[z][0].toUpperCase() +
-						App.globals.reasons[z].substring(1)
-
-					// Post rest of reasons normally
+				if (data[0].summary.length){
+					data[0].summary += "; " + reason
 				} else {
-					data[0].summary += App.globals.reasons[z]
-				}
-
-				// Not the last reason
-				if (z !== App.globals.reasons.length - 1){
-					data[0].summary += "; "
-
-					// If at end, punctuate
-				} else {
-					data[0].summary += "."
+					// Capitalize first letter
+					data[0].summary += reason[0].toUpperCase() + reason.substring(1)
 				}
 			}
-		}
+		})
 
 		return data
 	}
 
-	if ($(".js-edit-post")[0]){ // User has editing privileges; wait until edit link is used
-		$(".js-edit-post").click(function(e){
-			App.init(true, e.target.href.match(/\d+/g))
+	setInterval(function(){
+		// Continually monitor for newly created editing widgets
+		$('.wmd-button-bar').each(function(){
+			// If this edit widget doesn't already have our button
+			if (!$(this).find('.toolkitfix').length){
+				// Create and add the button
+				var button = $('<li class="wmd-button toolkitfix" title="Auto edit">').click(function(e){
+					e.preventDefault()
+					App.selections.buttonBar = $(this).parents('.wmd-button-bar')
+					App.globals.postId = App.selections.buttonBar.attr('id').match(/[0-9]+/)[0]
+					console.log(App.globals.postId)
+					popSelections()
+					popItems()
+					setLastFocus()
+					popItems()
+					App.pipe(App.items, App.globals.pipeMods, App.globals.order)
+					App.globals.editsMade = true
+				})
+				$(this).find('.wmd-spacer').last().before(button)
+			}
 		})
-	} else if ($(".reviewable-post")[0]){ // H&I review queue
-		App.globals.questionNum = $(".reviewable-post")[0].getAttribute("class").match(/\d+/g)
-		$($(".review-actions")[0].children[0]).click(function(e){
-			App.init(true, App.globals.questionNum)
-		})
-	}
+	},200)
 
 	function runTests(){
 		console.log("RUNNING TESTS")
-
-		App.init(false)
 
 		var compareEdits = [
 			//{ input: 'Lorum ipsum. Hope it helps!', expected: 'Lorum ipsum.', desc: 'Remove "hope it helps"' },
 			{ input: 'Hello! Lorum ipsum.', expected: 'Lorum ipsum.', desc: 'Remove greeting' },
 			{ input: 'http://mydomain.com/', expected: 'http://mydomain.example/', desc: 'Example domain' },
-			{ input: 'visit site.tld', expected: 'visit site.example', desc: 'Example domain' },
+			{ input: 'Visit site.tld', expected: 'Visit site.example', desc: 'Example domain' },
 			{ input: '`ourhome.net`', expected: '`ourhome.example`', desc: 'Example domain' },
 			{ input: 'Dont you?', expected: 'Don\'t you?', desc: 'Contraction' },
 			{ input: 'I dont.', expected: 'I don\'t.', desc: 'Contraction' },
+			{ input: 'Hello guys , good afternoon. Lorum ipsum', expected: 'Lorum ipsum', desc: 'Greeting' },
 		]
 
 		var compareNoEdits = [
 			{ input: 'I am using git://github.com/foo/bar.git to work.', expected: 'I am using git://github.com/foo/bar.git to work.', desc: 'git URLs' },
-			{ input: 'a foo.html b', expected: 'a foo.html b', desc: '.html suffix' },
-			{ input: 'send IM to', expected: 'send IM to', desc: 'IM all caps instant message' },
+			{ input: 'See foo.html here', expected: 'See foo.html here', desc: '.html suffix' },
+			{ input: 'Send IM to', expected: 'Send IM to', desc: 'IM all caps instant message' },
 		]
 
 		// Add additional combinations to test here:
@@ -701,7 +563,7 @@
 		}
 
 		function compareOne (item, attribute){
-			App.globals.reasons = []
+			App.globals.reasons = {}
 			var data = [{
 				body: '',
 				title: '',
@@ -714,7 +576,7 @@
 		}
 
 		function compareOneExclusion (item, attribute){
-			App.globals.reasons = []
+			App.globals.reasons = {}
 			var data = [{
 				body: '',
 				title: '',
