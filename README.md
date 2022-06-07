@@ -1,7 +1,7 @@
 Stack Exchange Auto Editor
 =============================
 
-![Stack Exchange Auto Editor Logo](https://i.imgur.com/blxl3ei.jpg)
+![Stack Exchange Auto Editor Logo](https://i.imgur.com/79qYzkQ.png)
 
 ## About
 
@@ -23,33 +23,33 @@ The rules included in the standard script are as follows:
  - Corrects to proper spelling/capitalization of "Stack Overflow" and "Stack Exchange" in order to fit the legal naming requirements
  - Expands "SO" and "SE" to "Stack Overflow" and "Stack Exchange," respectively
  - Corrects to proper spelling/capitalization of...
-  - AJAX
-  - Android
-  - AngularJS
-  - Apache
-  - API
-  - C/C#/C++
-  - CSS
-  - Git
-  - GitHub
-  - Google
-  - HTML
-  - I/I'm
-  - iOS
-  - Java
-  - JavaScript
-  - jQuery
-  - JSFiddle
-  - JSON
-  - Linux
-  - MySQL
-  - Oracle
-  - PHP
-  - SQL(ite)
-  - Ubuntu
-  - Windows
-  - WordPress
-  - URI/URL
+   - AJAX
+   - Android
+   - AngularJS
+   - Apache
+   - API
+   - C/C#/C++
+   - CSS
+   - Git
+   - GitHub
+   - Google
+   - HTML
+   - I/I'm
+   - iOS
+   - Java
+   - JavaScript
+   - jQuery
+   - JSFiddle
+   - JSON
+   - Linux
+   - MySQL
+   - Oracle
+   - PHP
+   - SQL(ite)
+   - Ubuntu
+   - Windows
+   - WordPress
+   - URI/URL
  - Capitalizes the first letter of new lines
  - Removes common greetings
  - Removes "thanks" and similar phrases
