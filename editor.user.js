@@ -26,6 +26,7 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (function(){
+	// Rules for making edits in text (not code)
 	var editRules = [
 		capitalizeWord("AJAX"),
 		capitalizeWord("Android"),
@@ -36,6 +37,8 @@
 		capitalizeWord("Git"),
 		capitalizeWord("GitHub"),
 		capitalizeWord("Google"),
+		capitalizeWord("HTTP"),
+		capitalizeWord("HTTPS"),
 		capitalizeWord("HTML"),
 		capitalizeWord("HTML5"),
 		capitalizeWord("I"),
@@ -57,6 +60,8 @@
 		capitalizeWord("SQL"),
 		capitalizeWord("SQLite"),
 		capitalizeWordAndVersion("SQLite"),
+		capitalizeWord("SSL"),
+		capitalizeWord("TLS"),
 		capitalizeWord("Ubuntu","ubunt[ou]*|ubunut[ou]*|ubun[ou]+|ubnt[ou]+|ubutn[ou]*|ubant[ou]*|unbunt[ou]*|ubunt|ubut[ou]+"),
 		capitalizeWord("URI"),
 		capitalizeWord("URL"),
@@ -65,6 +70,7 @@
 		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
 		capitalizeWord("WordPress"),
+		capitalizeWord("XML"),
 		{
 			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
 			replacement: "",
@@ -94,7 +100,7 @@
 			replacement: "$1I'm$2",
 			reason: "Spelling"
 		},{
-			expr: /(^|\s)(can|doesn|don|won|hasn|isn|didn)t\b(\S|)(?!\S)/gmi,
+			expr: /(^|\s)(aren|can|couldn|didn|doesn|don|hadn|hasn|isn|mightn|mustn|shan|shouldn|won)t\b(\S|)(?!\S)/gmi,
 			replacement: "$1$2't$3",
 			reason: "Spelling"
 		},{
@@ -129,6 +135,19 @@
 				return m.toUpperCase()
 			}),
 			reason: "Capitalization"
+		}
+	]
+
+	// Rules for making edits in code
+	var editCodeRules = [
+		{
+			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
+			replacement: "$1.example",
+			reason: "Use example domain"
+		},{
+			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
+			replacement: "$1.example",
+			reason: "Use example domain"
 		}
 	]
 
@@ -199,10 +218,18 @@
 			/~{10}[^~][\s\S]*?~{10}/ // Arbitrarily large code fences are possible, but have to stop somewhere
 			// Combine all the above into a single massive regex With "or" between each piece
 		].map(function(r) {return r.source}).join(')|(?:') + ")","gm"), function(match){
-			d.placeholderActuals.push(match)
+			d.placeholderActuals.push(editCode(d, match))
 			return placeHolder
 		})
 		return str
+	}
+
+	function editCode(d, code){
+		$.each(editCodeRules, function(x, rule){
+			var fix = fixIt(d, code, rule.expr, rule.replacement, rule.reason)
+			if (fix) code = fix.output
+		})
+		return code
 	}
 
 	// Fill placeholders back in with their respective code snippets
@@ -228,20 +255,48 @@
 
 	function fixIt(d, input, expression, replacement, reason){
 		if (!input) return
+		var ruleEditCount = 0
 		for(let m of input.matchAll(expression)){
 			var a = m[0]
 			var b = a.replace(expression, replacement)
 			if (a != b){
 				d.replacements.push({i:a,o:b,r:reason})
+				ruleEditCount++
 			}
 		}
 		var output = input.replace(expression, replacement)
 		if (output === input) return // Nothing was changed
-		d.editCount++
+		d.editCount+=ruleEditCount
+		// Store reasons as hash keys in a map to prevent duplicates
+		if (reason) d.reasons[reason] = 1
 		return {
 			reason: reason,
 			output: output
 		}
+	}
+
+	function edit(d){
+		d.body = omitCode(d, d.body)
+		// Loop through all editing rules
+		$.each(editRules, function(x, rule){
+			// Fix both the title and the body
+			$.each(["title","body"], function(x, type){
+				var fix = fixIt(d, d[type], rule.expr, rule.replacement, rule.reason)
+				if (fix) d[type] = fix.output
+			})
+		})
+
+		// Create a summary of all the reasons
+		$.each(d.reasons, function (reason) {
+			if (!d.summary) d.summary = ''
+			// Check that summary is not getting too long
+			if (d.summary.length < 200){
+				d.summary += (d.summary.length==0?"":"; ") + reason
+			}
+		})
+
+		d.body = replaceCode(d, d.body)
+		return d
 	}
 
 	function output(d){
@@ -268,43 +323,19 @@
 		d.bodyBox[0].dispatchEvent(new Event('keypress'))
 	}
 
-	function edit(d){
-		d.body = omitCode(d, d.body)
-		// Loop through all editing rules
-		$.each(editRules, function(x, rule){
-			// Fix both the title and the body
-			$.each(["title","body"], function(x, type){
-				var fix = fixIt(d, d[type], rule.expr, rule.replacement, rule.reason)
-				if (fix){
-					// Store reasons as hash keys in a map to prevent duplicates
-					if (fix.reason) d.reasons[fix.reason] = 1
-					d[type] = fix.output
-				}
-			})
-		})
-
-		// Create a summary of all the reasons
-		$.each(d.reasons, function (reason) {
-			if (!d.summary) d.summary = ''
-			// Check that summary is not getting too long
-			if (d.summary.length < 200){
-				d.summary += (d.summary.length==0?"":"; ") + reason
-			}
-		})
-
-		d.body = replaceCode(d, d.body)
-		return d
-	}
-
 	GM_addStyle(`
 		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
 		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
 		.toolkitinfo{height:100%;width:100%;left:0;right:0;overflow:auto;position:fixed;background:#fff;z-index:99999;padding:1em}
-		.toolkitinfo table{border-spacing.5em;}
-		.toolkitinfo h1{margin-top:2em}
+		.toolkitinfo .content{max-width:800px;margin:0 auto}
+		.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
 		.toolkitinfo th{font-weight:bold}
+		.toolkitinfo button{float:right}
 		.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
 		.toolkitinfo td{font-family:monospace;white-space:pre}
+		.toolkitinfo .diff{white-space:pre-wrap;margin-bottom:2em;}
+		.toolkitinfo ins{background:#cfc}
+		.toolkitinfo del{background:#fcc}
 	`)
 
 	//Preload icon alt
@@ -314,8 +345,8 @@
 	// Continually monitor for newly created editing widgets
 	setInterval(function(){
 		$('.wmd-button-bar').each(function(){
-			// If this edit widget doesn't already have our button
-			if (!$(this).find('.toolkitfix').length){
+			// If this edit widget isn't the "add new answer box" and doesn't already have our button
+			if ($(this).attr('id')!='wmd-button-bar' && !$(this).find('.toolkitfix').length){
 				// Create and add the button
 				var d = getDefaultData()
 				var button = $('<li class="wmd-button toolkitfix" title="Auto edit">').click(function(e){
@@ -323,18 +354,22 @@
 					if (d.completed){
 						// Second time button clicked, show a report
 						var td = runTests()
-						var info = $('<div class=toolkitinfo>').click(function(){
-							info.remove()
-						}), table
+						var info = $('<div class=content>').append($("<button>Close</button>").click(function(){
+							info.parent().remove()
+						})), table
 						if (!d.replacements.length){
 							info.append($("<h1>No edits made!</h1>"))
 						} else {
 							info.append($("<h1>Edits made:</h1>"))
 							table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
 							$.each(d.replacements, (x,r)=>{
+								if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
+									r.i=r.i.replace(/^\s+/,"")
+									r.o=r.o.replace(/^\s+/,"")
+								}
 								table.append($("<tr>").append($("<td>").text(r.i)).append($("<td>").text(r.o)).append($("<td>").text(r.r)))
 							})
-							info.append(table)
+							info.append(table).append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
 						}
 						if (!td.failures.length){
 							info.append($("<h1>All unit tests passed!</h1>"))
@@ -346,7 +381,7 @@
 							})
 							info.append(table)
 						}
-						$('body').append(info)
+						$('body').append($('<div class=toolkitinfo>').append(info))
 					} else {
 						// First time button clicked, do all the replacements
 						d.buttonBar = $(this).parents('.wmd-button-bar')
@@ -354,8 +389,8 @@
 						d.bodyBox = $('#wmd-input-' + d.postId)
 						d.titleBox = $(".js-post-title-field")
 						d.summaryBox = $('.js-post-edit-comment-field')
-						d.title = d.titleBox?d.titleBox.val():''
-						d.body = d.bodyBox.val()
+						d.origtitle = d.title = d.titleBox?d.titleBox.val():''
+						d.origbody = d.body = d.bodyBox.val()
 						output(edit(d))
 						d.completed=true
 					}
@@ -385,9 +420,12 @@
 
 		$.each([
 			{i:'Lorum ipsum. Hope it helps!',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. any suggestions?',o:'Lorum ipsum.'},
 			{i:'Hello! Lorum ipsum.',o:'Lorum ipsum.'},
-			{i:'Visit site.tld',o:'Visit site.example'},
+			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
+			{i:'Visit site.tld',o:'Visit `site.example`'},
 			{i:'`ourhome.net`',o:'`ourhome.example`'},
+			{i:'http://mydomain.com/',o:'`http://mydomain.example/`'},
 			{i:'Hello guys , good afternoon. Lorum ipsum',o:'Lorum ipsum'},
 			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
 			{i:'See foo.html here',o:'See foo.html here'},
@@ -420,7 +458,6 @@
 			{i:['hdd','Hdd','HDD','harddisk','Harddisk','HardDisk','HARDDISK'],o:'hard disk'},
 			{i:['html','Html'],o:'HTML'},
 			{i:['html5','Html5'],o:'HTML5'},
-			{i:['http://mydomain.com/'],o:'http://mydomain.example/'},
 			{i:['i'],o:'I'},
 			{i:['ios','iOs','ioS','IOS','Ios','IoS'],o:'iOS'},
 			{i:['ios8','iOs8','ioS8','IOS8','Ios8','IoS8',"ios 8"],o:'iOS 8'},
@@ -479,5 +516,94 @@
 			expectEql("omitCode", omitCode(getDefaultData(), i), "Lorum"+t.s+placeHolder+t.s+"ipsum",i)
 		})
 		return td
+	}
+
+	/*
+	 * Javascript Diff Algorithm
+	 *	By John Resig (http://ejohn.org/)
+	 *	Modified by Chu Alan "sprite"
+	 *
+	 * Released under the MIT license.
+	 *
+	 * More Info:
+	 *	http://ejohn.org/projects/javascript-diff-algorithm/
+	 */
+	function diff2html(o, n){
+		function diff(o, n){
+			var ns = {}, os = {}, i
+
+			for (i = 0; i < n.length; i++){
+				if (ns[n[i]] == null) ns[n[i]] = {rows:[], o: null}
+				ns[n[i]].rows.push(i)
+			}
+
+			for (i = 0; i < o.length; i++){
+				if (os[o[i]] == null) os[o[i]] = {rows:[], n: null}
+				os[o[i]].rows.push(i)
+			}
+
+			for (i in ns){
+				if (ns[i].rows.length == 1 && typeof(os[i]) != "undefined" && os[i].rows.length == 1){
+					n[ns[i].rows[0]] = {text: n[ns[i].rows[0]], row: os[i].rows[0]}
+					o[os[i].rows[0]] = {text: o[os[i].rows[0]], row: ns[i].rows[0]}
+				}
+			}
+
+			for (i = 0; i < n.length - 1; i++){
+				if (n[i].text != null && n[i+1].text == null && n[i].row + 1 < o.length && o[n[i].row + 1].text == null && n[i+1] == o[n[i].row + 1]){
+					n[i+1] = {text: n[i+1], row: n[i].row + 1}
+					o[n[i].row+1] = {text: o[n[i].row+1], row: i + 1}
+				}
+			}
+
+			for (i = n.length - 1; i > 0; i--){
+				if (n[i].text != null && n[i-1].text == null && n[i].row > 0 && o[n[i].row - 1].text == null &&	 n[i-1] == o[n[i].row - 1]){
+					n[i-1] = {text: n[i-1], row: n[i].row - 1}
+					o[n[i].row-1] = {text: o[n[i].row-1], row: i - 1}
+				}
+			}
+
+			return {o: o, n: n}
+		}
+
+		function escHtml(s) {
+			return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+		}
+
+		o = o.replace(/\s+$/, '')
+		n = n.replace(/\s+$/, '')
+
+		var out = diff(o == "" ? [] : o.split(/\s+/), n == "" ? [] : n.split(/\s+/)),
+		str = "", i,
+		oSpace = o.match(/\s+/g) || [],
+		nSpace = n.match(/\s+/g) || []
+		oSpace.push("\n")
+		nSpace.push("\n")
+
+		if (out.n.length == 0){
+			for (i = 0; i < out.o.length; i++){
+				str += '<del>' + escHtml(out.o[i]) + oSpace[i] + "</del>"
+			}
+		} else {
+			if (out.n[0].text == null){
+				for (n = 0; n < out.o.length && out.o[n].text == null; n++){
+					str += '<del>' + escHtml(out.o[n]) + oSpace[n] + "</del>"
+				}
+			}
+
+			for (i = 0; i < out.n.length; i++){
+				if (out.n[i].text == null){
+					str += '<ins>' + escHtml(out.n[i]) + nSpace[i] + "</ins>"
+				} else {
+					var pre = ""
+
+					for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++){
+						pre += '<del>' + escHtml(out.o[n]) + oSpace[n] + "</del>"
+					}
+					str += " " + escHtml(out.n[i].text) + nSpace[i] + pre
+				}
+			}
+		}
+		return str
 	}
 })()
