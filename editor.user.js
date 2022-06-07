@@ -26,52 +26,65 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (function(){
-	// Rules for making edits in text (not code)
+
+    // Rules for making edits in code
+    var editCodeRules = [
+        {
+			expr: /\b(?:((?:[a-z0-9\.\-]+\.)?[a-z0-9\-]+)example([a-z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1$2.example$3",
+			reason: "Use example domain"
+		},{
+			expr: /\b(?:([a-z0-9\-\.]*)example([a-z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1$2.example$3",
+			reason: "Use example domain"
+		},{
+			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1.example$2",
+			reason: "Use example domain"
+		},{
+			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1.example$2",
+			reason: "Use example domain"
+		}
+    ]
+
+    // Rules for making edits in text (not code)
 	var editRules = [
-		capitalizeWord("AJAX"),
-		capitalizeWord("Android"),
-		capitalizeWord("AngularJS"),
-		capitalizeWord("Apache"),
-		capitalizeWord("API"),
-		capitalizeWord("CSS"),
-		capitalizeWord("Git"),
+		{
+			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
+			replacement: "$1://$2.",
+			reason: "Fix URL"
+		},
+        capitalizeWord("AngularJS"),
 		capitalizeWord("GitHub"),
-		capitalizeWord("Google"),
-		capitalizeWord("HTTP"),
-		capitalizeWord("HTTPS"),
-		capitalizeWord("HTML"),
-		capitalizeWord("HTML5"),
-		capitalizeWord("I"),
 		capitalizeWord("iOS"),
 		capitalizeWordAndVersion("iOS", null, " "),
-		capitalizeWord("Java"),
 		capitalizeWord("JavaScript"),
 		capitalizeWord("jQuery"),
 		capitalizeWord("JSFiddle", "js\\s*fiddle"),
-		capitalizeWord("JSON"),
-		capitalizeWord("Linux"),
 		capitalizeWord("MySQL"),
-		capitalizeWord("Oracle"),
-		capitalizeWord("PHP"),
 		expandAbbrev("SE", "Stack Exchange"),
 		expandAbbrev("SO", "Stack Overflow"),
 		capitalizeWord("Stack Exchange"),
 		capitalizeWord("Stack Overflow"),
-		capitalizeWord("SQL"),
 		capitalizeWord("SQLite"),
 		capitalizeWordAndVersion("SQLite"),
-		capitalizeWord("SSL"),
-		capitalizeWord("TLS"),
 		capitalizeWord("Ubuntu","ubunt[ou]*|ubunut[ou]*|ubun[ou]+|ubnt[ou]+|ubutn[ou]*|ubant[ou]*|unbunt[ou]*|ubunt|ubut[ou]+"),
-		capitalizeWord("URI"),
-		capitalizeWord("URL"),
-		capitalizeWord("Windows"),
 		capitalizeWordAndVersion("Windows", "win|windows", " "),
 		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
 		capitalizeWord("WordPress"),
-		capitalizeWord("XML"),
-		{
+        {
+			// Proper nouns
+			expr: /(^|\s)(Android|Apache|Git|Google|Java|Linux|Oracle|Windows)\b(\S|)(?!\S)/igm,
+			replacement: ($0,$1,$2,$3) => $1+$2[0].toUpperCase()+$2.substring(1).toLowerCase()+$3,
+			reason: "Capitalization"
+		},{
+			// Always all caps
+			expr: /(^|\s)(AJAX|API|CSS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URL|XML)\b(\S|)(?!\S)/igm,
+			replacement: ($0,$1,$2,$3) => $1+$2.toUpperCase()+$3,
+			reason: "Capitalization"
+		},{
 			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
 			replacement: "",
 			reason: "Remove niceties"
@@ -83,32 +96,31 @@
 			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
 			replacement: "",
 			reason: "Remove edit indicator"
-		},{
-			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
-			replacement: "$1.example",
-			reason: "Use example domain"
-		},{
-			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
-			replacement: "$1.example",
-			reason: "Use example domain"
+		},
+        editCodeRules[0],
+        editCodeRules[1],
+        editCodeRules[2],
+        editCodeRules[3],
+        {
+			expr: /(^|\s)((?:(?:https?:\/\/)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\/[^ ]*)?))(\s|$)/gmi,
+			replacement: "$1`$2`$3",
+			reason: "Code format example URL"
 		},{
 			expr: /(^|\s)c(#|\++|\s|$)/gm,
 			replacement: "$1C$2",
 			reason: "Spelling"
 		},{
-			expr: /(^|\s)[Ii]'?m\b(\S|)(?!\S)/gm,
-			replacement: "$1I'm$2",
+			expr: /(^|\s)[Ii]'?(m|ve)\b(\S|)(?!\S)/gm,
+			replacement: "$1I'$2$3",
 			reason: "Spelling"
 		},{
-			expr: /(^|\s)(aren|can|couldn|didn|doesn|don|hadn|hasn|isn|mightn|mustn|shan|shouldn|won)t\b(\S|)(?!\S)/gmi,
-			replacement: "$1$2't$3",
+			expr: /(^|\s)(arent|cant|couldnt|didnt|doesnt|dont|hadnt|hasnt|havent|hed|hes|isnt|mightnt|mustnt|shant|shes|shouldnt|thats|theres|theyd|theyll|theyre|theyve|weve|werent|whatll|whatre|whats|whatve|wheres|whod|wholl|whove|wont|wouldnt|youd|youll|youre|youve)\b(\S|)(?!\S)/gmi,
+			replacement: (p0,p1,p2,p3)=>p1+p2.replace(/(d|ll|m|re|s|t|ve)$/i,"'$1")+p3,
 			reason: "Spelling"
 		},{
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
-			replacement: (function(d, m){
-				return m[0] + m.substring(1).toLowerCase()
-			}),
+			replacement: ($0,$1) => $1[0] + $1.substring(1).toLowerCase(),
 			reason: "Use mixed case"
 		},{
 			expr: /(hdd|harddisk)\b(\S|)(?!\S)/igm,
@@ -121,33 +133,18 @@
 			reason: "Grammar"
 		},{
 			// Remove spaces before punctuation
-			expr: /[ ]+([,\!\?\.\:])/g,
+			expr: /[ ]+([,\!\?\.\:](?:\s|$))/gm,
 			replacement: "$1",
-			reason: "Grammar"
+			reason: "Grammar 1"
 		},{
 			expr: /\[enter image description here\]/g,
 			replacement: "[]",
 			reason: "Remove default alt text"
 		},{
 			// Capitalize first letter of each line
-			expr: /^([a-z])/g,
-			replacement: (function(d, m){
-				return m.toUpperCase()
-			}),
+			expr: /^[a-z]+\s/gm,
+			replacement: $0 => $0[0].toUpperCase()+$0.substring(1),
 			reason: "Capitalization"
-		}
-	]
-
-	// Rules for making edits in code
-	var editCodeRules = [
-		{
-			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
-			replacement: "$1.example",
-			reason: "Use example domain"
-		},{
-			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))\b/g,
-			replacement: "$1.example",
-			reason: "Use example domain"
 		}
 	]
 
@@ -196,7 +193,7 @@
 	function omitCode(d, str){
 		str = str.replace(new RegExp("(?:" +[
 			/^(?: {0,3}>)*    .*(?:[\r\n]+(?: {0,3}>)*    .*)*/, // 4 space indented code block (also handles code in > blockquote)
-			/`[^`]+`/, // backtick inline code
+			/`[^\r\n`]+`/, // backtick inline code
 			/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML pre tags
 			/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
 			/<[^>]+>/, // Other HTML tags
@@ -224,13 +221,13 @@
 		return str
 	}
 
-	function editCode(d, code){
+    function editCode(d, code){
 		$.each(editCodeRules, function(x, rule){
-			var fix = fixIt(d, code, rule.expr, rule.replacement, rule.reason)
-			if (fix) code = fix.output
-		})
-		return code
-	}
+            var fix = fixIt(d, code, rule.expr, rule.replacement, rule.reason)
+            if (fix) code = fix.output
+        })
+        return code
+    }
 
 	// Fill placeholders back in with their respective code snippets
 	function replaceCode(d, str){
@@ -255,20 +252,20 @@
 
 	function fixIt(d, input, expression, replacement, reason){
 		if (!input) return
-		var ruleEditCount = 0
+        var ruleEditCount = 0
 		for(let m of input.matchAll(expression)){
 			var a = m[0]
 			var b = a.replace(expression, replacement)
 			if (a != b){
 				d.replacements.push({i:a,o:b,r:reason})
-				ruleEditCount++
+                ruleEditCount++
 			}
 		}
 		var output = input.replace(expression, replacement)
 		if (output === input) return // Nothing was changed
 		d.editCount+=ruleEditCount
-		// Store reasons as hash keys in a map to prevent duplicates
-		if (reason) d.reasons[reason] = 1
+        // Store reasons as hash keys in a map to prevent duplicates
+        if (reason) d.reasons[reason] = 1
 		return {
 			reason: reason,
 			output: output
@@ -278,9 +275,9 @@
 	function edit(d){
 		d.body = omitCode(d, d.body)
 		// Loop through all editing rules
-		$.each(editRules, function(x, rule){
+		$.each(editRules, (x, rule)=>{
 			// Fix both the title and the body
-			$.each(["title","body"], function(x, type){
+			$.each(["title","body"], (x, type)=>{
 				var fix = fixIt(d, d[type], rule.expr, rule.replacement, rule.reason)
 				if (fix) d[type] = fix.output
 			})
@@ -326,14 +323,14 @@
 	GM_addStyle(`
 		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
 		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
-		.toolkitinfo{height:100%;width:100%;left:0;right:0;overflow:auto;position:fixed;background:#fff;z-index:99999;padding:1em}
-		.toolkitinfo .content{max-width:800px;margin:0 auto}
+		.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#fff;z-index:99999;padding:1em}
+		.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto}
 		.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
 		.toolkitinfo th{font-weight:bold}
 		.toolkitinfo button{float:right}
 		.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
 		.toolkitinfo td{font-family:monospace;white-space:pre}
-		.toolkitinfo .diff{white-space:pre-wrap;margin-bottom:2em;}
+		.toolkitinfo .diff{white-space:pre-wrap;margin-bottom:2em;max-width:600px}
 		.toolkitinfo ins{background:#cfc}
 		.toolkitinfo del{background:#fcc}
 	`)
@@ -363,25 +360,26 @@
 							info.append($("<h1>Edits made:</h1>"))
 							table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
 							$.each(d.replacements, (x,r)=>{
-								if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
-									r.i=r.i.replace(/^\s+/,"")
-									r.o=r.o.replace(/^\s+/,"")
-								}
+                                if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
+                                    r.i=r.i.replace(/^\s+/,"")
+                                    r.o=r.o.replace(/^\s+/,"")
+                                }
 								table.append($("<tr>").append($("<td>").text(r.i)).append($("<td>").text(r.o)).append($("<td>").text(r.r)))
 							})
 							info.append(table).append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
 						}
 						if (!td.failures.length){
-							info.append($("<h1>All unit tests passed!</h1>"))
+							info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
 						} else {
-							info.append($("<h1>Unit test failures:</h1>"))
+							info.append($("<h1>" + td.failures.length + " unit test failures:</h1>"))
 							table = $("<table>").append($("<tr><th>Input</th><th>Output</th><th>Expected</th></tr>"))
 							$.each(td.failures, (x,f)=>{
 								table.append($("<tr>").append($("<td>").text(f.method+"("+f.input+")")).append($("<td>").text(f.actual)).append($("<td>").text(f.expected)))
 							})
 							info.append(table)
+							info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
 						}
-						$('body').append($('<div class=toolkitinfo>').append(info))
+						$('body').prepend($('<div class=toolkitinfo>').append(info))
 					} else {
 						// First time button clicked, do all the replacements
 						d.buttonBar = $(this).parents('.wmd-button-bar')
@@ -401,12 +399,15 @@
 	},200)
 
 	function runTests(){
-		var td = {failures:[]}
+		var td = {failures:[],count:0,passed:0}
 
 		function expectEql(method, actual, expected, input){
+            td.count++
 			if (actual != expected){
 				td.failures.push({method:method,actual:actual,expected:expected,input:input})
-			}
+			} else {
+                td.passed++
+            }
 		}
 
 		function testEdit(i, o){
@@ -425,12 +426,19 @@
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
 			{i:'Visit site.tld',o:'Visit `site.example`'},
 			{i:'`ourhome.net`',o:'`ourhome.example`'},
+			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
+			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
+			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
+			{i:'`fooexample.org`',o:'`foo.example`'},
+			{i:'`examplelorum.org`',o:'`lorum.example`'},
 			{i:'http://mydomain.com/',o:'`http://mydomain.example/`'},
 			{i:'Hello guys , good afternoon. Lorum ipsum',o:'Lorum ipsum'},
 			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
 			{i:'See foo.html here',o:'See foo.html here'},
 			{i:'NO, NEED, TO+ YELL!',o:'No, need, to+ yell!'},
 			{i:'first letter upper',o:'First letter upper'},
+			{i:'What ?',o:"What?"},
+			{i:'A ... b',o:"A ... b"},
 		], function(x,io){
 			testEdit(io.i, io.o)
 		})
@@ -478,7 +486,8 @@
 			{i:['win 95','windows 95','WIN 95','WINDOWS 95'],o:'Windows 95'},
 			{i:['win vista','WIN VISTA','windows vista','windows VISTA'],o:'Windows Vista'},
 			{i:['win xp','WIN XP','windows xp','windows XP'],o:'Windows XP'},
-			{i:['wordpress','Wordpress'],o:'WordPress'}
+			{i:['wordpress','Wordpress'],o:'WordPress'},
+			{i:['youve'],o:'you\'ve'},
 		], function(x, io){
 			io.i.push(io.o)
 			$.each(io.i, function(x,i){
@@ -529,7 +538,7 @@
 	 *	http://ejohn.org/projects/javascript-diff-algorithm/
 	 */
 	function diff2html(o, n){
-		function diff(o, n){
+        function diff(o, n){
 			var ns = {}, os = {}, i
 
 			for (i = 0; i < n.length; i++){
@@ -566,9 +575,9 @@
 			return {o: o, n: n}
 		}
 
-		function escHtml(s) {
-			return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-		}
+        function eschtml(s) {
+            return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+        }
 
 		o = o.replace(/\s+$/, '')
 		n = n.replace(/\s+$/, '')
@@ -576,31 +585,31 @@
 		var out = diff(o == "" ? [] : o.split(/\s+/), n == "" ? [] : n.split(/\s+/)),
 		str = "", i,
 		oSpace = o.match(/\s+/g) || [],
-		nSpace = n.match(/\s+/g) || []
+        nSpace = n.match(/\s+/g) || []
 		oSpace.push("\n")
-		nSpace.push("\n")
+        nSpace.push("\n")
 
 		if (out.n.length == 0){
-			for (i = 0; i < out.o.length; i++){
-				str += '<del>' + escHtml(out.o[i]) + oSpace[i] + "</del>"
-			}
+            for (i = 0; i < out.o.length; i++){
+                str += '<del>' + eschtml(out.o[i]) + oSpace[i] + "</del>"
+            }
 		} else {
 			if (out.n[0].text == null){
 				for (n = 0; n < out.o.length && out.o[n].text == null; n++){
-					str += '<del>' + escHtml(out.o[n]) + oSpace[n] + "</del>"
+					str += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
 				}
 			}
 
 			for (i = 0; i < out.n.length; i++){
 				if (out.n[i].text == null){
-					str += '<ins>' + escHtml(out.n[i]) + nSpace[i] + "</ins>"
+					str += '<ins>' + eschtml(out.n[i]) + nSpace[i] + "</ins>"
 				} else {
 					var pre = ""
 
 					for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++){
-						pre += '<del>' + escHtml(out.o[n]) + oSpace[n] + "</del>"
+						pre += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
 					}
-					str += " " + escHtml(out.n[i].text) + nSpace[i] + pre
+					str += " " + eschtml(out.n[i].text) + nSpace[i] + pre
 				}
 			}
 		}
