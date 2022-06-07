@@ -1,7 +1,7 @@
 Stack Exchange Auto Editor
 =============================
 
-![Stack Exchange Auto Editor Logo](//i.imgur.com/blxl3ei.jpg)
+![Stack Exchange Auto Editor Logo](https://i.imgur.com/blxl3ei.jpg)
 
 ## About
 
@@ -9,7 +9,7 @@ This user script adds a button to the post editor toolbar on Stack Exchange site
 
 ## Usage
 
-![Example Usage](//i.imgur.com/zmdvCm4.gif)
+![Example Usage](https://i.imgur.com/zmdvCm4.gif)
 
 ## Installation
 First, you'll need a user script extension for your browser. Popular options include [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/), [Tampermonkey](https://tampermonkey.net/), and [NinjaKit](https://github.com/os0x/NinjaKit) for Firefox, Chrome, and Safari respectively.
