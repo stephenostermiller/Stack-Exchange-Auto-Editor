@@ -157,8 +157,8 @@
 		}
 	}
 
-	// Create a rule for word capitalization same as above, but followed by 
-	// a numeric version. The separator can be used to Specify whether or 
+	// Create a rule for word capitalization same as above, but followed by
+	// a numeric version. The separator can be used to Specify whether or
 	// not a space in included in the output: FooBar8 vs FooBar 8
 	function capitalizeWordAndVersion(word, re, separator){
 		if (!separator) separator = ""
@@ -172,9 +172,9 @@
 		}
 	}
 
-	// Replace chunks where replacements shouldn't be made with a placeholder
+	// Put placeholders in for chunks like code blocks where replacements shouldn't be made
 	// And record removed blocks in a list so they can be reinserted later
-	function omitCode(str){
+	function omitCode(d, str){
 		str = str.replace(new RegExp("(?:" +[
 			/^(?: {0,3}>)*    .*(?:[\r\n]+(?: {0,3}>)*    .*)*/, // 4 space indented code block (also handles code in > blockquote)
 			/`[^`]+`/, // backtick inline code
@@ -199,16 +199,16 @@
 			/~{10}[^~][\s\S]*?~{10}/ // Arbitrarily large code fences are possible, but have to stop somewhere
 			// Combine all the above into a single massive regex With "or" between each piece
 		].map(function(r) {return r.source}).join(')|(?:') + ")","gm"), function(match){
-			replacedStrings.push(match)
+			d.placeholderActuals.push(match)
 			return placeHolder
 		})
 		return str
 	}
 
 	// Fill placeholders back in with their respective code snippets
-	function replaceCode(str){
-		for (var i = 0; i < replacedStrings.length; i++){
-			str = str.replace(placeHolder, replacedStrings[i])
+	function replaceCode(d, str){
+		for (var i = 0; i < d.placeholderActuals.length; i++){
+			str = str.replace(placeHolder, d.placeholderActuals[i])
 		}
 		return str
 	}
@@ -216,86 +216,100 @@
 	// Access to jQuery via dollar sign variable
 	var $ = unsafeWindow.jQuery
 
-	//Preload icon alt
-	new Image().src = '//i.imgur.com/79qYzkQ.png'
-	new Image().src = '//i.imgur.com/d5ZL09o.png'
-
 	const placeHolder = "_xCodexBlockxPlacexHolderx_"
 
-	var editCount = 0, reasons = {}, replacedStrings = [],
-		postId, bodyBox, titleBox, summaryBox, buttonBar
+	function getDefaultData(){
+		return {
+			editCount:0, reasons:{}, placeholderActuals:[], completed:0,
+			postId:0, bodyBoxA:0, titleBox:0, summaryBox:0, buttonBar:0,
+			replacements:[]
+		}
+	}
 
-	function fixIt(input, expression, replacement, reason){
+	function fixIt(d, input, expression, replacement, reason){
 		if (!input) return
-		var match = input.search(expression)
-		if (match == -1) return // Nothing matched
+		for(let m of input.matchAll(expression)){
+			var a = m[0]
+			var b = a.replace(expression, replacement)
+			if (a != b){
+				d.replacements.push({i:a,o:b,r:reason})
+			}
+		}
 		var output = input.replace(expression, replacement)
 		if (output === input) return // Nothing was changed
-		editCount++
+		d.editCount++
 		return {
 			reason: reason,
 			output: output
 		}
 	}
 
-	function output(data){
-		if (!bodyBox) return
+	function output(d){
+		if (!d.bodyBox) return
 
-		// Visually confirm edit - SE makes it easy because the jQuery color animation plugin seems to be there by default
-		bodyBox.animate({
+		d.bodyBox.animate({
 			// Flash red or green depending on whether edits were made
-			backgroundColor: editCount==0?'#ffc8a7':'#c8ffa7'
+			backgroundColor: d.editCount==0?'#ffc8a7':'#c8ffa7'
 		}, 10)
-		bodyBox.animate({
+		d.bodyBox.animate({
 			// Then back to white
 			backgroundColor: '#fff'
 		}, 1000)
 
-		if (titleBox) titleBox.val(data.title)
-		bodyBox.val(data.body)
+		if (d.titleBox) d.titleBox.val(d.title)
+		d.bodyBox.val(d.body)
 
-		if (summaryBox.val()){
-			data.summary = " " + data.summary; // Add a leading space if there's something already in the box
+		if (d.summaryBox.val()){
+			d.summary = " " + d.summary; // Add a leading space if there's something already in the box
 		}
-		summaryBox.val(summaryBox.val() + data.summary)
+		d.summaryBox.val(d.summaryBox.val() + d.summary)
 
 		// Dispatching a keypress to the edit body box causes stack exchange to reparse the markdown out of it
-		bodyBox[0].dispatchEvent(new Event('keypress'))
+		d.bodyBox[0].dispatchEvent(new Event('keypress'))
 	}
 
-	function edit(data){
-		data.body = omitCode(data.body)
+	function edit(d){
+		d.body = omitCode(d, d.body)
 		// Loop through all editing rules
 		$.each(editRules, function(x, rule){
 			// Fix both the title and the body
 			$.each(["title","body"], function(x, type){
-				var fix = fixIt(data[type], rule.expr, rule.replacement, rule.reason)
+				var fix = fixIt(d, d[type], rule.expr, rule.replacement, rule.reason)
 				if (fix){
 					// Store reasons as hash keys in a map to prevent duplicates
-					if (fix.reason) reasons[fix.reason] = 1
-					data[type] = fix.output
+					if (fix.reason) d.reasons[fix.reason] = 1
+					d[type] = fix.output
 				}
 			})
 		})
 
 		// Create a summary of all the reasons
-		$.each(reasons, function (reason) {
-			if (!data.summary) data.summary = ''
+		$.each(d.reasons, function (reason) {
+			if (!d.summary) d.summary = ''
 			// Check that summary is not getting too long
-			if (data.summary.length < 200){
-				data.summary += (data.summary.length==0?"":"; ") + reason
+			if (d.summary.length < 200){
+				d.summary += (d.summary.length==0?"":"; ") + reason
 			}
 		})
 
-		data.body = replaceCode(data.body)
-		return data
+		d.body = replaceCode(d, d.body)
+		return d
 	}
 
-	// Button styling
 	GM_addStyle(`
 		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
 		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+		.toolkitinfo{height:100%;width:100%;left:0;right:0;overflow:auto;position:fixed;background:#fff;z-index:99999;padding:1em}
+		.toolkitinfo table{border-spacing.5em;}
+		.toolkitinfo h1{margin-top:2em}
+		.toolkitinfo th{font-weight:bold}
+		.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
+		.toolkitinfo td{font-family:monospace;white-space:pre}
 	`)
+
+	//Preload icon alt
+	new Image().src = '//i.imgur.com/79qYzkQ.png'
+	new Image().src = '//i.imgur.com/d5ZL09o.png'
 
 	// Continually monitor for newly created editing widgets
 	setInterval(function(){
@@ -303,22 +317,48 @@
 			// If this edit widget doesn't already have our button
 			if (!$(this).find('.toolkitfix').length){
 				// Create and add the button
+				var d = getDefaultData()
 				var button = $('<li class="wmd-button toolkitfix" title="Auto edit">').click(function(e){
-					// button was clicked, do all the replacements
 					e.preventDefault()
-					buttonBar = $(this).parents('.wmd-button-bar')
-					postId = buttonBar.attr('id').match(/[0-9]+/)[0]
-					reasons = {}
-					replacedStrings = []
-					editCount = 0
-					bodyBox = $('#wmd-input-' + postId)
-					titleBox = $(".js-post-title-field")
-					summaryBox = $('.js-post-edit-comment-field')
-					output(edit({
-						title: titleBox?titleBox.val():'',
-						body: bodyBox.val(),
-						summary: ''
-					}))
+					if (d.completed){
+						// Second time button clicked, show a report
+						var td = runTests()
+						var info = $('<div class=toolkitinfo>').click(function(){
+							info.remove()
+						}), table
+						if (!d.replacements.length){
+							info.append($("<h1>No edits made!</h1>"))
+						} else {
+							info.append($("<h1>Edits made:</h1>"))
+							table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
+							$.each(d.replacements, (x,r)=>{
+								table.append($("<tr>").append($("<td>").text(r.i)).append($("<td>").text(r.o)).append($("<td>").text(r.r)))
+							})
+							info.append(table)
+						}
+						if (!td.failures.length){
+							info.append($("<h1>All unit tests passed!</h1>"))
+						} else {
+							info.append($("<h1>Unit test failures:</h1>"))
+							table = $("<table>").append($("<tr><th>Input</th><th>Output</th><th>Expected</th></tr>"))
+							$.each(td.failures, (x,f)=>{
+								table.append($("<tr>").append($("<td>").text(f.method+"("+f.input+")")).append($("<td>").text(f.actual)).append($("<td>").text(f.expected)))
+							})
+							info.append(table)
+						}
+						$('body').append(info)
+					} else {
+						// First time button clicked, do all the replacements
+						d.buttonBar = $(this).parents('.wmd-button-bar')
+						d.postId = d.buttonBar.attr('id').match(/[0-9]+/)[0]
+						d.bodyBox = $('#wmd-input-' + d.postId)
+						d.titleBox = $(".js-post-title-field")
+						d.summaryBox = $('.js-post-edit-comment-field')
+						d.title = d.titleBox?d.titleBox.val():''
+						d.body = d.bodyBox.val()
+						output(edit(d))
+						d.completed=true
+					}
 				})
 				$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(button)
 			}
@@ -326,20 +366,21 @@
 	},200)
 
 	function runTests(){
-		console.log("RUNNING TESTS")
+		var td = {failures:[]}
 
-		function expectEql(actual, expected, input){
+		function expectEql(method, actual, expected, input){
 			if (actual != expected){
-				console.log("Actual:\n" + actual + "\n\nExpected:\n" + expected + "" + (input?"\n\nInput:\n" + input:""));
+				td.failures.push({method:method,actual:actual,expected:expected,input:input})
 			}
 		}
 
 		function testEdit(i, o){
-			var data={body:i}
-			if (!/[\r\n]/.exec(i)) data.title=i
-			edit(data)
-			expectEql(data.title, o, i)
-			expectEql(data.body, o, i)
+			var d=getDefaultData()
+			d.body=i
+			if (!/[\r\n]/.exec(i)) d.title=i
+			edit(d)
+			expectEql("edit", d.title, o, i)
+			expectEql("edit", d.body, o, i)
 		}
 
 		$.each([
@@ -435,8 +476,8 @@
 			{s:" ",c:"<a href=foo>"}
 		], function(i,t){
 			i = "Lorum"+t.s+t.c+t.s+"ipsum"
-			expectEql(omitCode(i), "Lorum"+t.s+placeHolder+t.s+"ipsum",i)
+			expectEql("omitCode", omitCode(getDefaultData(), i), "Lorum"+t.s+placeHolder+t.s+"ipsum",i)
 		})
+		return td
 	}
-	runTests()
 })()
