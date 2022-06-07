@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name Stack-Exchange-Editor-Toolkit
+// @name Stack Exchange Auto Editor
 // @author Stephen Ostermiller
 // @author Cameron Bernhardt (AstroCB)
 // @developer Jonathan Todd (jt0dd)
 // @developer sathyabhat
 // @contributor Unihedron
 // @license MIT
-// @namespace http://github.com/AstroCB
-// @version 1.5.2
-// @description Fix common grammar/usage annoyances on Stack Exchange posts with a click
+// @namespace https://ostermiller.org/
+// @version 1.0.0
+// @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
 // @match https://*.stackexchange.com/questions/*
 // @match https://*.stackexchange.com/review/*
 // @match https://*.stackoverflow.com/*questions/*
