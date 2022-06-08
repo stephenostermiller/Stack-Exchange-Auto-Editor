@@ -55,7 +55,7 @@
 			expr: /(^|\s)((?:(?:https?:\/\/)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\/[^ ]*)?))(\s|$)/gmi,
 			replacement: "$1`$2`$3",
 			reason: "Code format example URL",
-			context: ["text","code","url"]
+			context: ["text","url"]
 		},
 		capitalizeWord("AngularJS"),
 		capitalizeWord("GitHub"),
@@ -121,7 +121,7 @@
 			reason: "Spelling"
 		},{
 			// Insert spaces after commas
-			expr: /,([^\s])/g,
+			expr: /,([[a-z])/g,
 			replacement: ", $1",
 			reason: "Grammar"
 		},{
@@ -264,13 +264,13 @@
 						ruleEditCount++
 					}
 				}
-			}
-			var output = input.replace(rule.expr, rule.replacement)
-			if (output != input){
-				d.editCount+=ruleEditCount
-				// Store reasons as hash keys in a map to prevent duplicates
-				d.reasons[rule.reason] = 1
-				input = output
+				var output = input.replace(rule.expr, rule.replacement)
+				if (output != input){
+					d.editCount+=ruleEditCount
+					// Store reasons as hash keys in a map to prevent duplicates
+					d.reasons[rule.reason] = 1
+					input = output
+				}
 			}
 		})
 		return input
@@ -367,7 +367,12 @@
 								}
 								table.append($("<tr>").append($("<td>").text(r.i)).append($("<td>").text(r.o)).append($("<td>").text(r.r)))
 							})
-							info.append(table).append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
+							info.append(table)
+							try {
+								info.append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
+							} catch (x){
+								info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
+							}
 						}
 						if (!td.failures.length){
 							info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
@@ -500,13 +505,15 @@
 			}
 		}
 
-		function testEdit(i, o){
-			var d=getDefaultData()
-			d.body=i
-			if (!/[\r\n]/.exec(i)) d.title=i
+		function testEdit(input, output, titleOutput){
+			if (!titleOutput) titleOutput = output
+			var d=getDefaultData(),
+			testTitle = !/[\r\n`]|    |~~~/.exec(input) // No title tests multi-line or markdown
+			if (testTitle) d.title=input
+			d.body=input
 			edit(d)
-			expectEql("edit", d.title, o, i)
-			expectEql("edit", d.body, o, i)
+			if (testTitle) expectEql("editTitle", d.title, titleOutput, input)
+			expectEql("editBody", d.body, output, input)
 		}
 
 		$.each([
@@ -514,14 +521,14 @@
 			{i:'Lorum ipsum. any suggestions?',o:'Lorum ipsum.'},
 			{i:'Hello! Lorum ipsum.',o:'Lorum ipsum.'},
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
-			{i:'Visit site.tld',o:'Visit `site.example`'},
+			{i:'Visit site.tld',o:'Visit `site.example`',t:'Visit site.example'},
 			{i:'`ourhome.net`',o:'`ourhome.example`'},
 			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
 			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
-			{i:'`fooexample.org`',o:'`foo.example`'},
+			{i:'    fooexample.org',o:'    foo.example'},
 			{i:'`examplelorum.org`',o:'`lorum.example`'},
-			{i:'http://mydomain.com/',o:'`http://mydomain.example/`'},
+			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'},
 			{i:'Hello guys , good afternoon. Lorum ipsum',o:'Lorum ipsum'},
 			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
 			{i:'See foo.html here',o:'See foo.html here'},
@@ -529,8 +536,10 @@
 			{i:'first letter upper',o:'First letter upper'},
 			{i:'What ?',o:"What?"},
 			{i:'A ... b',o:"A ... b"},
+			{i:'12,345',o:"12,345"},
+			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
 		], function(x,io){
-			testEdit(io.i, io.o)
+			testEdit(io.i, io.o, io.t)
 		})
 
 		$.each([
@@ -586,7 +595,6 @@
 				testEdit('Lorum ipsum ' + i + '.', 'Lorum ipsum ' + io.o + '.')
 			})
 		})
-
 		return td
 	}
 })()
