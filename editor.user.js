@@ -26,36 +26,38 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (function(){
-
-    // Rules for making edits in code
-    var editCodeRules = [
-        {
-			expr: /\b(?:((?:[a-z0-9\.\-]+\.)?[a-z0-9\-]+)example([a-z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
-			replacement: "$1$2.example$3",
-			reason: "Use example domain"
-		},{
-			expr: /\b(?:([a-z0-9\-\.]*)example([a-z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
-			replacement: "$1$2.example$3",
-			reason: "Use example domain"
-		},{
-			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
-			replacement: "$1.example$2",
-			reason: "Use example domain"
-		},{
-			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
-			replacement: "$1.example$2",
-			reason: "Use example domain"
-		}
-    ]
-
-    // Rules for making edits in text (not code)
-	var editRules = [
+	var rules = [
 		{
 			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
 			replacement: "$1://$2.",
 			reason: "Fix URL"
+		},{
+			expr: /\b(?:((?:[a-z0-9\.\-]+\.)?[a-z0-9\-]+)example([a-z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1$2.example$3",
+			reason: "Use example domain",
+			context: ["title","text","code","url"]
+		},{
+			expr: /\b(?:([a-z0-9\-\.]*)example([a-z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1$2.example$3",
+			reason: "Use example domain",
+			context: ["title","text","code","url"]
+		},{
+			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1.example$2",
+			reason: "Use example domain",
+			context: ["title","text","code","url"]
+		},{
+			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			replacement: "$1.example$2",
+			reason: "Use example domain",
+			context: ["title","text","code","url"]
+		},{
+			expr: /(^|\s)((?:(?:https?:\/\/)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\/[^ ]*)?))(\s|$)/gmi,
+			replacement: "$1`$2`$3",
+			reason: "Code format example URL",
+			context: ["text","code","url"]
 		},
-        capitalizeWord("AngularJS"),
+		capitalizeWord("AngularJS"),
 		capitalizeWord("GitHub"),
 		capitalizeWord("iOS"),
 		capitalizeWordAndVersion("iOS", null, " "),
@@ -74,7 +76,7 @@
 		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
 		capitalizeWord("WordPress"),
-        {
+		{
 			// Proper nouns
 			expr: /(^|\s)(Android|Apache|Git|Google|Java|Linux|Oracle|Windows)\b(\S|)(?!\S)/igm,
 			replacement: ($0,$1,$2,$3) => $1+$2[0].toUpperCase()+$2.substring(1).toLowerCase()+$3,
@@ -96,15 +98,6 @@
 			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
 			replacement: "",
 			reason: "Remove edit indicator"
-		},
-        editCodeRules[0],
-        editCodeRules[1],
-        editCodeRules[2],
-        editCodeRules[3],
-        {
-			expr: /(^|\s)((?:(?:https?:\/\/)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\/[^ ]*)?))(\s|$)/gmi,
-			replacement: "$1`$2`$3",
-			reason: "Code format example URL"
 		},{
 			expr: /(^|\s)c(#|\++|\s|$)/gm,
 			replacement: "$1C$2",
@@ -135,7 +128,7 @@
 			// Remove spaces before punctuation
 			expr: /[ ]+([,\!\?\.\:](?:\s|$))/gm,
 			replacement: "$1",
-			reason: "Grammar 1"
+			reason: "Grammar"
 		},{
 			expr: /\[enter image description here\]/g,
 			replacement: "[]",
@@ -187,101 +180,110 @@
 			reason: "Spelling"
 		}
 	}
-
-	// Put placeholders in for chunks like code blocks where replacements shouldn't be made
-	// And record removed blocks in a list so they can be reinserted later
-	function omitCode(d, str){
-		str = str.replace(new RegExp("(?:" +[
-			/^(?: {0,3}>)*    .*(?:[\r\n]+(?: {0,3}>)*    .*)*/, // 4 space indented code block (also handles code in > blockquote)
-			/`[^\r\n`]+`/, // backtick inline code
+	function tokenizeMarkdown(str){
+		var tokens=[], m,
+		startSearchRegex = new RegExp("(?:" + [
+			/<[^>\r\n]+>/, // HTML tag
+			/^(?: {0,3}>)*    /, // start of indented code
+			/`/, // start of single backtick code
+			/^ {0,3}(?:~{3,}|`{3,})/, // start of code fence
+			/\]\([^\)\r\n]+\)/, // link
+			/^ {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*/, // link
+			/https?\:\/\/[^ \t\r\n]*/ // URL
+		].map(function(r) {return r.source}).join(')|(?:') + ")","gmi"),
+		codeMatchRegex = new RegExp("^(?:(?:" + [
+			/(?: {0,3}>)*    .*(?:[\r\n]+(?: {0,3}>)*    .*)*/, // indented block
+			/`[^`\r\n]*`/, // single back ticks
 			/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML pre tags
 			/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
-			/<[^>]+>/, // Other HTML tags
-			/`{3}[^`][\s\S]*?`{3}/, // 3 backtick code fence
-			/`{4}[^`][\s\S]*?`{4}/, // 4 backtick code fence
-			/`{5}[^`][\s\S]*?`{5}/,
-			/`{6}[^`][\s\S]*?`{6}/,
-			/`{7}[^`][\s\S]*?`{7}/,
-			/`{8}[^`][\s\S]*?`{8}/,
-			/`{9}[^`][\s\S]*?`{9}/,
-			/`{10}[^`][\s\S]*?`{10}/,
-			/~{3}[^~][\s\S]*?~{3}/, // 3 tilde code fence
-			/~{4}[^~][\s\S]*?~{4}/, // 4 tilde code fence
-			/~{5}[^~][\s\S]*?~{5}/,
-			/~{6}[^~][\s\S]*?~{6}/,
-			/~{7}[^~][\s\S]*?~{7}/,
-			/~{8}[^~][\s\S]*?~{8}/,
-			/~{9}[^~][\s\S]*?~{9}/,
-			/~{10}[^~][\s\S]*?~{10}/ // Arbitrarily large code fences are possible, but have to stop somewhere
-			// Combine all the above into a single massive regex With "or" between each piece
-		].map(function(r) {return r.source}).join(')|(?:') + ")","gm"), function(match){
-			d.placeholderActuals.push(editCode(d, match))
-			return placeHolder
-		})
-		return str
-	}
+		].map(function(r) {return r.source}).join(')|(?:') + "))")
 
-    function editCode(d, code){
-		$.each(editCodeRules, function(x, rule){
-            var fix = fixIt(d, code, rule.expr, rule.replacement, rule.reason)
-            if (fix) code = fix.output
-        })
-        return code
-    }
-
-	// Fill placeholders back in with their respective code snippets
-	function replaceCode(d, str){
-		for (var i = 0; i < d.placeholderActuals.length; i++){
-			str = str.replace(placeHolder, d.placeholderActuals[i])
+		while((m = str.search(startSearchRegex)) != -1){
+			if (m>0) tokens.push({type:"text",content:str.substr(0,m)})
+			str=str.substr(m)
+			if (m = str.match(/^ {0,3}(~{3,}|`{3,})/)){
+				// code fence
+				var begin = m[0],
+				length = begin.length,
+				fence = m[1],
+				end = str.substr(length)
+				if ((m = end.search(new RegExp("^ {0,3}"+fence,"gm"))) != -1){
+					length+=m
+					end = end.substr(m)
+					m = end.match(new RegExp("^ {0,3}"+fence.charAt(0)+"+"))
+					length += m[0].length
+					tokens.push({type:"code",content:str.substr(0,length)})
+					str = str.substr(length)
+				} else {
+					tokens.push({type:"code",content:str})
+					return tokens
+				}
+			} else if (m = str.match(codeMatchRegex)){
+				tokens.push({type:"code",content:m[0]})
+				str=str.substr(m[0].length)
+			} else if (m = str.match(/^<[^>]+>/)){
+				// Other HTML tags
+				tokens.push({type:"html",content:m[0]})
+				str=str.substr(m[0].length)
+			} else if (m = str.match(/^(?:(?:\]\([^\)\r\n]+\))|(?: {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*))/)){
+				tokens.push({type:"link",content:m[0]})
+				str=str.substr(m[0].length)
+			} else if (m = str.match(/^https?\:\/\/[^ \t\r\n]*/i)){
+				// Other HTML tags
+				tokens.push({type:"url",content:m[0]})
+				str=str.substr(m[0].length)
+			} else if (str){
+				tokens.push({type:"error",content:str})
+				return tokens
+			}
 		}
-		return str
+		if (str)tokens.push({type:"text",content:str})
+		return tokens
 	}
 
 	// Access to jQuery via dollar sign variable
 	var $ = unsafeWindow.jQuery
 
-	const placeHolder = "_xCodexBlockxPlacexHolderx_"
-
 	function getDefaultData(){
 		return {
-			editCount:0, reasons:{}, placeholderActuals:[], completed:0,
-			postId:0, bodyBoxA:0, titleBox:0, summaryBox:0, buttonBar:0,
-			replacements:[]
+			editCount:0, reasons:{}, completed:0, postId:0, bodyBox:0,
+			titleBox:0, summaryBox:0, buttonBar:0, replacements:[]
 		}
 	}
 
-	function fixIt(d, input, expression, replacement, reason){
-		if (!input) return
-        var ruleEditCount = 0
-		for(let m of input.matchAll(expression)){
-			var a = m[0]
-			var b = a.replace(expression, replacement)
-			if (a != b){
-				d.replacements.push({i:a,o:b,r:reason})
-                ruleEditCount++
+	function applyRules(d, input, type){
+		$.each(rules, (x, rule)=>{
+			var context = rule.context || ["title","text"]
+			if (context.includes(type)){
+				var ruleEditCount = 0
+				for(let m of input.matchAll(rule.expr)){
+					var a = m[0]
+					var b = a.replace(rule.expr, rule.replacement)
+					if (a != b){
+						d.replacements.push({i:a,o:b,r:rule.reason})
+						ruleEditCount++
+					}
+				}
 			}
-		}
-		var output = input.replace(expression, replacement)
-		if (output === input) return // Nothing was changed
-		d.editCount+=ruleEditCount
-        // Store reasons as hash keys in a map to prevent duplicates
-        if (reason) d.reasons[reason] = 1
-		return {
-			reason: reason,
-			output: output
-		}
+			var output = input.replace(rule.expr, rule.replacement)
+			if (output != input){
+				d.editCount+=ruleEditCount
+				// Store reasons as hash keys in a map to prevent duplicates
+				d.reasons[rule.reason] = 1
+				input = output
+			}
+		})
+		return input
 	}
 
 	function edit(d){
-		d.body = omitCode(d, d.body)
-		// Loop through all editing rules
-		$.each(editRules, (x, rule)=>{
-			// Fix both the title and the body
-			$.each(["title","body"], (x, type)=>{
-				var fix = fixIt(d, d[type], rule.expr, rule.replacement, rule.reason)
-				if (fix) d[type] = fix.output
-			})
-		})
+		d.bodyTokens = tokenizeMarkdown(d.body)
+		for (var i=0; i<d.bodyTokens.length; i++){
+			d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type)
+		}
+		d.body = d.bodyTokens.map(t=>t.content).join("")
+
+		if (d.title) d.title = applyRules(d, d.title, "title")
 
 		// Create a summary of all the reasons
 		$.each(d.reasons, function (reason) {
@@ -292,7 +294,6 @@
 			}
 		})
 
-		d.body = replaceCode(d, d.body)
 		return d
 	}
 
@@ -360,10 +361,10 @@
 							info.append($("<h1>Edits made:</h1>"))
 							table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
 							$.each(d.replacements, (x,r)=>{
-                                if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
-                                    r.i=r.i.replace(/^\s+/,"")
-                                    r.o=r.o.replace(/^\s+/,"")
-                                }
+								if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
+									r.i=r.i.replace(/^\s+/,"")
+									r.o=r.o.replace(/^\s+/,"")
+								}
 								table.append($("<tr>").append($("<td>").text(r.i)).append($("<td>").text(r.o)).append($("<td>").text(r.r)))
 							})
 							info.append(table).append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
@@ -398,16 +399,105 @@
 		})
 	},200)
 
+	/*
+	 * Javascript Diff Algorithm
+	 *	By John Resig (http://ejohn.org/)
+	 *	Modified by Chu Alan "sprite"
+	 *
+	 * Released under the MIT license.
+	 *
+	 * More Info:
+	 *	http://ejohn.org/projects/javascript-diff-algorithm/
+	 */
+	function diff2html(o, n){
+		function diff(o, n){
+			var ns = {}, os = {}, i
+
+			for (i = 0; i < n.length; i++){
+				if (ns[n[i]] == null) ns[n[i]] = {rows:[], o: null}
+				ns[n[i]].rows.push(i)
+			}
+
+			for (i = 0; i < o.length; i++){
+				if (os[o[i]] == null) os[o[i]] = {rows:[], n: null}
+				os[o[i]].rows.push(i)
+			}
+
+			for (i in ns){
+				if (ns[i].rows.length == 1 && typeof(os[i]) != "undefined" && os[i].rows.length == 1){
+					n[ns[i].rows[0]] = {text: n[ns[i].rows[0]], row: os[i].rows[0]}
+					o[os[i].rows[0]] = {text: o[os[i].rows[0]], row: ns[i].rows[0]}
+				}
+			}
+
+			for (i = 0; i < n.length - 1; i++){
+				if (n[i].text != null && n[i+1].text == null && n[i].row + 1 < o.length && o[n[i].row + 1].text == null && n[i+1] == o[n[i].row + 1]){
+					n[i+1] = {text: n[i+1], row: n[i].row + 1}
+					o[n[i].row+1] = {text: o[n[i].row+1], row: i + 1}
+				}
+			}
+
+			for (i = n.length - 1; i > 0; i--){
+				if (n[i].text != null && n[i-1].text == null && n[i].row > 0 && o[n[i].row - 1].text == null &&	 n[i-1] == o[n[i].row - 1]){
+					n[i-1] = {text: n[i-1], row: n[i].row - 1}
+					o[n[i].row-1] = {text: o[n[i].row-1], row: i - 1}
+				}
+			}
+
+			return {o: o, n: n}
+		}
+
+		function eschtml(s) {
+			return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+		}
+
+		o = o.replace(/\s+$/, '')
+		n = n.replace(/\s+$/, '')
+
+		var out = diff(o == "" ? [] : o.split(/\s+/), n == "" ? [] : n.split(/\s+/)),
+		str = "", i,
+		oSpace = o.match(/\s+/g) || [],
+		nSpace = n.match(/\s+/g) || []
+		oSpace.push("\n")
+		nSpace.push("\n")
+
+		if (out.n.length == 0){
+			for (i = 0; i < out.o.length; i++){
+				str += '<del>' + eschtml(out.o[i]) + oSpace[i] + "</del>"
+			}
+		} else {
+			if (out.n[0].text == null){
+				for (n = 0; n < out.o.length && out.o[n].text == null; n++){
+					str += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
+				}
+			}
+
+			for (i = 0; i < out.n.length; i++){
+				if (out.n[i].text == null){
+					str += '<ins>' + eschtml(out.n[i]) + nSpace[i] + "</ins>"
+				} else {
+					var pre = ""
+
+					for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++){
+						pre += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
+					}
+					str += " " + eschtml(out.n[i].text) + nSpace[i] + pre
+				}
+			}
+		}
+		return str
+	}
+
 	function runTests(){
 		var td = {failures:[],count:0,passed:0}
 
 		function expectEql(method, actual, expected, input){
-            td.count++
+			td.count++
 			if (actual != expected){
 				td.failures.push({method:method,actual:actual,expected:expected,input:input})
 			} else {
-                td.passed++
-            }
+				td.passed++
+			}
 		}
 
 		function testEdit(i, o){
@@ -497,122 +587,6 @@
 			})
 		})
 
-		$.each([
-			{s:" ",c:"`code`"},
-			{s:"\n",c:"    code"},
-			{s:"\n",c:"    code\n    code\n    code"},
-			{s:"\n",c:">    code"},
-			{s:"\n",c:" >    code\n  >    code\n  >    code"},
-			{s:"\n",c:">>    code"},
-			{s:"\n",c:" > >    code\n  >  >    code\n   >   >    code"},
-			{s:"\n",c:"```\ncode\n```"},
-			{s:"\n",c:"````\ncode\n````"},
-			{s:"\n",c:"`````\ncode\n`````"},
-			{s:"\n",c:"``````\ncode\n``````"},
-			{s:"\n",c:"~~~\ncode\n~~~"},
-			{s:"\n",c:"~~~~\ncode\n~~~~"},
-			{s:"\n",c:"~~~~~\ncode\n~~~~~"},
-			{s:"\n",c:"~~~~~~\ncode\n~~~~~~"},
-			{s:" ",c:"<pre>code\n</pre>"},
-			{s:" ",c:"< pre id='foo'>code\n< / pre >"},
-			{s:" ",c:"<code>code\n</code>"},
-			{s:" ",c:"< code id='foo'>code\n< / code >"},
-			{s:" ",c:"<p id=a>"},
-			{s:" ",c:"</p>"},
-			{s:" ",c:"<a href=foo>"}
-		], function(i,t){
-			i = "Lorum"+t.s+t.c+t.s+"ipsum"
-			expectEql("omitCode", omitCode(getDefaultData(), i), "Lorum"+t.s+placeHolder+t.s+"ipsum",i)
-		})
 		return td
-	}
-
-	/*
-	 * Javascript Diff Algorithm
-	 *	By John Resig (http://ejohn.org/)
-	 *	Modified by Chu Alan "sprite"
-	 *
-	 * Released under the MIT license.
-	 *
-	 * More Info:
-	 *	http://ejohn.org/projects/javascript-diff-algorithm/
-	 */
-	function diff2html(o, n){
-        function diff(o, n){
-			var ns = {}, os = {}, i
-
-			for (i = 0; i < n.length; i++){
-				if (ns[n[i]] == null) ns[n[i]] = {rows:[], o: null}
-				ns[n[i]].rows.push(i)
-			}
-
-			for (i = 0; i < o.length; i++){
-				if (os[o[i]] == null) os[o[i]] = {rows:[], n: null}
-				os[o[i]].rows.push(i)
-			}
-
-			for (i in ns){
-				if (ns[i].rows.length == 1 && typeof(os[i]) != "undefined" && os[i].rows.length == 1){
-					n[ns[i].rows[0]] = {text: n[ns[i].rows[0]], row: os[i].rows[0]}
-					o[os[i].rows[0]] = {text: o[os[i].rows[0]], row: ns[i].rows[0]}
-				}
-			}
-
-			for (i = 0; i < n.length - 1; i++){
-				if (n[i].text != null && n[i+1].text == null && n[i].row + 1 < o.length && o[n[i].row + 1].text == null && n[i+1] == o[n[i].row + 1]){
-					n[i+1] = {text: n[i+1], row: n[i].row + 1}
-					o[n[i].row+1] = {text: o[n[i].row+1], row: i + 1}
-				}
-			}
-
-			for (i = n.length - 1; i > 0; i--){
-				if (n[i].text != null && n[i-1].text == null && n[i].row > 0 && o[n[i].row - 1].text == null &&	 n[i-1] == o[n[i].row - 1]){
-					n[i-1] = {text: n[i-1], row: n[i].row - 1}
-					o[n[i].row-1] = {text: o[n[i].row-1], row: i - 1}
-				}
-			}
-
-			return {o: o, n: n}
-		}
-
-        function eschtml(s) {
-            return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-        }
-
-		o = o.replace(/\s+$/, '')
-		n = n.replace(/\s+$/, '')
-
-		var out = diff(o == "" ? [] : o.split(/\s+/), n == "" ? [] : n.split(/\s+/)),
-		str = "", i,
-		oSpace = o.match(/\s+/g) || [],
-        nSpace = n.match(/\s+/g) || []
-		oSpace.push("\n")
-        nSpace.push("\n")
-
-		if (out.n.length == 0){
-            for (i = 0; i < out.o.length; i++){
-                str += '<del>' + eschtml(out.o[i]) + oSpace[i] + "</del>"
-            }
-		} else {
-			if (out.n[0].text == null){
-				for (n = 0; n < out.o.length && out.o[n].text == null; n++){
-					str += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
-				}
-			}
-
-			for (i = 0; i < out.n.length; i++){
-				if (out.n[i].text == null){
-					str += '<ins>' + eschtml(out.n[i]) + nSpace[i] + "</ins>"
-				} else {
-					var pre = ""
-
-					for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++){
-						pre += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
-					}
-					str += " " + eschtml(out.n[i].text) + nSpace[i] + pre
-				}
-			}
-		}
-		return str
 	}
 })()
