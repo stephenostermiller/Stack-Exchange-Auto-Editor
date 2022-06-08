@@ -25,7 +25,7 @@
 // @match https://*.stackapps.com/review/*
 // @grant GM_addStyle
 // ==/UserScript==
-(function(){
+(()=>{
 	var rules = [
 		{
 			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
@@ -184,19 +184,19 @@
 		var tokens=[], m,
 		startSearchRegex = new RegExp("(?:" + [
 			/<[^>\r\n]+>/, // HTML tag
-			/^(?: {0,3}>)*    /, // start of indented code
+			/^(?: {0,3}>)* {4}/, // start of indented code
 			/`/, // start of single backtick code
 			/^ {0,3}(?:~{3,}|`{3,})/, // start of code fence
 			/\]\([^\)\r\n]+\)/, // link
 			/^ {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*/, // link
 			/https?\:\/\/[^ \t\r\n]*/ // URL
-		].map(function(r) {return r.source}).join(')|(?:') + ")","gmi"),
+		].map(r=>r.source).join(')|(?:') + ")","gmi"),
 		codeMatchRegex = new RegExp("^(?:(?:" + [
-			/(?: {0,3}>)*    .*(?:[\r\n]+(?: {0,3}>)*    .*)*/, // indented block
+			/(?: {0,3}>)* {4}.*(?:[\r\n]+(?: {0,3}>)* {4}.*)*/, // indented block
 			/`[^`\r\n]*`/, // single back ticks
 			/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML pre tags
 			/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
-		].map(function(r) {return r.source}).join(')|(?:') + "))")
+		].map(r=>r.source).join(')|(?:') + "))")
 
 		while((m = str.search(startSearchRegex)) != -1){
 			if (m>0) tokens.push({type:"text",content:str.substr(0,m)})
@@ -357,7 +357,7 @@
 	})
 
 	// Continually monitor for newly created editing widgets
-	setInterval(function(){
+	setInterval(()=>{
 		$('.wmd-button-bar').each(function(){
 			// If this edit widget isn't the "add new answer box" and doesn't already have our button
 			if ($(this).attr('id')!='wmd-button-bar' && !$(this).find('.toolkitfix').length){
@@ -369,9 +369,7 @@
 						// Second time button clicked, show a report
 						if($('.toolkitinfo').length) return // already open
 						var td = runTests()
-						var info = $('<div class=content>').append($("<button>Close</button>").click(function(){
-							info.parent().remove()
-						})), table
+						var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
 						if (!d.replacements.length){
 							info.append($("<h1>No edits made!</h1>"))
 						} else {
@@ -532,7 +530,7 @@
 		function testEdit(input, output, titleOutput){
 			if (!titleOutput) titleOutput = output
 			var d=getDefaultData(),
-			testTitle = !/[\r\n`]|    |~~~/.exec(input) // No title tests multi-line or markdown
+			testTitle = !/[\r\n`]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
 			if (testTitle) d.title=input
 			d.body=input
 			edit(d)
@@ -562,7 +560,7 @@
 			{i:'A ... b',o:"A ... b"},
 			{i:'12,345',o:"12,345"},
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
-		], function(x,io){
+		], (x,io)=>{
 			testEdit(io.i, io.o, io.t)
 		})
 
@@ -611,9 +609,9 @@
 			{i:['win xp','WIN XP','windows xp','windows XP'],o:'Windows XP'},
 			{i:['wordpress','Wordpress'],o:'WordPress'},
 			{i:['youve'],o:'you\'ve'},
-		], function(x, io){
+		], (x, io)=>{
 			io.i.push(io.o)
-			$.each(io.i, function(x,i){
+			$.each(io.i, (x,i)=>{
 				testEdit('Lorum ' + i + ' ipsum.', 'Lorum ' + io.o + ' ipsum.')
 				testEdit('Lorum ipsum ' + i, 'Lorum ipsum ' + io.o)
 				testEdit('Lorum ipsum ' + i + '.', 'Lorum ipsum ' + io.o + '.')
