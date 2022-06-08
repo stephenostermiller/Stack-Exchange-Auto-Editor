@@ -32,22 +32,22 @@
 			replacement: "$1://$2.",
 			reason: "Fix URL"
 		},{
-			expr: /\b(?:((?:[a-z0-9\.\-]+\.)?[a-z0-9\-]+)example([a-z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			expr: /\b(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1$2.example$3",
 			reason: "Use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /\b(?:([a-z0-9\-\.]*)example([a-z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			expr: /\b(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1$2.example$3",
 			reason: "Use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /\b((?:my|your|our|new|old|foo|client)[a-z]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			expr: /\b((?:my|your|our|new|old|foo|client)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1.example$2",
 			reason: "Use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /\b([a-z]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))(\s|\/|$|`)/gm,
+			expr: /\b([a-zA-Z0-9\-]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1.example$2",
 			reason: "Use example domain",
 			context: ["title","text","code","url"]
@@ -546,7 +546,7 @@
 			{i:'Hello! Lorum ipsum.',o:'Lorum ipsum.'},
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
 			{i:'Visit site.tld',o:'Visit `site.example`',t:'Visit site.example'},
-			{i:'`ourhome.net`',o:'`ourhome.example`'},
+			{i:'`ourHome.net`',o:'`ourHome.example`'},
 			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
 			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
