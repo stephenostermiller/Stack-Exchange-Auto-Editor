@@ -83,7 +83,7 @@
 			reason: "Capitalization"
 		},{
 			// Always all caps
-			expr: /(^|\s)(AJAX|API|CSS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URL|XML)\b(\S|)(?!\S)/igm,
+			expr: /(^|\s)(AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URL|XML)\b(\S|)(?!\S)/igm,
 			replacement: ($0,$1,$2,$3) => $1+$2.toUpperCase()+$3,
 			reason: "Capitalization"
 		},{
@@ -309,13 +309,7 @@
 			backgroundColor: '#fff'
 		}, 1000)
 
-		if (d.titleBox) d.titleBox.val(d.title)
-		d.bodyBox.val(d.body)
-
-		if (d.summaryBox.val()){
-			d.summary = " " + d.summary; // Add a leading space if there's something already in the box
-		}
-		d.summaryBox.val(d.summaryBox.val() + d.summary)
+		if(d.summary) d.summaryBox.val((d.summaryBox.val()?d.summaryBox.val()+" ":"") + d.summary)
 
 		// Dispatching a keypress to the edit body box causes stack exchange to reparse the markdown out of it
 		d.bodyBox[0].dispatchEvent(new Event('keypress'))
@@ -324,8 +318,8 @@
 	GM_addStyle(`
 		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
 		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
-		.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#fff;z-index:99999;padding:1em}
-		.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto}
+		.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
+		.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
 		.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
 		.toolkitinfo th{font-weight:bold}
 		.toolkitinfo button{float:right}
@@ -340,6 +334,25 @@
 	new Image().src = '//i.imgur.com/79qYzkQ.png'
 	new Image().src = '//i.imgur.com/d5ZL09o.png'
 
+	$('body').keyup(e=>{
+		if(e.key=="Escape"){
+			var tki = $('.toolkitinfo')
+			if (tki.length){
+				tki.remove()
+				e.preventDefault()
+				return false
+			}
+		}
+		if(e.key=="e" && e.ctrlKey){
+			var button = $(e.target).closest('.wmd-container').find('.toolkitfix')
+			if (button.length){
+				e.preventDefault()
+				button.trigger('click')
+				return false
+			}
+		}
+	})
+
 	// Continually monitor for newly created editing widgets
 	setInterval(function(){
 		$('.wmd-button-bar').each(function(){
@@ -347,10 +360,11 @@
 			if ($(this).attr('id')!='wmd-button-bar' && !$(this).find('.toolkitfix').length){
 				// Create and add the button
 				var d = getDefaultData()
-				var button = $('<li class="wmd-button toolkitfix" title="Auto edit">').click(function(e){
+				var button = $('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">').click(function(e){
 					e.preventDefault()
 					if (d.completed){
 						// Second time button clicked, show a report
+						if($('.toolkitinfo').length) return // already open
 						var td = runTests()
 						var info = $('<div class=content>').append($("<button>Close</button>").click(function(){
 							info.parent().remove()
@@ -398,6 +412,7 @@
 						output(edit(d))
 						d.completed=true
 					}
+					return false
 				})
 				$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(button)
 			}
