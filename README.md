@@ -1,4 +1,4 @@
-# Stack Exchange Auto Editor ![Stack Exchange Auto Editor Logo](https://i.imgur.com/79qYzkQ.png)
+# Stack Exchange Auto Editor ![Stack Exchange Auto Editor Logo](https://i.imgur.com/79qYzkQ.png | width=100)
 
 ## About
 
