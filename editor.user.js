@@ -309,6 +309,9 @@
 			backgroundColor: '#fff'
 		}, 1000)
 
+		if (d.titleBox) d.titleBox.val(d.title)
+		d.bodyBox.val(d.body)
+
 		if(d.summary) d.summaryBox.val((d.summaryBox.val()?d.summaryBox.val()+" ":"") + d.summary)
 
 		// Dispatching a keypress to the edit body box causes stack exchange to reparse the markdown out of it
@@ -399,7 +402,13 @@
 							info.append(table)
 							info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
 						}
-						$('body').prepend($('<div class=toolkitinfo>').append(info))
+						$('body').prepend($('<div class=toolkitinfo>').append(info).click(e=>{
+							if($(e.target).is('.toolkitinfo')){
+								e.preventDefault()
+								$(e.target).remove()
+								return false
+							}
+						}))
 					} else {
 						// First time button clicked, do all the replacements
 						d.buttonBar = $(this).parents('.wmd-button-bar')
