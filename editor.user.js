@@ -26,36 +26,58 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (()=>{
+	const CONTENT_FREE_WORDS = "(?:a|about|advance|advi[cs]e|accept|again|all|amazing|and|answers?|answered|any|anybody|anyone|" +
+		  "appreciate[ds]?|attention|bad|be|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|every|fix|" +
+		  "fixe[ds]|fixing|folks?|for|friends?|gives?|grammar|grateful|guys?|have|h[ea]lps?|h[ea]lping|highly|hours|" +
+		  "i|i'?m|i'?ve|ideas?|in|just|kind|kindly|likely|me|missing|months?|most|much|one?|or|please|pl[sz]|provided?|" +
+		  "obvious|offer|offered|offering|our|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
+		  "some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
+		  "things?|thx|time|to|trie[ds]|try|trying|ty|understand|up|us|vote[ds]?|this|very|we|weeks?|will|with|would|your?)"
 	var rules = [
 		{
 			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
 			replacement: "$1://$2.",
-			reason: "Fix URL"
+			reason: "fix URL"
 		},{
 			expr: /\b(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1$2.example$3",
-			reason: "Use example domain",
+			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			expr: /\b(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1$2.example$3",
-			reason: "Use example domain",
+			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			expr: /\b((?:my|your|our|new|old|foo|client)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1.example$2",
-			reason: "Use example domain",
+			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			expr: /\b([a-zA-Z0-9\-]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1.example$2",
-			reason: "Use example domain",
+			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			expr: /(^|\s)((?:(?:https?:\/\/)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\/[^ ]*)?))(\s|$)/gmi,
 			replacement: "$1`$2`$3",
-			reason: "Code format example URL",
+			reason: "code format example URL",
 			context: ["text","url"]
+		},{
+			// Insert spaces after commas
+			expr: /,([[a-z])/g,
+			replacement: ", $1",
+			reason: "grammar"
+		},{
+			// Remove spaces before punctuation
+			expr: /[ ]+([,\!\?\.\:](?:\s|$))/gm,
+			replacement: "$1",
+			reason: "grammar"
+		},{
+			// Remove double spaces after periods
+			expr: /\. {2,}/gm,
+			replacement: ". ",
+			reason: "grammar"
 		},
 		capitalizeWord("AngularJS"),
 		capitalizeWord("GitHub"),
@@ -80,64 +102,69 @@
 			// Proper nouns
 			expr: /(^|\s)(Android|Apache|Git|Google|Java|Linux|Oracle|Windows)\b(\S|)(?!\S)/igm,
 			replacement: ($0,$1,$2,$3) => $1+$2[0].toUpperCase()+$2.substring(1).toLowerCase()+$3,
-			reason: "Capitalization"
+			reason: "capitalization"
 		},{
 			// Always all caps
 			expr: /(^|\s)(AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URL|XML)\b(\S|)(?!\S)/igm,
 			replacement: ($0,$1,$2,$3) => $1+$2.toUpperCase()+$3,
-			reason: "Capitalization"
+			reason: "capitalization"
 		},{
-			expr: /(thanks|pl(?:ease|z|s)\s+h[ea]lp|cheers|regards|thx|thank\s+you|my\s+first\s+question|kindly\shelp).*$/gmi,
-			replacement: "",
-			reason: "Remove niceties"
+			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*any\\ssuggestions?(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *\\?)+(?: +|$))+","gmi"),
+			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
+			reason: "remove niceties"
 		},{
-			expr: /(?:(?:^|\s)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?\s*[\.\!\,]?)+(?:\s+|$)/gmi,
-			replacement: "",
-			reason: "Remove niceties"
+			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:pl(?:ease|z|s) +h[ea]lp)|thanks|thx|thank[ \\-]+you|ty)(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *[\\.\\!\,\\?])*(?: +|$))+","gmi"),
+			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
+			reason: "remove niceties"
 		},{
-			expr: /(?:^\**)(edit|update):?(?:\**):?/gmi,
+			expr: /(?:^|[ \t]+)(?:(?:(?:i\s)?hope\s(this|it|that)\s+h[ea]lps)|cheers|regards|my\s+first\s+question)\s*[\.\!\,\?]?(?:[ \t]+|$)/gmi,
 			replacement: "",
-			reason: "Remove edit indicator"
+			reason: "remove niceties"
+		},{
+			expr: /(?:(?:^|[ \t]+)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?\s*[\.\!\,]?)+(?:[ \t]+|$)/gmi,
+			replacement: "",
+			reason: "remove niceties"
+		},{
+			expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
+			replacement: "$1",
+			reason: "remove niceties"
 		},{
 			expr: /(^|\s)c(#|\++|\s|$)/gm,
 			replacement: "$1C$2",
-			reason: "Spelling"
+			reason: "spelling"
 		},{
 			expr: /(^|\s)[Ii]'?(m|ve)\b(\S|)(?!\S)/gm,
 			replacement: "$1I'$2$3",
-			reason: "Spelling"
+			reason: "spelling"
 		},{
 			expr: /(^|\s)(arent|cant|couldnt|didnt|doesnt|dont|hadnt|hasnt|havent|hed|hes|isnt|mightnt|mustnt|shant|shes|shouldnt|thats|theres|theyd|theyll|theyre|theyve|weve|werent|whatll|whatre|whats|whatve|wheres|whod|wholl|whove|wont|wouldnt|youd|youll|youre|youve)\b(\S|)(?!\S)/gmi,
 			replacement: (p0,p1,p2,p3)=>p1+p2.replace(/(d|ll|m|re|s|t|ve)$/i,"'$1")+p3,
-			reason: "Spelling"
+			reason: "spelling"
 		},{
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
 			replacement: ($0,$1) => $1[0] + $1.substring(1).toLowerCase(),
-			reason: "Use mixed case"
+			reason: "capitalization"
 		},{
 			expr: /(hdd|harddisk)\b(\S|)(?!\S)/igm,
 			replacement: "hard disk$2",
-			reason: "Spelling"
-		},{
-			// Insert spaces after commas
-			expr: /,([[a-z])/g,
-			replacement: ", $1",
-			reason: "Grammar"
-		},{
-			// Remove spaces before punctuation
-			expr: /[ ]+([,\!\?\.\:](?:\s|$))/gm,
-			replacement: "$1",
-			reason: "Grammar"
+			reason: "spelling"
 		},{
 			expr: /\[enter image description here\]/g,
 			replacement: "[]",
-			reason: "Remove default alt text"
+			reason: "formatting"
 		},{
 			// Capitalize first letter of each line
 			expr: /^[a-z]+\s/gm,
 			replacement: $0 => $0[0].toUpperCase()+$0.substring(1),
-			reason: "Capitalization"
+			reason: "capitalization",
+			context: ["title"]
+		},{
+			// Remove trailing white space
+			expr: /[ \t]+$/gm,
+			replacement: "",
+			reason: "formatting",
+			context: ["fullbody","title"]
 		}
 	]
 
@@ -147,7 +174,7 @@
 		return {
 			expr: new RegExp("(^|\\s)(?:"+abbrev+")\\b(\\S|)(?!\\S)","gm"),
 			replacement: "$1"+replace+"$2",
-			reason: "Spelling"
+			reason: "spelling"
 		}
 	}
 
@@ -162,7 +189,7 @@
 		return {
 			expr: new RegExp("(^|\\s)(?:"+re+")\\b(\\S|)(?!\\S)","igm"),
 			replacement: "$1"+word+"$2",
-			reason: "Spelling"
+			reason: "spelling"
 		}
 	}
 
@@ -177,7 +204,7 @@
 		return {
 			expr: new RegExp("(^|\\s)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)\\b(\\S|)(?!\\S)","igm"),
 			replacement: "$1"+word+separator+"$2$3",
-			reason: "Spelling"
+			reason: "spelling"
 		}
 	}
 	function tokenizeMarkdown(str){
@@ -247,7 +274,7 @@
 	function getDefaultData(){
 		return {
 			editCount:0, reasons:{}, completed:0, postId:0, bodyBox:0,
-			titleBox:0, summaryBox:0, buttonBar:0, replacements:[]
+			titleBox:0, summaryBox:0, buttonBar:0, replacements:[], summary:''
 		}
 	}
 
@@ -282,16 +309,14 @@
 			d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type)
 		}
 		d.body = d.bodyTokens.map(t=>t.content).join("")
+		d.body = applyRules(d, d.body, "fullbody")
 
 		if (d.title) d.title = applyRules(d, d.title, "title")
 
 		// Create a summary of all the reasons
-		$.each(d.reasons, function (reason) {
-			if (!d.summary) d.summary = ''
+		$.each(d.reasons, reason=>{
 			// Check that summary is not getting too long
-			if (d.summary.length < 200){
-				d.summary += (d.summary.length==0?"":"; ") + reason
-			}
+			if (d.summary.length < 200) d.summary += (d.summary.length==0?"":", ") + reason
 		})
 
 		return d
@@ -309,13 +334,16 @@
 			backgroundColor: '#fff'
 		}, 1000)
 
-		if (d.titleBox) d.titleBox.val(d.title)
+		// Update values in UI
+		// Dispatching a keypress causes stack exchange to reparse markdown
+		if (d.titleBox && d.titleBox.length){
+			d.titleBox.val(d.title)
+			d.titleBox[0].dispatchEvent(new Event('keypress'))
+		}
 		d.bodyBox.val(d.body)
+		d.bodyBox[0].dispatchEvent(new Event('keypress'))
 
 		if(d.summary) d.summaryBox.val((d.summaryBox.val()?d.summaryBox.val()+" ":"") + d.summary)
-
-		// Dispatching a keypress to the edit body box causes stack exchange to reparse the markdown out of it
-		d.bodyBox[0].dispatchEvent(new Event('keypress'))
 	}
 
 	GM_addStyle(`
@@ -541,7 +569,20 @@
 		$.each([
 			{i:'Lorum ipsum. Hope it helps!',o:'Lorum ipsum.'},
 			{i:'Lorum ipsum. any suggestions?',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. Can anybody give me any suggestions, pls?',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. Will you provide any suggestions for me, please?',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. Does anybody have any suggestions?',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. Any suggestions would be highly appreciated, thank you!',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. thank you very much for all your help',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. ty in advance',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. Any help will be appreciated, thank you in advance.',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. please help me understand these concepts.',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. please help - any ideas would be amazing - been stuck on trying to fix this thing for a week!',o:'Lorum ipsum.'},
+			{i:'Lorum ipsum. please help me about this code! thank you very much!',o:'Lorum ipsum.'},
 			{i:'Hello! Lorum ipsum.',o:'Lorum ipsum.'},
+			{i:'Edit: Lorum ipsum.',o:'Lorum ipsum.'},
+			{i:'**Edit:** Lorum ipsum.',o:'Lorum ipsum.'},
+			{i:'Edit lorum ipsum.',o:'Edit lorum ipsum.'},
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
 			{i:'Visit site.tld',o:'Visit `site.example`',t:'Visit site.example'},
 			{i:'`ourHome.net`',o:'`ourHome.example`'},
@@ -555,11 +596,14 @@
 			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
 			{i:'See foo.html here',o:'See foo.html here'},
 			{i:'NO, NEED, TO+ YELL!',o:'No, need, to+ yell!'},
-			{i:'first letter upper',o:'First letter upper'},
+			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
 			{i:'What ?',o:"What?"},
 			{i:'A ... b',o:"A ... b"},
 			{i:'12,345',o:"12,345"},
+			{i:'90% hit rate',o:"90% hit rate"},
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
+			{i:'Double space.  After period.',o:"Double space. After period."},
+			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"}
 		], (x,io)=>{
 			testEdit(io.i, io.o, io.t)
 		})
@@ -619,4 +663,5 @@
 		})
 		return td
 	}
+	console.log(runTests())
 })()
