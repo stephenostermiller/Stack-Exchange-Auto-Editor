@@ -27,9 +27,9 @@
 // ==/UserScript==
 (()=>{
 	const CONTENT_FREE_WORDS = "(?:a|about|advance|advi[cs]e|accept|again|all|amazing|and|answers?|answered|any|anybody|anyone|" +
-		  "appreciate[ds]?|attention|bad|be|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|every|fix|" +
-		  "fixe[ds]|fixing|folks?|for|friends?|gives?|grammar|grateful|guys?|have|h[ea]lps?|h[ea]lping|highly|hours|" +
-		  "i|i'?m|i'?ve|ideas?|in|just|kind|kindly|likely|me|missing|months?|most|much|one?|or|please|pl[sz]|provided?|" +
+		  "appreciate[ds]?|attention|bad|be|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|fix|" +
+		  "fixe[ds]|fixing|folks?|following|for|friends?|gives?|grammar|grateful|guys?|have|h[ea]lps?|h[ea]lping|highly|hours|" +
+		  "i|i'?m|i'?ve|ideas?|in|issues?|just|kind|kindly|likely|me|missing|months?|most|much|one?|or|please|pl[sz]|problems?|provided?|" +
 		  "obvious|offer|offered|offering|our|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
 		  "some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
 		  "things?|thx|time|to|trie[ds]|try|trying|ty|understand|up|us|vote[ds]?|this|very|we|weeks?|will|with|would|your?)"
@@ -109,11 +109,11 @@
 			replacement: ($0,$1,$2,$3) => $1+$2.toUpperCase()+$3,
 			reason: "capitalization"
 		},{
-			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*any\\ssuggestions?(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *\\?)+(?: +|$))+","gmi"),
+			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(any|some)\\ssuggestions?(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *\\?)+(?: +|$))+","gmi"),
 			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
 			reason: "remove niceties"
 		},{
-			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:pl(?:ease|z|s) +h[ea]lp)|thanks|thx|thank[ \\-]+you|ty)(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *[\\.\\!\,\\?])*(?: +|$))+","gmi"),
+			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:(?:please|pl[sz]|kindly) +h[ea]lp)|thanks|thx|thank[ \\-]+you|ty)(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *[\\.\\!\,\\?])*(?: +|$))+","gmi"),
 			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
 			reason: "remove niceties"
 		},{
@@ -270,11 +270,11 @@
 
 	// Access to jQuery via dollar sign variable
 	var $ = unsafeWindow.jQuery
+	var SE = unsafeWindow.StackExchange
 
 	function getDefaultData(){
 		return {
-			editCount:0, reasons:{}, completed:0, postId:0, bodyBox:0,
-			titleBox:0, summaryBox:0, buttonBar:0, replacements:[], summary:''
+			editCount:0, reasons:{}, completed:0, replacements:[], summary:''
 		}
 	}
 
@@ -322,33 +322,10 @@
 		return d
 	}
 
-	function output(d){
-		if (!d.bodyBox) return
-
-		d.bodyBox.animate({
-			// Flash red or green depending on whether edits were made
-			backgroundColor: d.editCount==0?'#ffc8a7':'#c8ffa7'
-		}, 10)
-		d.bodyBox.animate({
-			// Then back to white
-			backgroundColor: '#fff'
-		}, 1000)
-
-		// Update values in UI
-		// Dispatching a keypress causes stack exchange to reparse markdown
-		if (d.titleBox && d.titleBox.length){
-			d.titleBox.val(d.title)
-			d.titleBox[0].dispatchEvent(new Event('keypress'))
-		}
-		d.bodyBox.val(d.body)
-		d.bodyBox[0].dispatchEvent(new Event('keypress'))
-
-		if(d.summary) d.summaryBox.val((d.summaryBox.val()?d.summaryBox.val()+" ":"") + d.summary)
-	}
-
 	GM_addStyle(`
 		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
 		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+		button.toolkitfix{width:2em;height:2em}
 		.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
 		.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
 		.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
@@ -359,6 +336,9 @@
 		.toolkitinfo .diff{white-space:pre-wrap;margin-bottom:2em;max-width:600px}
 		.toolkitinfo ins{background:#cfc}
 		.toolkitinfo del{background:#fcc}
+		.toolkitinfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
+		.toolkitinfo .wn::before{content:"↲";position:absolute;transform:translate(8px, 0px);color:#aaa}
+		.toolkitinfo .wn::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:#aaa}
 	`)
 
 	//Preload icon alt
@@ -384,75 +364,161 @@
 		}
 	})
 
+	function cssColorVar(v){
+		// get var then convert from hsv to rgb because passing hsv string to animate doesn't work
+		return $('<div>').css("color",window.getComputedStyle(document.body).getPropertyValue(v))[0].style.color;
+	}
+
+	function addClick(button,d){
+		return button.click(function(e){
+			e.preventDefault()
+			if (d.completed){
+				// Second time button clicked, show a report
+				if($('.toolkitinfo').length) return // already open
+				var td = runTests()
+				var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
+				if (!d.replacements.length){
+					info.append($("<h1>No edits made!</h1>"))
+				} else {
+					info.append($("<h1>Edits made:</h1>"))
+					table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
+					$.each(d.replacements, (x,r)=>{
+						if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
+							r.i=r.i.replace(/^\s+/,"")
+							r.o=r.o.replace(/^\s+/,"")
+						}
+						table.append($("<tr>").append($("<td>").html(visibleSpace(r.i))).append($("<td>").html(visibleSpace(r.o))).append($("<td>").html(visibleSpace(r.r))))
+					})
+					info.append(table)
+					try {
+						info.append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
+					} catch (x){
+						info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
+					}
+				}
+				if (!td.failures.length){
+					info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
+				} else {
+					info.append($("<h1>" + td.failures.length + " unit test failures:</h1>"))
+					table = $("<table>").append($("<tr><th>Input</th><th>Output</th><th>Expected</th></tr>"))
+					$.each(td.failures, (x,f)=>{
+						table.append($("<tr>").append($("<td>").html(visibleSpace(f.method+"("+f.input+")"))).append($("<td>").html(visibleSpace(f.actual))).append($("<td>").html(visibleSpace(f.expected))))
+					})
+					info.append(table)
+					info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
+				}
+				$('body').prepend($('<div class=toolkitinfo>').append(info).click(e=>{
+					if($(e.target).is('.toolkitinfo')){
+						e.preventDefault()
+						$(e.target).remove()
+						return false
+					}
+				}))
+			} else {
+				// First time button clicked, do all the replacements
+				d.origtitle = d.title = d.getTitle()
+				d.origbody = d.body = d.getBody()
+				edit(d)
+				// Flash red or green depending on whether edits were made
+				d.flashMe.animate({backgroundColor:d.editCount==0?cssColorVar('--red-100'):cssColorVar('--green-100')},10)
+				// Then back to white
+				d.flashMe.animate({backgroundColor:cssColorVar('--white')})
+				// Update values in UI
+				d.setTitle(d.title)
+				d.setBody(d.body)
+				if(d.summary) d.addSummary(d.summary)
+				d.completed=true
+			}
+			return false
+		})
+	}
+
+	function needsButton(editor){
+		// Not for the "add new answer" box
+		if (!/\d$/.exec(editor.id)) return false;
+		// Already has editor
+		if ($(editor).find('.toolkitfix').length) return false;
+		return true
+	}
+
 	// Continually monitor for newly created editing widgets
 	setInterval(()=>{
 		$('.wmd-button-bar').each(function(){
-			// If this edit widget isn't the "add new answer box" and doesn't already have our button
-			if ($(this).attr('id')!='wmd-button-bar' && !$(this).find('.toolkitfix').length){
-				// Create and add the button
-				var d = getDefaultData()
-				var button = $('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">').click(function(e){
-					e.preventDefault()
-					if (d.completed){
-						// Second time button clicked, show a report
-						if($('.toolkitinfo').length) return // already open
-						var td = runTests()
-						var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
-						if (!d.replacements.length){
-							info.append($("<h1>No edits made!</h1>"))
-						} else {
-							info.append($("<h1>Edits made:</h1>"))
-							table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
-							$.each(d.replacements, (x,r)=>{
-								if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
-									r.i=r.i.replace(/^\s+/,"")
-									r.o=r.o.replace(/^\s+/,"")
-								}
-								table.append($("<tr>").append($("<td>").text(r.i)).append($("<td>").text(r.o)).append($("<td>").text(r.r)))
-							})
-							info.append(table)
-							try {
-								info.append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
-							} catch (x){
-								info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
-							}
-						}
-						if (!td.failures.length){
-							info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
-						} else {
-							info.append($("<h1>" + td.failures.length + " unit test failures:</h1>"))
-							table = $("<table>").append($("<tr><th>Input</th><th>Output</th><th>Expected</th></tr>"))
-							$.each(td.failures, (x,f)=>{
-								table.append($("<tr>").append($("<td>").text(f.method+"("+f.input+")")).append($("<td>").text(f.actual)).append($("<td>").text(f.expected)))
-							})
-							info.append(table)
-							info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
-						}
-						$('body').prepend($('<div class=toolkitinfo>').append(info).click(e=>{
-							if($(e.target).is('.toolkitinfo')){
-								e.preventDefault()
-								$(e.target).remove()
-								return false
-							}
-						}))
-					} else {
-						// First time button clicked, do all the replacements
-						d.buttonBar = $(this).parents('.wmd-button-bar')
-						d.postId = d.buttonBar.attr('id').match(/[0-9]+/)[0]
-						d.bodyBox = $('#wmd-input-' + d.postId)
-						d.titleBox = $(".js-post-title-field")
-						d.summaryBox = $('.js-post-edit-comment-field')
-						d.origtitle = d.title = d.titleBox?d.titleBox.val():''
-						d.origbody = d.body = d.bodyBox.val()
-						output(edit(d))
-						d.completed=true
-					}
-					return false
-				})
-				$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(button)
+			if (needsButton(this)){
+				var d = getDefaultData(),
+				postId = this.id.match(/[0-9]+/)[0],
+				bodyBox = $('#wmd-input-' + postId),
+				titleBox = $(".js-post-title-field"),
+				summaryBox = $('.js-post-edit-comment-field')
+				d.getTitle = function(){
+					return titleBox.length?titleBox.val():''
+				}
+				d.setTitle = function(s){
+					if (!titleBox.length) return
+					titleBox.val(s)
+					titleBox[0].dispatchEvent(new Event('keypress')) // Cause title display to be updated
+				}
+				d.getBody = function(){
+					return bodyBox.val()
+				}
+				d.setBody = function(s){
+					bodyBox.val(s)
+					bodyBox[0].dispatchEvent(new Event('keypress')) // Cause markdown reparse
+				}
+				d.flashMe = bodyBox
+				d.addSummary = function (s){
+					summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
+				}
+				$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">'),d))
 			}
 		})
+		// Attempt to get this to work for the StacksEditor WYSIWYG
+		/*$('.post-editor').each(function(){
+			if (needsButton(this)){
+				console.log(this)
+				var d = getDefaultData(),
+				editorEl = $(this),
+				bodyBox = $(this).find('.markdown'),
+				summaryBox = $('.js-post-edit-comment-field'),
+				editor
+				// TODO: These lines always throw an exception rather than get the instance
+				StackExchange.using("stacksEditor", function(){
+					editor=StackExchange.stacksEditor.getInstanceFromElement($(editorEl))
+				})
+				d.getTitle = function(){
+					return ""  // Currently only used for answers, not questions, so never a title
+				}
+				d.setTitle = function(){} // no-op
+				d.getBody = function(){
+					return bodyBox.text()
+				}
+				d.setBody = function(s){
+					// TODO: This doesn't work, trying using the editor instead
+					bodyBox.text(s)
+				}
+				d.flashMe = bodyBox
+				d.addSummary = function (s){
+					summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
+				}
+				$(this).find('.js-editor-btn').last().before(addClick(
+					$('<button class="toolkitfix s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
+				)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
+			}
+		})*/
 	},200)
+
+	function visibleSpace(s){
+		s=eschtml(s)
+		s=s.replace(/(\r)/g,"<span class=wr>$1</span>")
+		s=s.replace(/(\n)/g,"<span class=wn>$1</span>")
+		s=s.replace(/(\t)/g,"<span class=wt>$1</span>")
+		s=s.replace(/( )/g,"<span class=ws>$1</span>")
+		return s
+	}
+
+	function eschtml(s) {
+		return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+	}
 
 	/*
 	 * Javascript Diff Algorithm
@@ -500,10 +566,6 @@
 			}
 
 			return {o: o, n: n}
-		}
-
-		function eschtml(s) {
-			return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 		}
 
 		o = o.replace(/\s+$/, '')
@@ -663,5 +725,4 @@
 		})
 		return td
 	}
-	console.log(runTests())
 })()
