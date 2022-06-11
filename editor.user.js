@@ -759,8 +759,9 @@
 			{i:"<code>~~~~~~~~~~~~~</code>",o:"code26"},
 			{i:"~~~\ncode\n	a\nfence\nhttps://incode.example/\n~~~",o:"code45"},
 			{i:"Https://url.example/",o:"url20"},
+			{i:"`Https://url.example/`",o:"code22"},
 			{i:"[link text](https://link.example/)",o:"text10,link24"},
-			{i:"```````fence\n```\n\```````\ntext",o:"code24,text5"},
+			{i:"```````fence\    indented\n```\n```````\ntext",o:"code36,text5"},
 			{i:"`one line` text",o:"code10,text5"},
 			{i:"[1]: https://link.example/",o:"link26"}
 		]
