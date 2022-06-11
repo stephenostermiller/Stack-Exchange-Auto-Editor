@@ -522,10 +522,10 @@
 
 		function visibleSpace(s){
 			s=escHtml(s)
+			s=s.replace(/( )/g,"<span class=ws>$1</span>")
 			s=s.replace(/(\r)/g,"<span class=wr>$1</span>")
 			s=s.replace(/(\n)/g,"<span class=wn>$1</span>")
 			s=s.replace(/(\t)/g,"<span class=wt>$1</span>")
-			s=s.replace(/( )/g,"<span class=ws>$1</span>")
 			return s
 		}
 	}
