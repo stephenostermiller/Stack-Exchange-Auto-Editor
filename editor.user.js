@@ -270,7 +270,6 @@
 
 	// Access to jQuery via dollar sign variable
 	var $ = unsafeWindow.jQuery
-	var SE = unsafeWindow.StackExchange
 
 	function getDefaultData(){
 		return {
@@ -332,8 +331,8 @@
 		.toolkitinfo th{font-weight:bold}
 		.toolkitinfo button{float:right}
 		.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
-		.toolkitinfo td{font-family:monospace;white-space:pre}
-		.toolkitinfo .diff{white-space:pre-wrap;margin-bottom:2em;max-width:600px}
+		.toolkitinfo td{font-family:monospace;white-space:pre-wrap}
+		.toolkitinfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
 		.toolkitinfo ins{background:#cfc}
 		.toolkitinfo del{background:#fcc}
 		.toolkitinfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
@@ -472,31 +471,23 @@
 				$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">'),d))
 			}
 		})
-		// Attempt to get this to work for the StacksEditor WYSIWYG
-		/*$('.post-editor').each(function(){
+		$('.post-editor').each(function(){
 			if (needsButton(this)){
-				console.log(this)
 				var d = getDefaultData(),
-				editorEl = $(this),
-				bodyBox = $(this).find('.markdown'),
-				summaryBox = $('.js-post-edit-comment-field'),
-				editor
-				// TODO: These lines always throw an exception rather than get the instance
-				StackExchange.using("stacksEditor", function(){
-					editor=StackExchange.stacksEditor.getInstanceFromElement($(editorEl))
-				})
+				postEditor = $(this),
+				editArea = postEditor.find('textarea'),
+				summaryBox = $('.js-post-edit-comment-field')
 				d.getTitle = function(){
-					return ""  // Currently only used for answers, not questions, so never a title
+					return "" // This style editor only used for answers, so never a title
 				}
-				d.setTitle = function(){} // no-op
+				d.setTitle = function(s){} // no-op
 				d.getBody = function(){
-					return bodyBox.text()
+					return editArea.val()
 				}
 				d.setBody = function(s){
-					// TODO: This doesn't work, trying using the editor instead
-					bodyBox.text(s)
+					editArea.val(s)
 				}
-				d.flashMe = bodyBox
+				d.flashMe = postEditor.find('.js-editor')
 				d.addSummary = function (s){
 					summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 				}
@@ -504,7 +495,7 @@
 					$('<button class="toolkitfix s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
 				)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
 			}
-		})*/
+		})
 	},200)
 
 	function visibleSpace(s){
