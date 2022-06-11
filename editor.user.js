@@ -747,6 +747,27 @@
 			})
 		})
 
+		function markdownSizes(tokens){
+			return tokens.map(t => t.type+t.content.length).join(",")
+		}
+
+		var markdownParseTests = [
+			{i:"lorum",o:"text5"},
+			{i:"<p>",o:"html3"},
+			{i:"lorum <p>\n",o:"text6,html3,text1"},
+			{i:"    indented    ~~~\n    indented\n    indented",o:"code45"},
+			{i:"<code>~~~~~~~~~~~~~</code>",o:"code26"},
+			{i:"~~~\ncode\n	a\nfence\nhttps://incode.example/\n~~~",o:"code45"},
+			{i:"Https://url.example/",o:"url20"},
+			{i:"[link text](https://link.example/)",o:"text10,link24"},
+			{i:"```````fence\n```\n\```````\ntext",o:"code24,text5"},
+			{i:"`one line` text",o:"code10,text5"},
+			{i:"[1]: https://link.example/",o:"link26"}
+		]
+		markdownParseTests.forEach(io=>{
+			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
+		})
+
 		return td
 	}
 
