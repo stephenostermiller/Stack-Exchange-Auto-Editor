@@ -7,7 +7,7 @@
 // @contributor Unihedron
 // @license MIT
 // @namespace https://ostermiller.org/
-// @version 1.0.0
+// @version 1.0.1
 // @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
 // @match https://*.stackexchange.com/posts/*
 // @match https://*.stackexchange.com/questions/*
@@ -344,22 +344,22 @@
 		var $ = unsafeWindow.jQuery
 
 		GM_addStyle(`
-			.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
-			.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
-			button.toolkitfix{width:2em;height:2em}
-			.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
-			.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
-			.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
-			.toolkitinfo th{font-weight:bold}
-			.toolkitinfo button{float:right}
-			.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
-			.toolkitinfo td{font-family:monospace;white-space:pre-wrap}
-			.toolkitinfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
-			.toolkitinfo ins{background:#cfc}
-			.toolkitinfo del{background:#fcc}
-			.toolkitinfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
-			.toolkitinfo .wn::before{content:"↲";position:absolute;transform:translate(8px, 0px);color:#aaa}
-			.toolkitinfo .wn::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:#aaa}
+			.autoEditorButton{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
+			.autoEditorButton:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+			button.autoEditorButton{width:2em;height:2em}
+			.autoEditorInfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
+			.autoEditorInfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
+			.autoEditorInfo table{border-spacing.5em;margin-bottom:2em;}
+			.autoEditorInfo th{font-weight:bold}
+			.autoEditorInfo button{float:right}
+			.autoEditorInfo th,.autoEditorInfo td{border:1px solid black;padding:0.5em}
+			.autoEditorInfo td{font-family:monospace;white-space:pre-wrap}
+			.autoEditorInfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
+			.autoEditorInfo ins{background:#cfc}
+			.autoEditorInfo del{background:#fcc}
+			.autoEditorInfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
+			.autoEditorInfo .wn::before{content:"↲";position:absolute;transform:translate(8px, 0px);color:#aaa}
+			.autoEditorInfo .wn::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:#aaa}
 		`)
 
 		//Preload icon alt
@@ -368,7 +368,7 @@
 
 		$('body').keyup(e=>{
 			if(e.key=="Escape"){
-				var tki = $('.toolkitinfo')
+				var tki = $('.autoEditorInfo')
 				if (tki.length){
 					tki.remove()
 					e.preventDefault()
@@ -376,7 +376,7 @@
 				}
 			}
 			if(e.key=="e" && e.ctrlKey){
-				var button = $(e.target).closest('.wmd-container').find('.toolkitfix')
+				var button = $(e.target).closest('.wmd-container').find('.autoEditorButton')
 				if (button.length){
 					e.preventDefault()
 					button.trigger('click')
@@ -395,7 +395,7 @@
 				e.preventDefault()
 				if (d.completed){
 					// Second time button clicked, show a report
-					if($('.toolkitinfo').length) return // already open
+					if($('.autoEditorInfo').length) return // already open
 					var td = runTests()
 					var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
 					if (!d.replacements.length){
@@ -412,7 +412,7 @@
 						})
 						info.append(table)
 						try {
-							info.append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
+							info.append($("<div class=diff>").html(diff2html(d.originalBody, d.body)))
 						} catch (x){
 							info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
 						}
@@ -428,8 +428,8 @@
 						info.append(table)
 						info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
 					}
-					$('body').prepend($('<div class=toolkitinfo>').append(info).click(e=>{
-						if($(e.target).is('.toolkitinfo')){
+					$('body').prepend($('<div class=autoEditorInfo>').append(info).click(e=>{
+						if($(e.target).is('.autoEditorInfo')){
 							e.preventDefault()
 							$(e.target).remove()
 							return false
@@ -437,8 +437,8 @@
 					}))
 				} else {
 					// First time button clicked, do all the replacements
-					d.origtitle = d.title = d.getTitle()
-					d.origbody = d.body = d.getBody()
+					d.originalTitle = d.title = d.getTitle()
+					d.originalBody = d.body = d.getBody()
 					edit(d)
 					// Flash red or green depending on whether edits were made
 					d.flashMe.animate({backgroundColor:d.editCount==0?cssColorVar('--red-100'):cssColorVar('--green-100')},10)
@@ -458,7 +458,7 @@
 			// Not for the "add new answer" box
 			if (!/\d$/.exec(editor.id)) return false;
 			// Already has editor
-			if ($(editor).find('.toolkitfix').length) return false;
+			if ($(editor).find('.autoEditorButton').length) return false;
 			return true
 		}
 
@@ -484,13 +484,13 @@
 					}
 					d.setBody = function(s){
 						bodyBox.val(s)
-						bodyBox[0].dispatchEvent(new Event('keypress')) // Cause markdown reparse
+						bodyBox[0].dispatchEvent(new Event('keypress')) // Cause markdown re-parse
 					}
 					d.flashMe = bodyBox
 					d.addSummary = function (s){
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
-					$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">'),d))
+					$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button autoEditorButton" title="Auto edit Ctrl+E">'),d))
 				}
 			})
 			$('.post-editor').each(function(){
@@ -514,14 +514,14 @@
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
 					$(this).find('.js-editor-btn').last().before(addClick(
-						$('<button class="toolkitfix s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
+						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
 					)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
 				}
 			})
 		},200)
 
 		function visibleSpace(s){
-			s=eschtml(s)
+			s=escHtml(s)
 			s=s.replace(/(\r)/g,"<span class=wr>$1</span>")
 			s=s.replace(/(\n)/g,"<span class=wn>$1</span>")
 			s=s.replace(/(\t)/g,"<span class=wt>$1</span>")
@@ -536,7 +536,7 @@
 		process.exit(results.failures.length)
 	}
 
-	function eschtml(s) {
+	function escHtml(s) {
 		return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 	}
 
@@ -600,25 +600,25 @@
 
 		if (out.n.length == 0){
 			for (i = 0; i < out.o.length; i++){
-				str += '<del>' + eschtml(out.o[i]) + oSpace[i] + "</del>"
+				str += '<del>' + escHtml(out.o[i]) + oSpace[i] + "</del>"
 			}
 		} else {
 			if (out.n[0].text == null){
 				for (n = 0; n < out.o.length && out.o[n].text == null; n++){
-					str += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
+					str += '<del>' + escHtml(out.o[n]) + oSpace[n] + "</del>"
 				}
 			}
 
 			for (i = 0; i < out.n.length; i++){
 				if (out.n[i].text == null){
-					str += '<ins>' + eschtml(out.n[i]) + nSpace[i] + "</ins>"
+					str += '<ins>' + escHtml(out.n[i]) + nSpace[i] + "</ins>"
 				} else {
 					var pre = ""
 
 					for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++){
-						pre += '<del>' + eschtml(out.o[n]) + oSpace[n] + "</del>"
+						pre += '<del>' + escHtml(out.o[n]) + oSpace[n] + "</del>"
 					}
-					str += " " + eschtml(out.n[i].text) + nSpace[i] + pre
+					str += " " + escHtml(out.n[i].text) + nSpace[i] + pre
 				}
 			}
 		}
