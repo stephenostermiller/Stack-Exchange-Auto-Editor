@@ -9,18 +9,25 @@
 // @namespace https://ostermiller.org/
 // @version 1.0.0
 // @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
+// @match https://*.stackexchange.com/posts/*
 // @match https://*.stackexchange.com/questions/*
 // @match https://*.stackexchange.com/review/*
+// @match https://*.stackoverflow.com/*posts/*
 // @match https://*.stackoverflow.com/*questions/*
 // @match https://*.stackoverflow.com/review/*
+// @match https://*.askubuntu.com/posts/*
 // @match https://*.askubuntu.com/questions/*
 // @match https://*.askubuntu.com/review/*
+// @match https://*.superuser.com/posts/*
 // @match https://*.superuser.com/questions/*
 // @match https://*.superuser.com/review/*
+// @match https://*.serverfault.com/posts/*
 // @match https://*.serverfault.com/questions/*
 // @match https://*.serverfault.com/review/*
+// @match https://*.mathoverflow.net/posts/*
 // @match https://*.mathoverflow.net/questions/*
 // @match https://*.mathoverflow.net/review/*
+// @match https://*.stackapps.com/posts/*
 // @match https://*.stackapps.com/questions/*
 // @match https://*.stackapps.com/review/*
 // @grant GM_addStyle
@@ -165,6 +172,18 @@
 			replacement: "",
 			reason: "formatting",
 			context: ["fullbody","title"]
+		},{
+			// Remove multiple new lines
+			expr: /(?:\r|\n|\r\n){3,}/gm,
+			replacement: "\n\n",
+			reason: "formatting",
+			context: ["fullbody"]
+		},{
+			// Ensure body ends in a new line
+			expr: /([^\n])$/g,
+			replacement: "$1\n",
+			reason: "formatting",
+			context: ["fullbody"]
 		}
 	]
 
@@ -268,9 +287,6 @@
 		return tokens
 	}
 
-	// Access to jQuery via dollar sign variable
-	var $ = unsafeWindow.jQuery
-
 	function getDefaultData(){
 		return {
 			editCount:0, reasons:{}, completed:0, replacements:[], summary:''
@@ -278,7 +294,7 @@
 	}
 
 	function applyRules(d, input, type){
-		$.each(rules, (x, rule)=>{
+		rules.forEach(rule=>{
 			var context = rule.context || ["title","text"]
 			if (context.includes(type)){
 				var ruleEditCount = 0
@@ -313,198 +329,211 @@
 		if (d.title) d.title = applyRules(d, d.title, "title")
 
 		// Create a summary of all the reasons
-		$.each(d.reasons, reason=>{
-			// Check that summary is not getting too long
-			if (d.summary.length < 200) d.summary += (d.summary.length==0?"":", ") + reason
-		})
+		for (var reason in d.reasons){
+			if (d.reasons.hasOwnProperty(reason)) {
+				// Check that summary is not getting too long
+				if (d.summary.length < 200) d.summary += (d.summary.length==0?"":", ") + reason
+			}
+		}
 
 		return d
 	}
 
-	GM_addStyle(`
-		.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
-		.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
-		button.toolkitfix{width:2em;height:2em}
-		.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
-		.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
-		.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
-		.toolkitinfo th{font-weight:bold}
-		.toolkitinfo button{float:right}
-		.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
-		.toolkitinfo td{font-family:monospace;white-space:pre-wrap}
-		.toolkitinfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
-		.toolkitinfo ins{background:#cfc}
-		.toolkitinfo del{background:#fcc}
-		.toolkitinfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
-		.toolkitinfo .wn::before{content:"↲";position:absolute;transform:translate(8px, 0px);color:#aaa}
-		.toolkitinfo .wn::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:#aaa}
-	`)
+	function ui(){
+		// Access to jQuery via dollar sign variable
+		var $ = unsafeWindow.jQuery
 
-	//Preload icon alt
-	new Image().src = '//i.imgur.com/79qYzkQ.png'
-	new Image().src = '//i.imgur.com/d5ZL09o.png'
+		GM_addStyle(`
+			.toolkitfix{margin-left:0.5em;background:url("//i.imgur.com/79qYzkQ.png") center / contain no-repeat}
+			.toolkitfix:hover{background-image:url("//i.imgur.com/d5ZL09o.png")}
+			button.toolkitfix{width:2em;height:2em}
+			.toolkitinfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
+			.toolkitinfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
+			.toolkitinfo table{border-spacing.5em;margin-bottom:2em;}
+			.toolkitinfo th{font-weight:bold}
+			.toolkitinfo button{float:right}
+			.toolkitinfo th,.toolkitinfo td{border:1px solid black;padding:0.5em}
+			.toolkitinfo td{font-family:monospace;white-space:pre-wrap}
+			.toolkitinfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
+			.toolkitinfo ins{background:#cfc}
+			.toolkitinfo del{background:#fcc}
+			.toolkitinfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
+			.toolkitinfo .wn::before{content:"↲";position:absolute;transform:translate(8px, 0px);color:#aaa}
+			.toolkitinfo .wn::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:#aaa}
+		`)
 
-	$('body').keyup(e=>{
-		if(e.key=="Escape"){
-			var tki = $('.toolkitinfo')
-			if (tki.length){
-				tki.remove()
-				e.preventDefault()
-				return false
+		//Preload icon alt
+		new Image().src = '//i.imgur.com/79qYzkQ.png'
+		new Image().src = '//i.imgur.com/d5ZL09o.png'
+
+		$('body').keyup(e=>{
+			if(e.key=="Escape"){
+				var tki = $('.toolkitinfo')
+				if (tki.length){
+					tki.remove()
+					e.preventDefault()
+					return false
+				}
 			}
-		}
-		if(e.key=="e" && e.ctrlKey){
-			var button = $(e.target).closest('.wmd-container').find('.toolkitfix')
-			if (button.length){
-				e.preventDefault()
-				button.trigger('click')
-				return false
+			if(e.key=="e" && e.ctrlKey){
+				var button = $(e.target).closest('.wmd-container').find('.toolkitfix')
+				if (button.length){
+					e.preventDefault()
+					button.trigger('click')
+					return false
+				}
 			}
+		})
+
+		function cssColorVar(v){
+			// get var then convert from hsv to rgb because passing hsv string to animate doesn't work
+			return $('<div>').css("color",window.getComputedStyle(document.body).getPropertyValue(v))[0].style.color;
 		}
-	})
 
-	function cssColorVar(v){
-		// get var then convert from hsv to rgb because passing hsv string to animate doesn't work
-		return $('<div>').css("color",window.getComputedStyle(document.body).getPropertyValue(v))[0].style.color;
-	}
-
-	function addClick(button,d){
-		return button.click(function(e){
-			e.preventDefault()
-			if (d.completed){
-				// Second time button clicked, show a report
-				if($('.toolkitinfo').length) return // already open
-				var td = runTests()
-				var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
-				if (!d.replacements.length){
-					info.append($("<h1>No edits made!</h1>"))
-				} else {
-					info.append($("<h1>Edits made:</h1>"))
-					table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
-					$.each(d.replacements, (x,r)=>{
-						if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
-							r.i=r.i.replace(/^\s+/,"")
-							r.o=r.o.replace(/^\s+/,"")
+		function addClick(button,d){
+			return button.click(function(e){
+				e.preventDefault()
+				if (d.completed){
+					// Second time button clicked, show a report
+					if($('.toolkitinfo').length) return // already open
+					var td = runTests()
+					var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
+					if (!d.replacements.length){
+						info.append($("<h1>No edits made!</h1>"))
+					} else {
+						info.append($("<h1>Edits made:</h1>"))
+						table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
+						$.each(d.replacements, (x,r)=>{
+							if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
+								r.i=r.i.replace(/^\s+/,"")
+								r.o=r.o.replace(/^\s+/,"")
+							}
+							table.append($("<tr>").append($("<td>").html(visibleSpace(r.i))).append($("<td>").html(visibleSpace(r.o))).append($("<td>").html(visibleSpace(r.r))))
+						})
+						info.append(table)
+						try {
+							info.append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
+						} catch (x){
+							info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
 						}
-						table.append($("<tr>").append($("<td>").html(visibleSpace(r.i))).append($("<td>").html(visibleSpace(r.o))).append($("<td>").html(visibleSpace(r.r))))
-					})
-					info.append(table)
-					try {
-						info.append($("<div class=diff>").html(diff2html(d.origbody, d.body)))
-					} catch (x){
-						info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
 					}
-				}
-				if (!td.failures.length){
-					info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
+					if (!td.failures.length){
+						info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
+					} else {
+						info.append($("<h1>" + td.failures.length + " unit test failures:</h1>"))
+						table = $("<table>").append($("<tr><th>Input</th><th>Output</th><th>Expected</th></tr>"))
+						$.each(td.failures, (x,f)=>{
+							table.append($("<tr>").append($("<td>").html(visibleSpace(f.method+"("+f.input+")"))).append($("<td>").html(visibleSpace(f.actual))).append($("<td>").html(visibleSpace(f.expected))))
+						})
+						info.append(table)
+						info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
+					}
+					$('body').prepend($('<div class=toolkitinfo>').append(info).click(e=>{
+						if($(e.target).is('.toolkitinfo')){
+							e.preventDefault()
+							$(e.target).remove()
+							return false
+						}
+					}))
 				} else {
-					info.append($("<h1>" + td.failures.length + " unit test failures:</h1>"))
-					table = $("<table>").append($("<tr><th>Input</th><th>Output</th><th>Expected</th></tr>"))
-					$.each(td.failures, (x,f)=>{
-						table.append($("<tr>").append($("<td>").html(visibleSpace(f.method+"("+f.input+")"))).append($("<td>").html(visibleSpace(f.actual))).append($("<td>").html(visibleSpace(f.expected))))
-					})
-					info.append(table)
-					info.append($("<div>" + td.passed + " of " +td.count + " unit tests passed.</div>"))
+					// First time button clicked, do all the replacements
+					d.origtitle = d.title = d.getTitle()
+					d.origbody = d.body = d.getBody()
+					edit(d)
+					// Flash red or green depending on whether edits were made
+					d.flashMe.animate({backgroundColor:d.editCount==0?cssColorVar('--red-100'):cssColorVar('--green-100')},10)
+					// Then back to white
+					d.flashMe.animate({backgroundColor:cssColorVar('--white')})
+					// Update values in UI
+					d.setTitle(d.title)
+					d.setBody(d.body)
+					if(d.summary) d.addSummary(d.summary)
+					d.completed=true
 				}
-				$('body').prepend($('<div class=toolkitinfo>').append(info).click(e=>{
-					if($(e.target).is('.toolkitinfo')){
-						e.preventDefault()
-						$(e.target).remove()
-						return false
+				return false
+			})
+		}
+
+		function needsButton(editor){
+			// Not for the "add new answer" box
+			if (!/\d$/.exec(editor.id)) return false;
+			// Already has editor
+			if ($(editor).find('.toolkitfix').length) return false;
+			return true
+		}
+
+		// Continually monitor for newly created editing widgets
+		setInterval(()=>{
+			$('.wmd-button-bar').each(function(){
+				if (needsButton(this)){
+					var d = getDefaultData(),
+					postId = this.id.match(/[0-9]+/)[0],
+					bodyBox = $('#wmd-input-' + postId),
+					titleBox = $(".js-post-title-field"),
+					summaryBox = $('.js-post-edit-comment-field')
+					d.getTitle = function(){
+						return titleBox.length?titleBox.val():''
 					}
-				}))
-			} else {
-				// First time button clicked, do all the replacements
-				d.origtitle = d.title = d.getTitle()
-				d.origbody = d.body = d.getBody()
-				edit(d)
-				// Flash red or green depending on whether edits were made
-				d.flashMe.animate({backgroundColor:d.editCount==0?cssColorVar('--red-100'):cssColorVar('--green-100')},10)
-				// Then back to white
-				d.flashMe.animate({backgroundColor:cssColorVar('--white')})
-				// Update values in UI
-				d.setTitle(d.title)
-				d.setBody(d.body)
-				if(d.summary) d.addSummary(d.summary)
-				d.completed=true
-			}
-			return false
-		})
+					d.setTitle = function(s){
+						if (!titleBox.length) return
+						titleBox.val(s)
+						titleBox[0].dispatchEvent(new Event('keypress')) // Cause title display to be updated
+					}
+					d.getBody = function(){
+						return bodyBox.val()
+					}
+					d.setBody = function(s){
+						bodyBox.val(s)
+						bodyBox[0].dispatchEvent(new Event('keypress')) // Cause markdown reparse
+					}
+					d.flashMe = bodyBox
+					d.addSummary = function (s){
+						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
+					}
+					$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">'),d))
+				}
+			})
+			$('.post-editor').each(function(){
+				if (needsButton(this)){
+					var d = getDefaultData(),
+					postEditor = $(this),
+					editArea = postEditor.find('textarea'),
+					summaryBox = $('.js-post-edit-comment-field')
+					d.getTitle = function(){
+						return "" // This style editor only used for answers, so never a title
+					}
+					d.setTitle = function(s){} // no-op
+					d.getBody = function(){
+						return editArea.val()
+					}
+					d.setBody = function(s){
+						editArea.val(s)
+					}
+					d.flashMe = postEditor.find('.js-editor')
+					d.addSummary = function (s){
+						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
+					}
+					$(this).find('.js-editor-btn').last().before(addClick(
+						$('<button class="toolkitfix s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
+					)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
+				}
+			})
+		},200)
+
+		function visibleSpace(s){
+			s=eschtml(s)
+			s=s.replace(/(\r)/g,"<span class=wr>$1</span>")
+			s=s.replace(/(\n)/g,"<span class=wn>$1</span>")
+			s=s.replace(/(\t)/g,"<span class=wt>$1</span>")
+			s=s.replace(/( )/g,"<span class=ws>$1</span>")
+			return s
+		}
 	}
 
-	function needsButton(editor){
-		// Not for the "add new answer" box
-		if (!/\d$/.exec(editor.id)) return false;
-		// Already has editor
-		if ($(editor).find('.toolkitfix').length) return false;
-		return true
-	}
-
-	// Continually monitor for newly created editing widgets
-	setInterval(()=>{
-		$('.wmd-button-bar').each(function(){
-			if (needsButton(this)){
-				var d = getDefaultData(),
-				postId = this.id.match(/[0-9]+/)[0],
-				bodyBox = $('#wmd-input-' + postId),
-				titleBox = $(".js-post-title-field"),
-				summaryBox = $('.js-post-edit-comment-field')
-				d.getTitle = function(){
-					return titleBox.length?titleBox.val():''
-				}
-				d.setTitle = function(s){
-					if (!titleBox.length) return
-					titleBox.val(s)
-					titleBox[0].dispatchEvent(new Event('keypress')) // Cause title display to be updated
-				}
-				d.getBody = function(){
-					return bodyBox.val()
-				}
-				d.setBody = function(s){
-					bodyBox.val(s)
-					bodyBox[0].dispatchEvent(new Event('keypress')) // Cause markdown reparse
-				}
-				d.flashMe = bodyBox
-				d.addSummary = function (s){
-					summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
-				}
-				$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button toolkitfix" title="Auto edit Ctrl+E">'),d))
-			}
-		})
-		$('.post-editor').each(function(){
-			if (needsButton(this)){
-				var d = getDefaultData(),
-				postEditor = $(this),
-				editArea = postEditor.find('textarea'),
-				summaryBox = $('.js-post-edit-comment-field')
-				d.getTitle = function(){
-					return "" // This style editor only used for answers, so never a title
-				}
-				d.setTitle = function(s){} // no-op
-				d.getBody = function(){
-					return editArea.val()
-				}
-				d.setBody = function(s){
-					editArea.val(s)
-				}
-				d.flashMe = postEditor.find('.js-editor')
-				d.addSummary = function (s){
-					summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
-				}
-				$(this).find('.js-editor-btn').last().before(addClick(
-					$('<button class="toolkitfix s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
-				)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
-			}
-		})
-	},200)
-
-	function visibleSpace(s){
-		s=eschtml(s)
-		s=s.replace(/(\r)/g,"<span class=wr>$1</span>")
-		s=s.replace(/(\n)/g,"<span class=wn>$1</span>")
-		s=s.replace(/(\t)/g,"<span class=wt>$1</span>")
-		s=s.replace(/( )/g,"<span class=ws>$1</span>")
-		return s
+	function main(){
+		var results = runTests()
+		console.log(results)
+		process.exit(results.failures.length)
 	}
 
 	function eschtml(s) {
@@ -610,6 +639,7 @@
 
 		function testEdit(input, output, titleOutput){
 			if (!titleOutput) titleOutput = output
+			if (!/\n$/.exec(output)) output+="\n"
 			var d=getDefaultData(),
 			testTitle = !/[\r\n`]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
 			if (testTitle) d.title=input
@@ -619,7 +649,7 @@
 			expectEql("editBody", d.body, output, input)
 		}
 
-		$.each([
+		[
 			{i:'Lorum ipsum. Hope it helps!',o:'Lorum ipsum.'},
 			{i:'Lorum ipsum. any suggestions?',o:'Lorum ipsum.'},
 			{i:'Lorum ipsum. Can anybody give me any suggestions, pls?',o:'Lorum ipsum.'},
@@ -656,12 +686,13 @@
 			{i:'90% hit rate',o:"90% hit rate"},
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
 			{i:'Double space.  After period.',o:"Double space. After period."},
-			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"}
-		], (x,io)=>{
+			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
+			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"}
+		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
 
-		$.each([
+		var multiTests = [
 			{i:[],o:'i.e.'},
 			{i:[],o:'I.E.'},
 			{i:[],o:"IM"},
@@ -705,15 +736,20 @@
 			{i:['win vista','WIN VISTA','windows vista','windows VISTA'],o:'Windows Vista'},
 			{i:['win xp','WIN XP','windows xp','windows XP'],o:'Windows XP'},
 			{i:['wordpress','Wordpress'],o:'WordPress'},
-			{i:['youve'],o:'you\'ve'},
-		], (x, io)=>{
+			{i:['youve'],o:'you\'ve'}
+		]
+		multiTests.forEach(io=>{
 			io.i.push(io.o)
-			$.each(io.i, (x,i)=>{
+			io.i.forEach(i=>{
 				testEdit('Lorum ' + i + ' ipsum.', 'Lorum ' + io.o + ' ipsum.')
 				testEdit('Lorum ipsum ' + i, 'Lorum ipsum ' + io.o)
 				testEdit('Lorum ipsum ' + i + '.', 'Lorum ipsum ' + io.o + '.')
 			})
 		})
+
 		return td
 	}
+
+	if (typeof unsafeWindow !== 'undefined') ui()
+	if (typeof process !== 'undefined') main()
 })()
