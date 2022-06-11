@@ -6,7 +6,7 @@
 // @developer sathyabhat
 // @contributor Unihedron
 // @license MIT
-// @namespace https://ostermiller.org/
+// @namespace https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor
 // @version 1.0.1
 // @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
 // @match https://*.stackexchange.com/posts/*
