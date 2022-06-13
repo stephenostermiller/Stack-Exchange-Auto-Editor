@@ -168,8 +168,8 @@
 			context: ["title"]
 		},{
 			// Remove trailing white space
-			expr: /[ \t]+$/gm,
-			replacement: "",
+			expr: /[ \t]+(\r\n|\n|$)/gm,
+			replacement: "$1",
 			reason: "formatting",
 			context: ["fullbody","title"]
 		},{
@@ -353,13 +353,14 @@
 			.autoEditorInfo th{font-weight:bold}
 			.autoEditorInfo button{float:right}
 			.autoEditorInfo th,.autoEditorInfo td{border:1px solid black;padding:0.5em}
-			.autoEditorInfo td{font-family:monospace;white-space:pre-wrap}
+			.autoEditorInfo td:not(:last-child){font-family:monospace;white-space:pre-wrap}
 			.autoEditorInfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
 			.autoEditorInfo ins{background:#cfc}
 			.autoEditorInfo del{background:#fcc}
-			.autoEditorInfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:#aaa}
-			.autoEditorInfo .wn::before{content:"↲";position:absolute;transform:translate(8px, 0px);color:#aaa}
-			.autoEditorInfo .wn::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:#aaa}
+			.autoEditorInfo .editsMade{position:relative}
+			.autoEditorInfo .ws::after{content:"∙";position:absolute;transform:translate(-8px, 0px);color:var(--yellow-400)}
+			.autoEditorInfo .wn::before{content:"↲";position:absolute;color:var(--yellow-400)}
+			.autoEditorInfo .wt::after{content:"→";position:absolute;transform:translate(-22px, 0px);color:var(--yellow-400)}
 		`)
 
 		//Preload icon alt
@@ -402,16 +403,17 @@
 						info.append($("<h1>No edits made!</h1>"))
 					} else {
 						info.append($("<h1>Edits made:</h1>"))
-						table = $("<table>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
+						table = $("<table class=editsMade>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
 						$.each(d.replacements, (x,r)=>{
-							if (r.i.search(/^\s+/)!=-1 && r.o.search(/^\s+/)!=-1){
-								r.i=r.i.replace(/^\s+/,"")
-								r.o=r.o.replace(/^\s+/,"")
+							if (r.i.search(/^[ \t]+/)!=-1 && r.o.search(/^[ \t]+/)!=-1){
+								r.i=r.i.replace(/^[ \t]+/,"")
+								r.o=r.o.replace(/^[ \t]+/,"")
 							}
-							table.append($("<tr>").append($("<td>").html(visibleSpace(r.i))).append($("<td>").html(visibleSpace(r.o))).append($("<td>").html(visibleSpace(r.r))))
+							table.append($("<tr>").append($("<td>").html(visibleSpace(r.i))).append($("<td>").html(visibleSpace(r.o))).append($("<td>").html(r.r)))
 						})
 						info.append(table)
 						try {
+							if(d.originalTitle) info.append($("<div class=diff>").html(diff2html(d.originalTitle, d.title)))
 							info.append($("<div class=diff>").html(diff2html(d.originalBody, d.body)))
 						} catch (x){
 							info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
@@ -687,6 +689,7 @@
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
 			{i:'Double space.  After period.',o:"Double space. After period."},
 			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
+			{i:'Trailing white space\t \t',o:"Trailing white space"},
 			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
