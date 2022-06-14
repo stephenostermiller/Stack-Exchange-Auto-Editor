@@ -33,13 +33,13 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (()=>{
-	const CONTENT_FREE_WORDS = "(?:a|about|advance|advi[cs]e|accept|again|all|amazing|and|answers?|answered|any|anybody|anyone|" +
-		  "appreciate[ds]?|attention|bad|be|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|fix|" +
-		  "fixe[ds]|fixing|folks?|following|for|friends?|gives?|grammar|grateful|guys?|have|h[ea]lps?|h[ea]lping|highly|hours|" +
-		  "i|i'?m|i'?ve|ideas?|in|issues?|just|kind|kindly|likely|me|missing|months?|most|much|one?|or|please|pl[sz]|problems?|provided?|" +
-		  "obvious|offer|offered|offering|our|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
+	const CONTENT_FREE_WORDS = "(?:a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
+		  "appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|first|fix|" +
+		  "fixe[ds]|fixing|folks?|following|for|friends?|gives?|grammar|grateful|guys?|have|helps?|helping|here|highly|hopes?|hours|" +
+		  "i|i'?m|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|new|one?|or|over|please|post|problems?|provided?|" +
+		  "obvious|offer|offered|offering|our|over|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
 		  "some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
-		  "things?|thx|time|to|trie[ds]|try|trying|ty|understand|up|us|vote[ds]?|this|very|we|weeks?|will|with|would|your?)"
+		  "things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|weeks?|will|with|would|your?)"
 	var rules = [
 		{
 			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
@@ -82,8 +82,8 @@
 			reason: "grammar"
 		},{
 			// Remove double spaces after periods
-			expr: /\. {2,}/gm,
-			replacement: ". ",
+			expr: /([,\!\?\.\:]) {2,}/gm,
+			replacement: "$1 ",
 			reason: "grammar"
 		},
 		capitalizeWord("AngularJS"),
@@ -103,26 +103,6 @@
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
 		capitalizeWord("WordPress"),
 		{
-			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(any|some)\\ssuggestions?(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *\\?)+(?: +|$))+","gmi"),
-			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
-			reason: "remove niceties"
-		},{
-			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:(?:please|pl[sz]|kindly) +h[ea]lp)|thanks|thx|thank[ \\-]+you|ty)(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *[\\.\\!\,\\?])*(?: +|$))+","gmi"),
-			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
-			reason: "remove niceties"
-		},{
-			expr: /(?:^|[ \t]+)(?:(?:(?:i\s)?hope\s(this|it|that)\s+h[ea]lps)|cheers|regards|my\s+first\s+question)\s*[\.\!\,\?]?(?:[ \t]+|$)/gmi,
-			replacement: "",
-			reason: "remove niceties"
-		},{
-			expr: /(?:(?:^|[ \t]+)(?:greetings|cheers|hi|hello|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone))?\s*[\.\!\,]?)+(?:[ \t]+|$)/gmi,
-			replacement: "",
-			reason: "remove niceties"
-		},{
-			expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
-			replacement: "$1",
-			reason: "remove niceties"
-		},{
 			expr: /(^|\s)([A-Za-z][A-Za-z0-9]*)\b(\S|)(?!\S)/gm,
 			replacement: (p0,p1,w,p3)=>{
 				var expanded = abbreviations[w]
@@ -135,7 +115,7 @@
 				}
 				return p1+w+p3
 			},
-			reason: "spelling dictionary"
+			reason: "spelling"
 		},{
 			expr: /(^|\s)c(#|\++|\s|$)/gm,
 			replacement: "$1C$2",
@@ -144,6 +124,46 @@
 			expr: /(^|\s)[Ii]'?(m|ve)\b(\S|)(?!\S)/gm,
 			replacement: "$1I'$2$3",
 			reason: "spelling"
+		},{
+			expr: new RegExp(
+				"(?:^| +)(?:"+
+					"(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*"+
+					"(any|some)\\ssuggestions?"+
+					"(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?: *\\?)+"+ // Asks a question
+					"(?: +|$)"+
+				")+","gmi"
+			),
+			replacement: toNothingOrSpace,
+			reason: "remove niceties"
+		},{
+			expr: new RegExp(
+				"(?:^| +)(?:"+
+					"(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:"+[
+						"(?:can|someone|somebody|please|kindly|appreciate)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:help|advice|tips?)",
+						"(?:hope|hopefully)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes)",
+						"thanks",
+						"thank[ \\-]+you"
+					].join(")|(?:")+"))"+
+					"(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?: *[\\.\\!\,\\?])*"+ // End of a phrase or sentence
+					"(?: +|$)"+
+				")+","gmi"
+			),
+			replacement: toNothingOrSpace,
+			reason: "remove niceties"
+		},{
+			expr: /(?:^|[ \t]+)(?:my\s+first\s+question)\s*[\.\!\,\?]?(?:[ \t]+|$)/gmi,
+			replacement: toNothingOrSpace,
+			reason: "remove niceties"
+		},{
+			expr: /(?:(?:^|[ \t]+)(?:greetings|cheers|hi|hello|regards|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone|all))?\s*[\.\!\,]?)+(?:[ \t]+|$)/gmi,
+			replacement: toNothingOrSpace,
+			reason: "remove niceties"
+		},{
+			expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
+			replacement: "$1",
+			reason: "remove niceties"
 		},{
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
@@ -185,7 +205,7 @@
 		"SE":"Stack Exchange",
 	}
 
-	var misspellings = Object.assign({},...("Android|Apache|Git|Google|Java|Linux|Oracle|Windows|"+
+	var misspellings = Object.assign({},...("Android|Apache|Git|Google|Java|Linux|Oracle|Windows|YouTube|"+
 	"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
 	"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
 	"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
@@ -209,7 +229,7 @@
 	"disasterous:disastrous|drunkeness:drunkenness|dumbell:dumbbell|embarass:embarrass|equiptment:equipment|excede:exceed|"+
 	"exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|facinating:fascinating|firey:fiery|flourescent:fluorescent|"+
 	"foriegn:foreign|freind:friend|fullfil:fulfil|fullfill:fulfill|guage:gauge|gratefull,greatful:grateful|grate,grat:great|"+
-	"garantee,garentee,garanty:guarantee|guidence:guidance|harrass:harass|hdd,harddisk:hard disk|heighth,heigth:height|heirarchy:hierarchy|humerous:humorous|"+
+	"garantee,garentee,garanty:guarantee|guidence:guidance|harrass:harass|hdd,harddisk:hard disk|heighth,heigth:height|halp:help|halping:helping|halps:helps|heirarchy:hierarchy|humerous:humorous|"+
 	"hygene,hygine,hiygeine,higeine,hygeine:hygiene|hipocrit:hypocrite|ignorence:ignorance|immitate:imitate|imediately:immediately|"+
 	"indite:indict|independant:independent|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|"+
 	"jewelery:jewelry|judgement:judgment|kernal:kernel|liesure:leisure|liason:liaison|libary,liberry:library|lisence:license|"+
@@ -218,19 +238,23 @@
 	"mispell,misspel:misspell|neccessary,necessery:necessary|neice:niece|nieghbor:neighbor|noticable:noticeable|occassion:occasion|"+
 	"occasionaly,occassionally:occasionally|occurrance,occurence:occurrence|occured:occurred|ommision,omision:omission|orignal:original|"+
 	"outragous:outrageous|parliment:parliament|passtime,pasttime:pastime|percieve:perceive|perseverence:perseverance|"+
-	"personell,personel:personnel|plagerize:plagiarize|playright,playwrite:playwright|posession,possesion:possession|potatos:potatoes|"+
+	"personell,personel:personnel|plagerize:plagiarize|playright,playwrite:playwright|plz,pls,plze:please|posession,possesion:possession|potatos:potatoes|"+
 	"preceed:precede|presance:presence|principal:principle|privelege,priviledge:privilege|professer:professor|protestor:protester|"+
 	"promiss:promise|pronounciation:pronunciation|prufe:proof|publically:publicly|quarentine:quarantine|que:queue|"+
 	"questionaire,questionnair:questionnaire|readible:readable|realy:really|recieve:receive|reciept:receipt|recomend,reccommend:recommend|"+
 	"refered:referred|referance,refrence:reference|relevent,revelant:relevant|religous,religius:religious|repitition:repetition|"+
 	"restarant,restaraunt:restaurant|rime:rhyme|rythm,rythem:rhythm|secratary,secretery:secretary|sieze:seize|seperate:separate|"+
 	"sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|succesful,successfull,sucessful:successful|supercede:supersede|"+
-	"suprise,surprize:surprise|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
+	"suprise,surprize:surprise|ty:thank you|thx:thanks|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
 	"upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
 	"wierd:weird|wellfare,welfair:welfare|wether:whether|wilfull:wilful|willfull:willful|withold:withhold|writting,writeing:writing").split("|").map(l=>{
 		var r = l.split(/:/)
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
+
+	function toNothingOrSpace(s){
+		return /^[ \t](\s|\S)*[ \t]$/.exec(s)?" ":""
+	}
 
 	// Create a rule for converting the given word into its exact given case.
 	// The regex parameter is optional, if none is given, it is auto-created from the word
@@ -676,7 +700,7 @@
 
 		function testEdit(input, output, titleOutput){
 			if (!titleOutput) titleOutput = output
-			if (!/\n$/.exec(output)) output+="\n"
+			if (output && !/\n$/.exec(output)) output+="\n"
 			var d=getDefaultData(),
 			testTitle = !/[\r\n`]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
 			if (testTitle) d.title=input
@@ -686,20 +710,7 @@
 			expectEql("editBody", d.body, output, input)
 		}
 
-		[
-			{i:'Lorum ipsum. Hope it helps!',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. any suggestions?',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. Can anybody give me any suggestions, pls?',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. Will you provide any suggestions for me, please?',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. Does anybody have any suggestions?',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. Any suggestions would be highly appreciated, thank you!',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. thank you very much for all your help',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. ty in advance',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. Any help will be appreciated, thank you in advance.',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. please help me understand these concepts.',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. please help - any ideas would be amazing - been stuck on trying to fix this thing for a week!',o:'Lorum ipsum.'},
-			{i:'Lorum ipsum. please help me about this code! thank you very much!',o:'Lorum ipsum.'},
-			{i:'Hello! Lorum ipsum.',o:'Lorum ipsum.'},
+		;[
 			{i:'Edit: Lorum ipsum.',o:'Lorum ipsum.'},
 			{i:'**Edit:** Lorum ipsum.',o:'Lorum ipsum.'},
 			{i:'Edit lorum ipsum.',o:'Edit lorum ipsum.'},
@@ -722,7 +733,7 @@
 			{i:'12,345',o:"12,345"},
 			{i:'90% hit rate',o:"90% hit rate"},
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
-			{i:'Double space.  After period.',o:"Double space. After period."},
+			{i:'Double!  Space?  After:  Any.  Punctuation.',o:"Double! Space? After: Any. Punctuation."},
 			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
 			{i:'Trailing white space\t \t',o:"Trailing white space"},
 			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},
@@ -730,6 +741,39 @@
 			{i:'Vaccuum: beatiful, tomatos! tommorow?',o:'Vacuum: beautiful, tomatoes! tomorrow?'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
+		})
+
+		;[
+			'Hope it helps!',
+			'Hope it halps!',
+			'Hopefully this helps someone!',
+			'any suggestions?',
+			'Can anybody give me any suggestions, pls?',
+			'Will you provide any suggestions for me, please?',
+			'Does anybody have any suggestions?',
+			'Any suggestions would be highly appreciated, thank you!',
+			'thank you very much for all your help',
+			'ty in advance',
+			'hope helped you',
+			'thx',
+			'Any help will be appreciated, thank you in advance.',
+			'please help me understand these concepts.',
+			'please help - any ideas would be amazing - been stuck on trying to fix this thing for a week!',
+			'please help me about this code! thank you very much!',
+			'Can someone help me to solve this problem?',
+			'Appreciate for any help!',
+			'Hope someone can give me some tips',
+			'Hope this might help.',
+			'I hope this fixes your issue.',
+			'First post over here and I hope someone will be able to give some advice.',
+			'I hope this help your problem.',
+			'I am new to this and I hope someone can help me.',
+			'Hi all!',
+		].forEach(r=>{
+			testEdit(r,"")
+			testEdit("Lorum ipsum. "+r,"Lorum ipsum.")
+			testEdit("Lorum. "+r+" Ipsum.","Lorum. Ipsum.")
+			testEdit(r+" Lorum ipsum. ","Lorum ipsum.")
 		})
 
 		;[
@@ -813,6 +857,20 @@
 			{i:"[1]: https://link.example/",o:"link26"}
 		].forEach(io=>{
 			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
+		})
+
+		;[
+			{i:" Lorum ipsum ",o:" "},
+			{i:" Lorum ipsum",o:""},
+			{i:"Lorum ipsum ",o:""},
+			{i:"Lorum ipsum",o:""},
+			{i:"\tLorum ipsum\t",o:" "},
+			{i:"\tLorum ipsum",o:""},
+			{i:"Lorum ipsum\t",o:""},
+			{i:" Lorum ipsum\t",o:" "},
+			{i:"\tLorum ipsum ",o:" "},
+		].forEach(io=>{
+			expectEql("toNothingOrSpace", toNothingOrSpace(io.i), io.o, io.i)
 		})
 
 		return td
