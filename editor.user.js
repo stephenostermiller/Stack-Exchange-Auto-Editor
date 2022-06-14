@@ -33,13 +33,67 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (()=>{
+	const ABBREVIATIONS = {
+		"SO":"Stack Overflow",
+		"SE":"Stack Exchange",
+	}
+
+	const MISSPELLINGS = Object.assign({},...("Android|Apache|Git|Google|Java|Linux|Oracle|Windows|YouTube|"+
+		"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
+		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
+		"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
+		"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
+		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|"+
+		"hed:he'd|hes:he's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|"+
+		"theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|"+
+		"whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|"+
+		"wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
+		"absense,absentse,abcense,absance:absence|acceptible:acceptable|accomodate,acommodate:accommodate|acheive:achieve|"+
+		"acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|aquire,adquire:acquire|aquit:acquit|acrage,acerage:acreage|"+
+		"adress:address|adultary:adultery|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|"+
+		"allegaince,allegience,alegiance:allegiance|allmost:almost|alot:a lot|amatuer,amature:amateur|anually,annualy:annually|"+
+		"apparant,aparent,apparrent,aparrent:apparent|artic:arctic|arguement:argument|athiest,athist:atheist|awfull,aweful:awful|"+
+		"becuase:because|beatiful:beautiful|becomeing:becoming|begining:beginning|beleive:believe|bellweather:bellwether|benifit:benefit|bouy:buoy|"+
+		"bouyant:buoyant|buisness:business|calender:calendar|camoflage,camoflague:camouflage|capital:capitol|Carribean:Caribbean|catagory:category|"+
+		"cauhgt,caugt:caught|cemetary:cemetery|changable:changeable|cheif:chief|collaegue,collegue:colleague|colum:column|comming:coming|"+
+		"commited,comitted:committed|comparsion:comparison|conceed:concede|congradulate:congratulate|consciencious:conscientious|"+
+		"concious,consious:conscious|concensus:consensus|contraversy:controversy|cooly:coolly|dacquiri,daquiri:daiquiri|decieve:deceive|"+
+		"definate:definite|definitly:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapoint:disappoint|"+
+		"disasterous:disastrous|drunkeness:drunkenness|dumbell:dumbbell|embarass:embarrass|equiptment:equipment|excede:exceed|"+
+		"exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|facinating:fascinating|firey:fiery|flourescent:fluorescent|"+
+		"foriegn:foreign|freind:friend|fullfil:fulfil|fullfill:fulfill|guage:gauge|gratefull,greatful:grateful|grate,grat:great|"+
+		"garantee,garentee,garanty:guarantee|guidence:guidance|harrass:harass|hdd,harddisk:hard disk|heighth,heigth:height|halp:help|halping:helping|halps:helps|heirarchy:hierarchy|humerous:humorous|"+
+		"hygene,hygine,hiygeine,higeine,hygeine:hygiene|hipocrit:hypocrite|ignorence:ignorance|immitate:imitate|imediately:immediately|"+
+		"indite:indict|independant:independent|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|"+
+		"jewelery:jewelry|judgement:judgment|kernal:kernel|liesure:leisure|liason:liaison|libary,liberry:library|lisence:license|"+
+		"lightening:lightning|maintainance,maintnance:maintenance|marshmellow:marshmallow|medeval,medevil,mideval:medieval|"+
+		"momento:memento|millenium,milennium:millennium|miniture:miniature|miniscule:minuscule|mischievious,mischevous,mischevious:mischievous|"+
+		"mispell,misspel:misspell|neccessary,necessery:necessary|neice:niece|nieghbor:neighbor|noticable:noticeable|occassion:occasion|"+
+		"occasionaly,occassionally:occasionally|occurrance,occurence:occurrence|occured:occurred|ommision,omision:omission|orignal:original|"+
+		"outragous:outrageous|parliment:parliament|passtime,pasttime:pastime|percieve:perceive|perseverence:perseverance|"+
+		"personell,personel:personnel|plagerize:plagiarize|playright,playwrite:playwright|plz,pls,plze:please|posession,possesion:possession|potatos:potatoes|"+
+		"preceed:precede|presance:presence|principal:principle|privelege,priviledge:privilege|professer:professor|protestor:protester|"+
+		"promiss:promise|pronounciation:pronunciation|prufe:proof|publically:publicly|quarentine:quarantine|que:queue|"+
+		"questionaire,questionnair:questionnaire|readible:readable|realy:really|recieve:receive|reciept:receipt|recomend,reccommend:recommend|"+
+		"refered:referred|referance,refrence:reference|relevent,revelant:relevant|religous,religius:religious|repitition:repetition|"+
+		"restarant,restaraunt:restaurant|rime:rhyme|rythm,rythem:rhythm|secratary,secretery:secretary|sieze:seize|seperate:separate|"+
+		"sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|succesful,successfull,sucessful:successful|supercede:supersede|"+
+		"suprise,surprize:surprise|ty:thank you|thx:thanks|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
+		"upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
+		"wierd:weird|wellfare,welfair:welfare|wether:whether|wilfull:wilful|willfull:willful|withold:withhold|writting,writeing:writing"
+	).split("|").map(l=>{
+		var r = l.split(/:/)
+		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
+	}))
+
 	const CONTENT_FREE_WORDS = "(?:a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
-		  "appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|first|fix|" +
-		  "fixe[ds]|fixing|folks?|following|for|friends?|gives?|grammar|grateful|guys?|have|helps?|helping|here|highly|hopes?|hours|" +
-		  "i|i'?m|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|new|one?|or|over|please|post|problems?|provided?|" +
-		  "obvious|offer|offered|offering|our|over|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
-		  "some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
-		  "things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|weeks?|will|with|would|your?)"
+		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|first|fix|" +
+		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|have|helps?|helping|here|highly|hopes?|hours|" +
+		"i|i'?m|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|new|one?|or|over|please|post|problems?|provided?|" +
+		"obvious|offer|offered|offering|our|over|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
+		"some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
+		"things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|well|weeks?|will|with|would|your?)"
+
 	var rules = [
 		{
 			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
@@ -105,9 +159,9 @@
 		{
 			expr: /(^|\s)([A-Za-z][A-Za-z0-9]*)\b(\S|)(?!\S)/gm,
 			replacement: (p0,p1,w,p3)=>{
-				var expanded = abbreviations[w]
+				var expanded = ABBREVIATIONS[w]
 				if (expanded) w = expanded
-				var correct = misspellings[w.toLowerCase()]
+				var correct = MISSPELLINGS[w.toLowerCase()]
 				if (correct){
 					if (/[A-Z]/.exec(correct)) w = correct // Always use capitalization proper noun corrections
 					else if (/^(?:[A-Z][a-z]+)+$/.exec(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
@@ -126,44 +180,57 @@
 			reason: "spelling"
 		},{
 			expr: new RegExp(
+				"(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|^)[\r\n\t ]*(?:"+ // Required start of sentence or paragraph
+					"(?:(?:" + CONTENT_FREE_WORDS + ")[, \\-]+)*(?:(?:"+[
+						"thanks",
+						"thank[ \\-]+you"
+					].join(")|(?:")+"))"+
+					"(?:[, \\-]+(?:" + CONTENT_FREE_WORDS + "))*"+
+					" *(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|$)"+ // Required end of sentence or paragraph
+					"[ \r\n\t]*"+
+				")+","gi"
+			),
+			replacement: removeLeaveSpace,
+			reason: "remove niceties1"
+		},{
+			expr: new RegExp(
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*"+
-					"(any|some)\\ssuggestions?"+
+					"(any|some)\\s(?:help|advice|tips?|suggestions?)"+
 					"(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*"+
-					"(?: *\\?)+"+ // Asks a question
+					"(?: *\\?)+"+ // Required ending question mark
 					"(?: +|$)"+
 				")+","gmi"
 			),
-			replacement: toNothingOrSpace,
-			reason: "remove niceties"
+			replacement: removeLeaveSpace,
+			reason: "remove niceties2"
 		},{
 			expr: new RegExp(
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:"+[
-						"(?:can|someone|somebody|please|kindly|appreciate)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:help|advice|tips?)",
+						"(?:thanks|(?:thank[ \\-]+you)|can|someone|somebody|please|kindly|appreciate)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:help|advice|tips?|suggestions?)",
 						"(?:hope|hopefully)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes)",
-						"thanks",
-						"thank[ \\-]+you"
+						"(?:thanks|(?:thank[ \\-]+you))( +(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)"
 					].join(")|(?:")+"))"+
 					"(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*"+
-					"(?: *[\\.\\!\,\\?])*"+ // End of a phrase or sentence
+					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
 					"(?: +|$)"+
 				")+","gmi"
 			),
-			replacement: toNothingOrSpace,
-			reason: "remove niceties"
+			replacement: removeLeaveSpace,
+			reason: "remove niceties3"
 		},{
 			expr: /(?:^|[ \t]+)(?:my\s+first\s+question)\s*[\.\!\,\?]?(?:[ \t]+|$)/gmi,
-			replacement: toNothingOrSpace,
-			reason: "remove niceties"
+			replacement: removeLeaveSpace,
+			reason: "remove niceties4"
 		},{
 			expr: /(?:(?:^|[ \t]+)(?:greetings|cheers|hi|hello|regards|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone|all))?\s*[\.\!\,]?)+(?:[ \t]+|$)/gmi,
-			replacement: toNothingOrSpace,
-			reason: "remove niceties"
+			replacement: removeLeaveSpace,
+			reason: "remove niceties5"
 		},{
 			expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
 			replacement: "$1",
-			reason: "remove niceties"
+			reason: "remove niceties6"
 		},{
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
@@ -200,60 +267,18 @@
 		}
 	]
 
-	var abbreviations = {
-		"SO":"Stack Overflow",
-		"SE":"Stack Exchange",
-	}
-
-	var misspellings = Object.assign({},...("Android|Apache|Git|Google|Java|Linux|Oracle|Windows|YouTube|"+
-	"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
-	"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
-	"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
-	"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
-	"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|"+
-	"hed:he'd|hes:he's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|"+
-	"theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|"+
-	"whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|"+
-	"wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
-	"absense,absentse,abcense,absance:absence|acceptible:acceptable|accomodate,acommodate:accommodate|acheive:achieve|"+
-	"acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|aquire,adquire:acquire|aquit:acquit|acrage,acerage:acreage|"+
-	"adress:address|adultary:adultery|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|"+
-	"allegaince,allegience,alegiance:allegiance|allmost:almost|alot:a lot|amatuer,amature:amateur|anually,annualy:annually|"+
-	"apparant,aparent,apparrent,aparrent:apparent|artic:arctic|arguement:argument|athiest,athist:atheist|awfull,aweful:awful|"+
-	"becuase:because|beatiful:beautiful|becomeing:becoming|begining:beginning|beleive:believe|bellweather:bellwether|benifit:benefit|bouy:buoy|"+
-	"bouyant:buoyant|buisness:business|calender:calendar|camoflage,camoflague:camouflage|capital:capitol|Carribean:Caribbean|catagory:category|"+
-	"cauhgt,caugt:caught|cemetary:cemetery|changable:changeable|cheif:chief|collaegue,collegue:colleague|colum:column|comming:coming|"+
-	"commited,comitted:committed|comparsion:comparison|conceed:concede|congradulate:congratulate|consciencious:conscientious|"+
-	"concious,consious:conscious|concensus:consensus|contraversy:controversy|cooly:coolly|dacquiri,daquiri:daiquiri|decieve:deceive|"+
-	"definate:definite|definitly:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapoint:disappoint|"+
-	"disasterous:disastrous|drunkeness:drunkenness|dumbell:dumbbell|embarass:embarrass|equiptment:equipment|excede:exceed|"+
-	"exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|facinating:fascinating|firey:fiery|flourescent:fluorescent|"+
-	"foriegn:foreign|freind:friend|fullfil:fulfil|fullfill:fulfill|guage:gauge|gratefull,greatful:grateful|grate,grat:great|"+
-	"garantee,garentee,garanty:guarantee|guidence:guidance|harrass:harass|hdd,harddisk:hard disk|heighth,heigth:height|halp:help|halping:helping|halps:helps|heirarchy:hierarchy|humerous:humorous|"+
-	"hygene,hygine,hiygeine,higeine,hygeine:hygiene|hipocrit:hypocrite|ignorence:ignorance|immitate:imitate|imediately:immediately|"+
-	"indite:indict|independant:independent|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|"+
-	"jewelery:jewelry|judgement:judgment|kernal:kernel|liesure:leisure|liason:liaison|libary,liberry:library|lisence:license|"+
-	"lightening:lightning|maintainance,maintnance:maintenance|marshmellow:marshmallow|medeval,medevil,mideval:medieval|"+
-	"momento:memento|millenium,milennium:millennium|miniture:miniature|miniscule:minuscule|mischievious,mischevous,mischevious:mischievous|"+
-	"mispell,misspel:misspell|neccessary,necessery:necessary|neice:niece|nieghbor:neighbor|noticable:noticeable|occassion:occasion|"+
-	"occasionaly,occassionally:occasionally|occurrance,occurence:occurrence|occured:occurred|ommision,omision:omission|orignal:original|"+
-	"outragous:outrageous|parliment:parliament|passtime,pasttime:pastime|percieve:perceive|perseverence:perseverance|"+
-	"personell,personel:personnel|plagerize:plagiarize|playright,playwrite:playwright|plz,pls,plze:please|posession,possesion:possession|potatos:potatoes|"+
-	"preceed:precede|presance:presence|principal:principle|privelege,priviledge:privilege|professer:professor|protestor:protester|"+
-	"promiss:promise|pronounciation:pronunciation|prufe:proof|publically:publicly|quarentine:quarantine|que:queue|"+
-	"questionaire,questionnair:questionnaire|readible:readable|realy:really|recieve:receive|reciept:receipt|recomend,reccommend:recommend|"+
-	"refered:referred|referance,refrence:reference|relevent,revelant:relevant|religous,religius:religious|repitition:repetition|"+
-	"restarant,restaraunt:restaurant|rime:rhyme|rythm,rythem:rhythm|secratary,secretery:secretary|sieze:seize|seperate:separate|"+
-	"sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|succesful,successfull,sucessful:successful|supercede:supersede|"+
-	"suprise,surprize:surprise|ty:thank you|thx:thanks|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
-	"upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
-	"wierd:weird|wellfare,welfair:welfare|wether:whether|wilfull:wilful|willfull:willful|withold:withhold|writting,writeing:writing").split("|").map(l=>{
-		var r = l.split(/:/)
-		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
-	}))
-
-	function toNothingOrSpace(s){
-		return /^[ \t](\s|\S)*[ \t]$/.exec(s)?" ":""
+	function removeLeaveSpace(s){
+		var start = "", end=""
+		if (/^[\.\!\?]/.exec(s)){
+			start = s[0]
+			s = s.substr(1)
+		}
+		if(/^(?:\r\r|\n\n|\r\n\r\n)(\s|\S)*[ \t\r\n]$/.exec(s)) end="\n\n"
+		else if(/^[ \t\r\n](\s|\S)*(?:\r\r|\n\n|\r\n\r\n)$/.exec(s)) end="\n\n"
+		else if(/^[\r\n](\s|\S)*[ \t\r\n]$/.exec(s)) end="\n"
+		else if(/^[ \t\r\n](\s|\S)*(?:\r|\n|\r\n)$/.exec(s)) end="\n"
+		else if(/^[ \t\r\n](\s|\S)*[ \t\r\n]$/.exec(s)) end=" "
+		return start+end
 	}
 
 	// Create a rule for converting the given word into its exact given case.
@@ -689,10 +714,10 @@
 	function runTests(){
 		var td = {failures:[],count:0,passed:0}
 
-		function expectEql(method, actual, expected, input){
+		function expectEql(method, actual, expected, input, debug){
 			td.count++
 			if (actual != expected){
-				td.failures.push({method:method,actual:actual,expected:expected,input:input})
+				td.failures.push({method:method,actual:actual,expected:expected,input:input,debug:JSON.stringify(debug)})
 			} else {
 				td.passed++
 			}
@@ -706,81 +731,95 @@
 			if (testTitle) d.title=input
 			d.body=input
 			edit(d)
-			if (testTitle) expectEql("editTitle", d.title, titleOutput, input)
-			expectEql("editBody", d.body, output, input)
+			if (testTitle) expectEql("editTitle", d.title, titleOutput, input, d)
+			expectEql("editBody", d.body, output, input, d)
 		}
 
 		;[
-			{i:'Edit: Lorum ipsum.',o:'Lorum ipsum.'},
+			{i:'    fooexample.org',o:'    foo.example'},
 			{i:'**Edit:** Lorum ipsum.',o:'Lorum ipsum.'},
-			{i:'Edit lorum ipsum.',o:'Edit lorum ipsum.'},
+			{i:'Double!  Space?  After:  Any.  Punctuation.',o:"Double! Space? After: Any. Punctuation."},
+			{i:'Edit: Lorum ipsum.',o:'Lorum ipsum.'},
+			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
+			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
+			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},
+			{i:'NO, NEED, TO+ YELL!',o:'No, need, to+ yell!'},
+			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
+			{i:'Trailing white space\t \t',o:"Trailing white space"},
+			{i:'Vaccuum: beatiful, tomatos! tommorow?',o:'Vacuum: beautiful, tomatoes! tomorrow?'},
 			{i:'Visit site.tld',o:'Visit `site.example`',t:'Visit site.example'},
+			{i:'What ?',o:"What?"},
+			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
+			{i:'`examplelorum.org`',o:'`lorum.example`'},
 			{i:'`ourHome.net`',o:'`ourHome.example`'},
 			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
 			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
-			{i:'    fooexample.org',o:'    foo.example'},
-			{i:'`examplelorum.org`',o:'`lorum.example`'},
-			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'},
-			{i:'Hello guys , good afternoon. Lorum ipsum',o:'Lorum ipsum'},
-			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
-			{i:'See foo.html here',o:'See foo.html here'},
-			{i:'NO, NEED, TO+ YELL!',o:'No, need, to+ yell!'},
 			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
-			{i:'What ?',o:"What?"},
-			{i:'A ... b',o:"A ... b"},
-			{i:'12,345',o:"12,345"},
-			{i:'90% hit rate',o:"90% hit rate"},
-			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
-			{i:'Double!  Space?  After:  Any.  Punctuation.',o:"Double! Space? After: Any. Punctuation."},
-			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
-			{i:'Trailing white space\t \t',o:"Trailing white space"},
-			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},
-			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
-			{i:'Vaccuum: beatiful, tomatos! tommorow?',o:'Vacuum: beautiful, tomatoes! tomorrow?'}
+			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
 
 		;[
-			'Hope it helps!',
-			'Hope it halps!',
-			'Hopefully this helps someone!',
-			'any suggestions?',
-			'Can anybody give me any suggestions, pls?',
-			'Will you provide any suggestions for me, please?',
-			'Does anybody have any suggestions?',
-			'Any suggestions would be highly appreciated, thank you!',
-			'thank you very much for all your help',
-			'ty in advance',
-			'hope helped you',
-			'thx',
+			// Don't change these
+			"IM",
+			"It doesn't have any suggestions.",
+			"so",
+			'12,345',
+			'90% hit rate',
+			'A ... b',
+			'Edit',
+			'I.E.',
+			'See foo.html here',
+			'i.e.',
+			'special thanks to'
+		].forEach(r=>{
+			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
+			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
+		})
+
+		;[
+			// Removals
+			'Any suggestions?',
+			'Any tips?',
+			'Any halp?',
 			'Any help will be appreciated, thank you in advance.',
-			'please help me understand these concepts.',
-			'please help - any ideas would be amazing - been stuck on trying to fix this thing for a week!',
-			'please help me about this code! thank you very much!',
-			'Can someone help me to solve this problem?',
+			'Any suggestions would be highly appreciated, thank you!',
 			'Appreciate for any help!',
+			'Can anybody give me any suggestions, pls?',
+			'Can someone help me to solve this problem?',
+			'Does anybody have any suggestions?',
+			'First post over here and I hope someone will be able to give some advice.',
+			'Hello guys , good afternoon.',
+			'Hi all!',
+			'Hope it halps!',
+			'Hope it helps!',
 			'Hope someone can give me some tips',
 			'Hope this might help.',
-			'I hope this fixes your issue.',
-			'First post over here and I hope someone will be able to give some advice.',
-			'I hope this help your problem.',
+			'Hopefully this helps someone!',
 			'I am new to this and I hope someone can help me.',
-			'Hi all!',
+			'I hope this can help you:',
+			'I hope this fixes your issue.',
+			'I hope this help your problem.',
+			'Will you provide any suggestions for me, please?',
+			'any suggestions?',
+			'hope helped you',
+			'please help - any ideas would be amazing - been stuck on trying to fix this thing for a week!',
+			'please help me about this code! thank you very much!',
+			'please help me understand these concepts.',
+			'thank you very much for all your help',
+			'thx.',
+			'ty in advance'
 		].forEach(r=>{
 			testEdit(r,"")
 			testEdit("Lorum ipsum. "+r,"Lorum ipsum.")
 			testEdit("Lorum. "+r+" Ipsum.","Lorum. Ipsum.")
-			testEdit(r+" Lorum ipsum. ","Lorum ipsum.")
+			testEdit(r+" Lorum ipsum.","Lorum ipsum.")
 		})
 
 		;[
-			{i:[],o:'i.e.'},
-			{i:[],o:'I.E.'},
-			{i:[],o:"IM"},
-			{i:[],o:"so"},
 			{i:['Javascript','Java script','java script','javascript','Java Script'],o:'JavaScript'},
 			{i:['Stackexchange','Stack exchange','stack exchange','StackExchange','stackexchange','SE'],o:'Stack Exchange'},
 			{i:['Stackoverflow','Stack overflow','stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
@@ -864,13 +903,38 @@
 			{i:" Lorum ipsum",o:""},
 			{i:"Lorum ipsum ",o:""},
 			{i:"Lorum ipsum",o:""},
+			{i:"\tLorum ipsum",o:""},
+			{i:"Lorum ipsum\t",o:""},
+			{i:"\nLorum ipsum",o:""},
+			{i:"Lorum ipsum\n",o:""},
+			{i:"\n\nLorum ipsum",o:""},
+			{i:"Lorum ipsum\n\n",o:""},
 			{i:"\tLorum ipsum\t",o:" "},
+			{i:"\n\nLorum ipsum\t",o:"\n\n"},
+			{i:"\nLorum ipsum\t",o:"\n"},
 			{i:"\tLorum ipsum",o:""},
 			{i:"Lorum ipsum\t",o:""},
 			{i:" Lorum ipsum\t",o:" "},
 			{i:"\tLorum ipsum ",o:" "},
+			{i:"? Lorum ipsum ",o:"? "},
+			{i:"! Lorum ipsum",o:"!"},
+			{i:".Lorum ipsum ",o:"."},
+			{i:".Lorum ipsum",o:"."},
+			{i:".\tLorum ipsum",o:"."},
+			{i:".Lorum ipsum\t",o:"."},
+			{i:".\nLorum ipsum",o:"."},
+			{i:".Lorum ipsum\n",o:"."},
+			{i:".\n\nLorum ipsum",o:"."},
+			{i:".Lorum ipsum\n\n",o:"."},
+			{i:".\tLorum ipsum\t",o:". "},
+			{i:".\n\nLorum ipsum\t",o:".\n\n"},
+			{i:".\nLorum ipsum\t",o:".\n"},
+			{i:".\tLorum ipsum",o:"."},
+			{i:".Lorum ipsum\t",o:"."},
+			{i:". Lorum ipsum\t",o:". "},
+			{i:".\tLorum ipsum ",o:". "},
 		].forEach(io=>{
-			expectEql("toNothingOrSpace", toNothingOrSpace(io.i), io.o, io.i)
+			expectEql("removeLeaveSpace", removeLeaveSpace(io.i), io.o, io.i)
 		})
 
 		return td
