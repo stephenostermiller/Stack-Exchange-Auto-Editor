@@ -94,28 +94,15 @@
 		capitalizeWord("jQuery"),
 		capitalizeWord("JSFiddle", "js\\s*fiddle"),
 		capitalizeWord("MySQL"),
-		expandAbbrev("SE", "Stack Exchange"),
-		expandAbbrev("SO", "Stack Overflow"),
 		capitalizeWord("Stack Exchange"),
 		capitalizeWord("Stack Overflow"),
 		capitalizeWord("SQLite"),
 		capitalizeWordAndVersion("SQLite"),
-		capitalizeWord("Ubuntu","ubunt[ou]*|ubunut[ou]*|ubun[ou]+|ubnt[ou]+|ubutn[ou]*|ubant[ou]*|unbunt[ou]*|ubunt|ubut[ou]+"),
 		capitalizeWordAndVersion("Windows", "win|windows", " "),
 		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
 		capitalizeWord("WordPress"),
 		{
-			// Proper nouns
-			expr: /(^|\s)(Android|Apache|Git|Google|Java|Linux|Oracle|Windows)\b(\S|)(?!\S)/igm,
-			replacement: ($0,$1,$2,$3) => $1+$2[0].toUpperCase()+$2.substring(1).toLowerCase()+$3,
-			reason: "capitalization"
-		},{
-			// Always all caps
-			expr: /(^|\s)(AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URL|XML)\b(\S|)(?!\S)/igm,
-			replacement: ($0,$1,$2,$3) => $1+$2.toUpperCase()+$3,
-			reason: "capitalization"
-		},{
 			expr: new RegExp("(?:^| +)(?:(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(any|some)\\ssuggestions?(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*(?: *\\?)+(?: +|$))+","gmi"),
 			replacement: m=>/^ (\s|\S) $/.exec(m)?" ":"",
 			reason: "remove niceties"
@@ -136,6 +123,20 @@
 			replacement: "$1",
 			reason: "remove niceties"
 		},{
+			expr: /(^|\s)([A-Za-z][A-Za-z0-9]*)\b(\S|)(?!\S)/gm,
+			replacement: (p0,p1,w,p3)=>{
+				var expanded = abbreviations[w]
+				if (expanded) w = expanded
+				var correct = misspellings[w.toLowerCase()]
+				if (correct){
+					if (/[A-Z]/.exec(correct)) w = correct // Always use capitalization proper noun corrections
+					else if (/^(?:[A-Z][a-z]+)+$/.exec(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
+					else w = correct // Use lower case correction
+				}
+				return p1+w+p3
+			},
+			reason: "spelling dictionary"
+		},{
 			expr: /(^|\s)c(#|\++|\s|$)/gm,
 			replacement: "$1C$2",
 			reason: "spelling"
@@ -144,18 +145,10 @@
 			replacement: "$1I'$2$3",
 			reason: "spelling"
 		},{
-			expr: /(^|\s)(arent|cant|couldnt|didnt|doesnt|dont|hadnt|hasnt|havent|hed|hes|isnt|mightnt|mustnt|shant|shes|shouldnt|thats|theres|theyd|theyll|theyre|theyve|weve|werent|whatll|whatre|whats|whatve|wheres|whod|wholl|whove|wont|wouldnt|youd|youll|youre|youve)\b(\S|)(?!\S)/gmi,
-			replacement: (p0,p1,p2,p3)=>p1+p2.replace(/(d|ll|m|re|s|t|ve)$/i,"'$1")+p3,
-			reason: "spelling"
-		},{
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
 			replacement: ($0,$1) => $1[0] + $1.substring(1).toLowerCase(),
 			reason: "capitalization"
-		},{
-			expr: /(hdd|harddisk)\b(\S|)(?!\S)/igm,
-			replacement: "hard disk$2",
-			reason: "spelling"
 		},{
 			expr: /\[enter image description here\]/g,
 			replacement: "[]",
@@ -187,15 +180,57 @@
 		}
 	]
 
-	// Create a rule for expanding the given abbreviation with the given replacement
-	// Rule will not be case sensitive, so abbrev should be all caps
-	function expandAbbrev(abbrev, replace){
-		return {
-			expr: new RegExp("(^|\\s)(?:"+abbrev+")\\b(\\S|)(?!\\S)","gm"),
-			replacement: "$1"+replace+"$2",
-			reason: "spelling"
-		}
+	var abbreviations = {
+		"SO":"Stack Overflow",
+		"SE":"Stack Exchange",
 	}
+
+	var misspellings = Object.assign({},...("Android|Apache|Git|Google|Java|Linux|Oracle|Windows|"+
+	"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
+	"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
+	"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
+	"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
+	"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|"+
+	"hed:he'd|hes:he's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|"+
+	"theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|"+
+	"whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|"+
+	"wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
+	"absense,absentse,abcense,absance:absence|acceptible:acceptable|accomodate,acommodate:accommodate|acheive:achieve|"+
+	"acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|aquire,adquire:acquire|aquit:acquit|acrage,acerage:acreage|"+
+	"adress:address|adultary:adultery|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|"+
+	"allegaince,allegience,alegiance:allegiance|allmost:almost|alot:a lot|amatuer,amature:amateur|anually,annualy:annually|"+
+	"apparant,aparent,apparrent,aparrent:apparent|artic:arctic|arguement:argument|athiest,athist:atheist|awfull,aweful:awful|"+
+	"becuase:because|beatiful:beautiful|becomeing:becoming|begining:beginning|beleive:believe|bellweather:bellwether|benifit:benefit|bouy:buoy|"+
+	"bouyant:buoyant|buisness:business|calender:calendar|camoflage,camoflague:camouflage|capital:capitol|Carribean:Caribbean|catagory:category|"+
+	"cauhgt,caugt:caught|cemetary:cemetery|changable:changeable|cheif:chief|collaegue,collegue:colleague|colum:column|comming:coming|"+
+	"commited,comitted:committed|comparsion:comparison|conceed:concede|congradulate:congratulate|consciencious:conscientious|"+
+	"concious,consious:conscious|concensus:consensus|contraversy:controversy|cooly:coolly|dacquiri,daquiri:daiquiri|decieve:deceive|"+
+	"definate:definite|definitly:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapoint:disappoint|"+
+	"disasterous:disastrous|drunkeness:drunkenness|dumbell:dumbbell|embarass:embarrass|equiptment:equipment|excede:exceed|"+
+	"exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|facinating:fascinating|firey:fiery|flourescent:fluorescent|"+
+	"foriegn:foreign|freind:friend|fullfil:fulfil|fullfill:fulfill|guage:gauge|gratefull,greatful:grateful|grate,grat:great|"+
+	"garantee,garentee,garanty:guarantee|guidence:guidance|harrass:harass|hdd,harddisk:hard disk|heighth,heigth:height|heirarchy:hierarchy|humerous:humorous|"+
+	"hygene,hygine,hiygeine,higeine,hygeine:hygiene|hipocrit:hypocrite|ignorence:ignorance|immitate:imitate|imediately:immediately|"+
+	"indite:indict|independant:independent|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|"+
+	"jewelery:jewelry|judgement:judgment|kernal:kernel|liesure:leisure|liason:liaison|libary,liberry:library|lisence:license|"+
+	"lightening:lightning|maintainance,maintnance:maintenance|marshmellow:marshmallow|medeval,medevil,mideval:medieval|"+
+	"momento:memento|millenium,milennium:millennium|miniture:miniature|miniscule:minuscule|mischievious,mischevous,mischevious:mischievous|"+
+	"mispell,misspel:misspell|neccessary,necessery:necessary|neice:niece|nieghbor:neighbor|noticable:noticeable|occassion:occasion|"+
+	"occasionaly,occassionally:occasionally|occurrance,occurence:occurrence|occured:occurred|ommision,omision:omission|orignal:original|"+
+	"outragous:outrageous|parliment:parliament|passtime,pasttime:pastime|percieve:perceive|perseverence:perseverance|"+
+	"personell,personel:personnel|plagerize:plagiarize|playright,playwrite:playwright|posession,possesion:possession|potatos:potatoes|"+
+	"preceed:precede|presance:presence|principal:principle|privelege,priviledge:privilege|professer:professor|protestor:protester|"+
+	"promiss:promise|pronounciation:pronunciation|prufe:proof|publically:publicly|quarentine:quarantine|que:queue|"+
+	"questionaire,questionnair:questionnaire|readible:readable|realy:really|recieve:receive|reciept:receipt|recomend,reccommend:recommend|"+
+	"refered:referred|referance,refrence:reference|relevent,revelant:relevant|religous,religius:religious|repitition:repetition|"+
+	"restarant,restaraunt:restaurant|rime:rhyme|rythm,rythem:rhythm|secratary,secretery:secretary|sieze:seize|seperate:separate|"+
+	"sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|succesful,successfull,sucessful:successful|supercede:supersede|"+
+	"suprise,surprize:surprise|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
+	"upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
+	"wierd:weird|wellfare,welfair:welfare|wether:whether|wilfull:wilful|willfull:willful|withold:withhold|writting,writeing:writing").split("|").map(l=>{
+		var r = l.split(/:/)
+		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
+	}))
 
 	// Create a rule for converting the given word into its exact given case.
 	// The regex parameter is optional, if none is given, it is auto-created from the word
@@ -690,15 +725,18 @@
 			{i:'Double space.  After period.',o:"Double space. After period."},
 			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
 			{i:'Trailing white space\t \t',o:"Trailing white space"},
-			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"}
+			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},
+			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
+			{i:'Vaccuum: beatiful, tomatos! tommorow?',o:'Vacuum: beautiful, tomatoes! tomorrow?'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
 
-		var multiTests = [
+		;[
 			{i:[],o:'i.e.'},
 			{i:[],o:'I.E.'},
 			{i:[],o:"IM"},
+			{i:[],o:"so"},
 			{i:['Javascript','Java script','java script','javascript','Java Script'],o:'JavaScript'},
 			{i:['Stackexchange','Stack exchange','stack exchange','StackExchange','stackexchange','SE'],o:'Stack Exchange'},
 			{i:['Stackoverflow','Stack overflow','stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
@@ -715,7 +753,8 @@
 			{i:['git','GIT'],o:'Git'},
 			{i:['github','GITHUB','Github'],o:'GitHub'},
 			{i:['google','gOOgle','GOOGLE'],o:'Google'},
-			{i:['hdd','Hdd','HDD','harddisk','Harddisk','HardDisk','HARDDISK'],o:'hard disk'},
+			{i:['hdd','HDD','harddisk','HARDDISK'],o:'hard disk'},
+			{i:['Hdd','Harddisk','HardDisk'],o:'Hard disk'},
 			{i:['html','Html'],o:'HTML'},
 			{i:['html5','Html5'],o:'HTML5'},
 			{i:['i'],o:'I'},
@@ -723,6 +762,7 @@
 			{i:['ios8','iOs8','ioS8','IOS8','Ios8','IoS8',"ios 8"],o:'iOS 8'},
 			{i:["i'm","im"],o:"I'm"},
 			{i:['java'],o:'Java'},
+			{i:['javascript','java script','Javascript','Java Script'],o:'JavaScript'},
 			{i:['jquery','Jquery','JQuery','jQuery'],o:'jQuery'},
 			{i:['jsfiddle','Jsfiddle','JsFiddle','JSfiddle','jsFiddle','JS Fiddle','js fiddle'],o:'JSFiddle'},
 			{i:['json','Json'],o:'JSON'},
@@ -730,18 +770,22 @@
 			{i:['mysql','mySql','MySql','mySQL','MYSQL'],o:'MySQL'},
 			{i:['oracle'],o:'Oracle'},
 			{i:['php','Php'],o:'PHP'},
+			{i:['restarant','restaraunt'],o:'restaurant'},
 			{i:['sql','Sql'],o:'SQL'},
 			{i:['sqlite','Sqlite'],o:'SQLite'},
 			{i:['sqlite3','Sqlite3'],o:'SQLite3'},
-			{i:['ubunto','ubunut','ubunutu','ubunu','ubntu','ubutnu','ubantoo','ubantooo','unbuntu','ubunt','ubutu'],o:'Ubuntu'},
+			{i:['ubunto','ubunut','ubunutu','ubunu','ubntu','ubutnu','ubantoo','unbuntu','ubunt','ubutu'],o:'Ubuntu'},
+			{i:['url','Url'],o:'URL'},
+			{i:['urls','Urls'],o:'URLs'},
+			{i:['uri','Uri'],o:'URI'},
+			{i:['uris','Uris'],o:'URIs'},
 			{i:['win 7','WIN 7','windows 7','WINDOWS 7'],o:'Windows 7'},
 			{i:['win 95','windows 95','WIN 95','WINDOWS 95'],o:'Windows 95'},
 			{i:['win vista','WIN VISTA','windows vista','windows VISTA'],o:'Windows Vista'},
 			{i:['win xp','WIN XP','windows xp','windows XP'],o:'Windows XP'},
-			{i:['wordpress','Wordpress'],o:'WordPress'},
+			{i:['wordpress','Wordpress','word press','Word Press'],o:'WordPress'},
 			{i:['youve'],o:'you\'ve'}
-		]
-		multiTests.forEach(io=>{
+		].forEach(io=>{
 			io.i.push(io.o)
 			io.i.forEach(i=>{
 				testEdit('Lorum ' + i + ' ipsum.', 'Lorum ' + io.o + ' ipsum.')
@@ -754,7 +798,7 @@
 			return tokens.map(t => t.type+t.content.length).join(",")
 		}
 
-		var markdownParseTests = [
+		[
 			{i:"lorum",o:"text5"},
 			{i:"<p>",o:"html3"},
 			{i:"lorum <p>\n",o:"text6,html3,text1"},
@@ -767,14 +811,13 @@
 			{i:"```````fence\    indented\n```\n```````\ntext",o:"code36,text5"},
 			{i:"`one line` text",o:"code10,text5"},
 			{i:"[1]: https://link.example/",o:"link26"}
-		]
-		markdownParseTests.forEach(io=>{
+		].forEach(io=>{
 			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
 		})
 
 		return td
 	}
 
-	if (typeof unsafeWindow !== 'undefined') ui()
-	if (typeof process !== 'undefined') main()
+	if (typeof unsafeWindow !== 'undefined') ui() // Running as user script
+	if (typeof process !== 'undefined') main() // Running from command line
 })()
