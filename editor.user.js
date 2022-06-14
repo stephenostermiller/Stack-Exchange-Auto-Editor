@@ -38,8 +38,8 @@
 		"SE":"Stack Exchange",
 	}
 
-	const MISSPELLINGS = Object.assign({},...("Android|Apache|Git|Google|Java|Linux|Oracle|Windows|YouTube|"+
-		"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
+	const MISSPELLINGS = Object.assign({},...("Android|Apache|English|Git|Google|I'd|Java|Linux|Oracle|Windows|YouTube|"+
+		"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|OK|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
 		"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
 		"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
@@ -86,11 +86,11 @@
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
 
-	const CONTENT_FREE_WORDS = "(?:a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
-		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|first|fix|" +
-		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|have|helps?|helping|here|highly|hopes?|hours|" +
-		"i|i'?m|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|new|one?|or|over|please|post|problems?|provided?|" +
-		"obvious|offer|offered|offering|our|over|provide[ds]?|questions?|query|queries|resolve[ds]?|resolving|so|solve|solutions?|" +
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
+		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|first|fix|" +
+		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|" +
+		"i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+		"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|so|solve|solutions?|" +
 		"some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
 		"things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|well|weeks?|will|with|would|your?)"
 
@@ -157,7 +157,7 @@
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
 		capitalizeWord("WordPress"),
 		{
-			expr: /(^|\s)([A-Za-z][A-Za-z0-9]*)\b(\S|)(?!\S)/gm,
+			expr: /(^|\s)([A-Za-z][A-Za-z0-9']*)\b(\S|)(?!\S)/gm,
 			replacement: (p0,p1,w,p3)=>{
 				var expanded = ABBREVIATIONS[w]
 				if (expanded) w = expanded
@@ -181,56 +181,56 @@
 		},{
 			expr: new RegExp(
 				"(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|^)[\r\n\t ]*(?:"+ // Required start of sentence or paragraph
-					"(?:(?:" + CONTENT_FREE_WORDS + ")[, \\-]+)*(?:(?:"+[
+					"(?:(?:" + CONTENT_FREE_WORDS + ")[, \\-\\/]+)*(?:(?:"+[
 						"thanks",
 						"thank[ \\-]+you"
 					].join(")|(?:")+"))"+
-					"(?:[, \\-]+(?:" + CONTENT_FREE_WORDS + "))*"+
+					"(?:[, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))*"+
 					" *(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|$)"+ // Required end of sentence or paragraph
 					"[ \r\n\t]*"+
 				")+","gi"
 			),
 			replacement: removeLeaveSpace,
-			reason: "remove niceties1"
+			reason: "remove niceties"
 		},{
 			expr: new RegExp(
 				"(?:^| +)(?:"+
-					"(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*"+
-					"(any|some)\\s(?:help|advice|tips?|suggestions?)"+
-					"(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*"+
+					"(any|some)\\s(?:answers?|help|advice|guidance|tips?|suggestions?)"+
+					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *\\?)+"+ // Required ending question mark
 					"(?: +|$)"+
 				")+","gmi"
 			),
 			replacement: removeLeaveSpace,
-			reason: "remove niceties2"
+			reason: "remove niceties"
 		},{
 			expr: new RegExp(
 				"(?:^| +)(?:"+
-					"(?:" + CONTENT_FREE_WORDS + "[, \\-]+)*(?:(?:"+[
-						"(?:thanks|(?:thank[ \\-]+you)|can|someone|somebody|please|kindly|appreciate)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:help|advice|tips?|suggestions?)",
-						"(?:hope|hopefully)( +(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes)",
-						"(?:thanks|(?:thank[ \\-]+you))( +(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)"
+					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|someone|somebody|please|kindly|appreciate|need)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|tips?|suggestions?)",
+						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes)",
+						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)"
 					].join(")|(?:")+"))"+
-					"(?:[, \\-]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
 					"(?: +|$)"+
 				")+","gmi"
 			),
 			replacement: removeLeaveSpace,
-			reason: "remove niceties3"
+			reason: "remove niceties"
 		},{
 			expr: /(?:^|[ \t]+)(?:my\s+first\s+question)\s*[\.\!\,\?]?(?:[ \t]+|$)/gmi,
 			replacement: removeLeaveSpace,
-			reason: "remove niceties4"
+			reason: "remove niceties"
 		},{
 			expr: /(?:(?:^|[ \t]+)(?:greetings|cheers|hi|hello|regards|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone|all))?\s*[\.\!\,]?)+(?:[ \t]+|$)/gmi,
 			replacement: removeLeaveSpace,
-			reason: "remove niceties5"
+			reason: "remove niceties"
 		},{
 			expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
 			replacement: "$1",
-			reason: "remove niceties6"
+			reason: "remove niceties"
 		},{
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
@@ -800,9 +800,12 @@
 			'Hope this might help.',
 			'Hopefully this helps someone!',
 			'I am new to this and I hope someone can help me.',
+			'I am hoping for some advice/guidance.',
 			'I hope this can help you:',
 			'I hope this fixes your issue.',
 			'I hope this help your problem.',
+			'I need some advice regarding',
+			'Need some advice on',
 			'Will you provide any suggestions for me, please?',
 			'any suggestions?',
 			'hope helped you',
@@ -811,6 +814,8 @@
 			'please help me understand these concepts.',
 			'thank you very much for all your help',
 			'thx.',
+			'Thx for your help :)',
+			'Thanks to everyone.',
 			'ty in advance'
 		].forEach(r=>{
 			testEdit(r,"")
@@ -841,6 +846,7 @@
 			{i:['html','Html'],o:'HTML'},
 			{i:['html5','Html5'],o:'HTML5'},
 			{i:['i'],o:'I'},
+			{i:["i'd"],o:"I'd"},
 			{i:['ios','iOs','ioS','IOS','Ios','IoS'],o:'iOS'},
 			{i:['ios8','iOs8','ioS8','IOS8','Ios8','IoS8',"ios 8"],o:'iOS 8'},
 			{i:["i'm","im"],o:"I'm"},
