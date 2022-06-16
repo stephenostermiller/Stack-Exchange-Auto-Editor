@@ -118,7 +118,7 @@
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /\b([a-zA-Z0-9\-]*(?:site|domain|page|sample|test))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
+			expr: /\b([a-zA-Z0-9\-]*(?:site|domain|page|sample|test)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
 			replacement: "$1.example$2",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
@@ -759,6 +759,9 @@
 			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
 			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
+			{i:'`www.website1.net`',o:'`www.website1.example`'},
+			{i:'`www.websiteA.net`',o:'`www.websiteA.example`'},
+			{i:'`www.lorum-domain-1.net`',o:'`www.lorum-domain-1.example`'},
 			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
 			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'}
 		].forEach(io=>{
