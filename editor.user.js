@@ -38,8 +38,11 @@
 		"SE":"Stack Exchange",
 	}
 
-	const MISSPELLINGS = Object.assign({},...("Android|Apache|English|Git|Google|I'd|Java|Linux|Oracle|Windows|YouTube|"+
-		"AJAX|API|CSS|DNS|HTTP|HTTPS|HTML|HTML5|I|JSON|OK|PHP|SQL|SSL|TLS|URI|URIs|URL|URLs|XML|"+
+	const MISSPELLINGS = Object.assign({},...("Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|"+
+		"Firebase|Flutter|Git|Google|I'd|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
+		"Microsoft|NumPy|OpenCV|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|"+
+		"Windows|WinForms|Xcode|YouTube|"+
+		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URIs|URL|URLs|USB|VBA|VPN|XAML|XML|WPF|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
 		"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
 		"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
@@ -90,7 +93,7 @@
 		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|first|fix|" +
 		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|" +
 		"i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|need|new|one?|or|over|" +
-		"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|so|solve|solutions?|" +
+		"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|seek|so|solve|solutions?|" +
 		"some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
 		"things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|well|weeks?|will|with|would|your?)"
 
@@ -208,7 +211,7 @@
 			expr: new RegExp(
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|someone|somebody|please|kindly|appreciate|need)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|tips?|suggestions?)",
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|someone|somebody|please|kindly|appreciate|need|seek)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|tips?|suggestions?)",
 						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes)",
 						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)"
 					].join(")|(?:")+"))"+
@@ -789,6 +792,7 @@
 			'Any suggestions would be highly appreciated, thank you!',
 			'Appreciate for any help!',
 			'Can anybody give me any suggestions, pls?',
+			'can I seek some advice on',
 			'Can someone help me to solve this problem?',
 			'Does anybody have any suggestions?',
 			'First post over here and I hope someone will be able to give some advice.',
