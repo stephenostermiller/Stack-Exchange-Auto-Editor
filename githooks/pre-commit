@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -e
 
 if git rev-parse --verify HEAD >/dev/null 2>&1
@@ -34,17 +33,26 @@ EOF
 	exit 1
 fi
 
-text_files=`git diff --cached --name-only --diff-filter=AM $against | xargs file -i | grep -vE 'binary$' | sed -E 's/: .*//g'`
-tab_files=`echo "$text_files" | grep -E '\.(java|php|json|pl|sh|js|css|html|vm|bte|xml|py|cpp|hpp)$'`
+commit_files=`git diff --cached --name-only --diff-filter=AM $against`
+if [ "z$commit_files" != "z" ]
+then
+	text_files=`echo "$commit_files" | xargs file -i | grep -vE 'binary$' | sed -E 's/: .*//g'` || true
+	if [ "z$text_files" != "z" ]
+	then
+		# No trailing white space on any line in text files
+		echo "$text_files" | xargs sed -E -i 's/[ \t]+$//g'
 
-# All lines start with tabs not spaces in indented code files
-echo "$tab_files" | xargs tabfix -t -w 4
+		# Ensure new line at end of of file
+		echo "$text_files" | xargs sed -i -e '$a\'
 
-# No trailing white space on any line in text files
-echo "$text_files" | xargs sed -E -i 's/[ \t]+$//g'
-
-# Ensure new line at end of of file
-echo "$text_files" | xargs sed -i -e '$a\'
+		tab_files=`echo "$text_files" | grep -E '\.(java|php|json|pl|sh|js|css|html|vm|bte|xml|py|cpp|hpp)$'; echo "$text_files" | grep -v '\.' | xargs grep -P '\A\#\!\/[a-z\/]*\/(sh|bash|csh|tsch|perl|python[0-9]*)' -l` || true
+		if [ "z$tab_files" != "z" ]
+		then
+			# All lines start with tabs not spaces in indented code files
+			echo "$tab_files" | xargs tabfix -t -w 4
+		fi
+	fi
+fi
 
 # Check for white space errors
 git diff-index --check --cached $against --
