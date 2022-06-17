@@ -2,7 +2,7 @@
 
 ## About
 
-This user script adds a button to the post editor toolbar on Stack Exchange sites that automatically fixes many common grammar, spelling, capitalization, and usage errors.
+This user script adds a button when editing Stack Exchange sites that automatically fixes many common grammar, spelling, capitalization, and usage errors.
 
 ## Installation
 
@@ -11,11 +11,13 @@ This user script adds a button to the post editor toolbar on Stack Exchange site
 
 ## Usage
 
-1. Edit a post or a comment on a Stack Exchange site
-1. Click the Auto Editor button in the edit tool bar (to the right of the redo button)
-1. The edit area will flash green if edits were automatically made, red if no edits were needed
-1. Click the same button again to get a report of what changed, see diffs, and view the status of the unit tests
-1. Submit the edits to Stack Exchange after making other manual edits as desired
+1. Edit a post or a comment on a Stack Exchange site.
+1. Click the Auto Editor button: <img alt="Stack Exchange Auto Editor Logo" src="https://i.imgur.com/79qYzkQ.png" style="width:.75em;height:.75em;vertical-align:sub">
+1. The edit area will flash green if edits were automatically made, red if no edits were needed.
+1. Click the same button again to get a report of what changed, see diffs, and view the status of the unit tests.
+1. Submit the edits to Stack Exchange after making other manual edits as desired.
+
+**Important**: You are responsible for manually reviewing all edits made with assistance from this tool. There will be cases in which it **suggests edits that make posts worse**. All edits made by this tool are created from heuristics and regular expressions. They are not infallible. The rules in this tool are designed to save you time by doing the right thing 90% of time. The rest of the time, suggestions from this tool will need to be manually fixed up or abandoned. All edits will have your name attached to them. You don't want to blindly trust this tool.
 
 ## Rules
 
@@ -25,13 +27,12 @@ This script performs the following actions automatically:
  - Corrects commonly misspelled words such as "untill" → "until"
  - Capitalizes commonly used technologies names and acronyms such as "javascript" → "JavaScript"
  - Fixes contractions with a missing apostrophe such as  such as "dont" → "don't"
- - Capitalizes the first letter of the title
- - Corrects all-caps titles
+ - Ensures the title starts with a capital letter but is not all caps.
  - Removes niceties such as "hello", "thanks", and "please help"
  - Removes "Edit:"
  - Replaces domains like `my-site.tld` with officially approved example domains like `my-site.example`
  - Applies code formatting to example URLs
 
-The rules are coded into the source code for the script. To change the rules, you would need to edit it.
+To minimize false-auto-corrections, these rules are markdown-aware. For example, spelling corrections are not applied inside code blocks or URLs. Each rule has a list of places where it should be applied.
 
-Each rule is applied to specific contexts within markdown. Most rules are applied in the title and in plain text, but not in markdown for code, links, or URLs.
+The rules are coded into the source code for the script. To change the rules, you would need to edit it.
