@@ -35,4 +35,4 @@ This script performs the following actions automatically:
 
 To minimize false-auto-corrections, these rules are markdown-aware. For example, spelling corrections are not applied inside code blocks or URLs. Each rule has a list of places where it should be applied.
 
-The rules are coded into the source code for the script. To change the rules, you would need to edit it.
+The rules are coded into the [source code for the script](https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/blob/master/editor.user.js). To change the rules, you would need to edit it.
