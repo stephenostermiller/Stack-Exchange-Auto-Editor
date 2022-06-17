@@ -2,12 +2,12 @@
 
 if git branch | grep -q -E ' master$'
 then
-    versiondiff=`git diff origin version`
-    if [ "z$versiondiff" == "z" ]
-    then
-        echo "Version must be bumped before push. Run"
-        echo "./bump-version.sh"
-        echo "with an argument of patch, minor, or major"
-        exit 1
-    fi
+	versiondiff=`git diff origin version`
+	if [ "z$versiondiff" == "z" ]
+	then
+		echo "Version must be bumped before push. Run"
+		echo "./bump-version.sh"
+		echo "with an argument of patch, minor, or major"
+		exit 1
+	fi
 fi
