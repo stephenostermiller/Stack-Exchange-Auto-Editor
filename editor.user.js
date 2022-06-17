@@ -7,7 +7,7 @@
 // @contributor Unihedron
 // @license MIT
 // @namespace https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor
-// @version 1.0.3
+// @version 1.0.4
 // @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
 // @match https://*.stackexchange.com/posts/*
 // @match https://*.stackexchange.com/questions/*
