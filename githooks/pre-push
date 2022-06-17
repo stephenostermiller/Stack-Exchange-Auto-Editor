@@ -5,9 +5,17 @@ then
 	versiondiff=`git diff origin HEAD version`
 	if [ "z$versiondiff" == "z" ]
 	then
-		echo "Version must be bumped before push. Run"
-		echo "./bump-version.sh"
-		echo "with an argument of patch, minor, or major"
-		exit 1
+		versiondiff=`git diff HEAD version`
+		if [ "z$versiondiff" == "z" ]
+		then
+			echo "Version must be bumped before push. Run"
+			echo "./bump-version.sh"
+			echo "with an argument of patch, minor, or major"
+			echo "and commit the changes"
+			exit 1
+		else
+			echo "Version bump must be committed before push."
+			exit 1
+		fi
 	fi
 fi
