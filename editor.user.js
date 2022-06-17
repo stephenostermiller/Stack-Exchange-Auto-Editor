@@ -7,7 +7,7 @@
 // @contributor Unihedron
 // @license MIT
 // @namespace https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor
-// @version 1.0.1
+// @version 1.0.2
 // @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
 // @match https://*.stackexchange.com/posts/*
 // @match https://*.stackexchange.com/questions/*
@@ -631,6 +631,28 @@
 					$(this).find('.js-editor-btn').last().before(addClick(
 						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
 					)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
+				}
+			})
+			$('.js-edit-comment-form').each(function(){
+				if (needsButton(this)){
+					var d = getDefaultData(),
+					postEditor = $(this),
+					editArea = postEditor.find('textarea')
+					d.getTitle = function(){
+						return "" // This style editor only used for comments, so never a title
+					}
+					d.setTitle = function(s){} // no-op
+					d.getBody = function(){
+						return editArea.val()
+					}
+					d.setBody = function(s){
+						editArea.val(s)
+					}
+					d.flashMe = editArea
+					d.addSummary = function(){} // no-op, no summary for comment edits
+					$(this).find('.form-error').before(addClick(
+						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit">'),d
+					))
 				}
 			})
 		},200)
