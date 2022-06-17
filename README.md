@@ -17,7 +17,7 @@ This user script adds a button when editing Stack Exchange sites that automatica
 1. Click the same button again to get a report of what changed, see diffs, and view the status of the unit tests.
 1. Submit the edits to Stack Exchange after making other manual edits as desired.
 
-**Important**: You are responsible for manually reviewing all edits made with assistance from this tool. There will be cases in which it **suggests edits that make posts worse**. All edits made by this tool are created from heuristics and regular expressions. They are not infallible. The rules in this tool are designed to save you time by doing the right thing 90% of time. The rest of the time, suggestions from this tool will need to be manually fixed up or abandoned. All edits will have your name attached to them. You don't want to blindly trust this tool.
+⚠️ You are responsible for manually reviewing all edits made with assistance from this tool. There will be cases in which it **suggests edits that make posts worse**. All edits made by this tool are created from heuristics and regular expressions. They are not infallible. The rules in this tool are designed to save you time by doing the right thing 90% of time. The rest of the time, suggestions from this tool will need to be manually fixed up or abandoned. All edits will have your name attached to them. You don't want to blindly trust this tool.
 
 ## Rules
 
