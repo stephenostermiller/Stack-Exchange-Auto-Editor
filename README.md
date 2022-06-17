@@ -12,7 +12,7 @@ This user script adds a button when editing Stack Exchange sites that automatica
 ## Usage
 
 1. Edit a post or a comment on a Stack Exchange site.
-1. Click the Auto Editor button: <img alt="Stack Exchange Auto Editor Logo" src="https://i.imgur.com/79qYzkQ.png" style="width:.75em;height:.75em;vertical-align:sub">
+1. Click the Auto Editor button that appears in the toolbar for posts or below comments.
 1. The edit area will flash green if edits were automatically made, red if no edits were needed.
 1. Click the same button again to get a report of what changed, see diffs, and view the status of the unit tests.
 1. Submit the edits to Stack Exchange after making other manual edits as desired.
