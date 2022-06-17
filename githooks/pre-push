@@ -2,7 +2,7 @@
 
 if git branch | grep -q -E ' master$'
 then
-	versiondiff=`git diff origin version`
+	versiondiff=`git diff origin HEAD version`
 	if [ "z$versiondiff" == "z" ]
 	then
 		echo "Version must be bumped before push. Run"
