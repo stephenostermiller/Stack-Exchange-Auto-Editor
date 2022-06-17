@@ -6,8 +6,10 @@
 // @developer sathyabhat
 // @contributor Unihedron
 // @license MIT
+// @version 1.0.5
 // @namespace https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor
-// @version 1.0.4
+// @updateURL https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.meta.js
+// @downloadURL https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.user.js
 // @description Fixes common grammar and usage mistakes on Stack Exchange posts with a click
 // @match https://*.stackexchange.com/posts/*
 // @match https://*.stackexchange.com/questions/*
