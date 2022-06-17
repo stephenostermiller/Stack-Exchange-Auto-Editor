@@ -99,35 +99,45 @@
 
 	var rules = [
 		{
-			expr: /\b(https?)\s*:\s*\/\s*\/\s*([a-zA-Z0-9\-]+)\s*\./gi,
+			expr: /\b(https?)[ \t]*:[ \t]*\/[ \t]*\/[ \t]*([a-zA-Z0-9\-]+)[ \t]*\./gi,
 			replacement: "$1://$2.",
-			reason: "fix URL"
+			reason: "fix URL",
+			context: ["fullbody","title"]
 		},{
-			expr: /\b(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
+			// Domain name ends with or contains "example" but isn't "example.tld"
+			expr: /(\b[_\"\*\'\(\`]?)(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			replacement: "$1$2$3.example$4",
+			reason: "use example domain",
+			context: ["title","text","code","url"]
+		},{
+			// Domain name starts with or contains "example" but isn't "example.tld"
+			expr: /(\b[_\"\*\'\(\`]?)(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			replacement: "$1$2$3.example$4",
+			reason: "use example domain",
+			context: ["title","text","code","url"]
+		},{
+			// Domain name has an example-like prefix
+			expr: /(\b[_\"\*\'\(\`]?)((?:my|your|our|new|old|foo|client|some|any|test|xxx)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2.example$3",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /\b(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
+			// Domain name has an example-like suffix
+			expr: /(\b[_\"\*\'\(\`]?)([a-zA-Z0-9\-]*(?:site|domain|page|sample|test|xxx|xyz)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2.example$3",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /\b((?:my|your|our|new|old|foo|client)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
-			replacement: "$1.example$2",
-			reason: "use example domain",
-			context: ["title","text","code","url"]
-		},{
-			expr: /\b([a-zA-Z0-9\-]*(?:site|domain|page|sample|test)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\s|\/|$|`)/gmi,
-			replacement: "$1.example$2",
-			reason: "use example domain",
-			context: ["title","text","code","url"]
-		},{
-			expr: /(^|\s)((?:(?:https?:\/\/)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\/[^ ]*)?))(\s|$)/gmi,
-			replacement: "$1`$2`$3",
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
 		},{
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?([a-zA-Z0-9\-_]+\@(?:[a-zA-Z0-9\-]+\.)*[a-zA-Z]+(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			replacement: applyCodeFormat,
+			reason: "code format email",
+			context: ["text","url"]
+		},,{
 			// Insert spaces after commas
 			expr: /,([[a-z])/g,
 			replacement: ", $1",
@@ -261,14 +271,24 @@
 			replacement: "\n\n",
 			reason: "formatting",
 			context: ["fullbody"]
-		},{
-			// Ensure body ends in a new line
-			expr: /([^\n])$/g,
-			replacement: "$1\n",
-			reason: "formatting",
-			context: ["fullbody"]
 		}
 	]
+
+	function applyCodeFormat (m,prefix,start,url,suffix){
+		start=start||''
+		if ((m = url.search(/[\,\.\?\:\!\)]+$/)) != -1){
+			suffix = url.substr(m) + suffix
+			url = url.substr(0,m)
+		}
+		if (start && url.length>start.length){
+			var end = url.substr(url.length-start.length,url.length)
+			if (/[\_\*\"\']+/.exec(start) && start==end){
+				url = url.substr(0,url.length-end.length)
+				start = ""
+			}
+		}
+		return prefix+start+'`'+url+'`'+suffix
+	}
 
 	function removeLeaveSpace(s){
 		var start = "", end=""
@@ -322,7 +342,7 @@
 			/^ {0,3}(?:~{3,}|`{3,})/, // start of code fence
 			/\]\([^\)\r\n]+\)/, // link
 			/^ {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*/, // link
-			/https?\:\/\/[^ \t\r\n]*/ // URL
+			/(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/ // URL
 		].map(r=>r.source).join(')|(?:') + ")","gmi"),
 		codeMatchRegex = new RegExp("^(?:(?:" + [
 			/(?: {0,3}>)* {4}.*(?:[\r\n]+(?: {0,3}>)* {4}.*)*/, // indented block
@@ -361,7 +381,7 @@
 			} else if (m = str.match(/^(?:(?:\]\([^\)\r\n]+\))|(?: {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*))/)){
 				tokens.push({type:"link",content:m[0]})
 				str=str.substr(m[0].length)
-			} else if (m = str.match(/^https?\:\/\/[^ \t\r\n]*/i)){
+			} else if (m = str.match(/^(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/i)){
 				// Other HTML tags
 				tokens.push({type:"url",content:m[0]})
 				str=str.substr(m[0].length)
@@ -406,14 +426,20 @@
 	}
 
 	function edit(d){
-		d.bodyTokens = tokenizeMarkdown(d.body)
-		for (var i=0; i<d.bodyTokens.length; i++){
-			d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type)
-		}
-		d.body = d.bodyTokens.map(t=>t.content).join("")
-		d.body = applyRules(d, d.body, "fullbody")
+		for (var editsMade = 1; editsMade > 0;){
+			editsMade = d.replacements.length
 
-		if (d.title) d.title = applyRules(d, d.title, "title")
+			d.body = applyRules(d, d.body, "fullbody")
+			d.bodyTokens = tokenizeMarkdown(d.body)
+			for (var i=0; i<d.bodyTokens.length; i++){
+				d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type)
+			}
+			d.body = d.bodyTokens.map(t=>t.content).join("")
+
+			if (d.title) d.title = applyRules(d, d.title, "title")
+
+			editsMade = d.replacements.length - editsMade
+		}
 
 		// Create a summary of all the reasons
 		for (var reason in d.reasons){
@@ -728,9 +754,8 @@
 
 		function testEdit(input, output, titleOutput){
 			if (!titleOutput) titleOutput = output
-			if (output && !/\n$/.exec(output)) output+="\n"
 			var d=getDefaultData(),
-			testTitle = !/[\r\n`]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
+			testTitle = !/[\r\n`\*]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
 			if (testTitle) d.title=input
 			d.body=input
 			edit(d)
@@ -738,7 +763,7 @@
 			expectEql("editBody", d.body, output, input, d)
 		}
 
-		;[
+		[
 			{i:'    fooexample.org',o:'    foo.example'},
 			{i:'**Edit:** Lorum ipsum.',o:'Lorum ipsum.'},
 			{i:'Double!  Space?  After:  Any.  Punctuation.',o:"Double! Space? After: Any. Punctuation."},
@@ -760,7 +785,27 @@
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
 			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
 			{i:'`www.website1.net`',o:'`www.website1.example`'},
-			{i:'`www.websiteA.net`',o:'`www.websiteA.example`'},
+			{i:'`www.webpageA.net`',o:'`www.webpageA.example`'},
+			{i:'`my-domain.com:8080`',o:'`my-domain.example:8080`'},
+			{i:'On domain-a.com, domain-b.com, and domain-c.com',o:'On `domain-a.example`, `domain-b.example`, and `domain-c.example`',t:'On domain-a.example, domain-b.example, and domain-c.example'},
+			{i:'(Found on some-x.com)',o:'(Found on `some-x.example`)',t:'(Found on some-x.example)'},
+			{i:'`*.site1.jp`',o:'`*.site1.example`'},
+			{i:'`site99.ru$path`',o:'`site99.example$path`'},
+			{i:'"http://www.testx.net"',o:'`http://www.testx.example`',t:'"http://www.testx.example"'},
+			{i:'*some.client-of-mine.org*',o:'`some.client-of-mine.example`'},
+			{i:'**https://yourstuff.com.ir/path**',o:'`https://yourstuff.example/path`'},
+			{i:'**https://yourstuff.com.ir/path**,',o:'`https://yourstuff.example/path`,'},
+			{i:'**https://yourstuff.com.ir/path**.',o:'`https://yourstuff.example/path`.'},
+			{i:'**https://yourstuff.com.ir/path**?',o:'`https://yourstuff.example/path`?'},
+			{i:'user@my.tld',o:'`user@my.example`',t:'user@my.example'},
+			{i:'testuser@gmail.com',o:'`testuser@gmail.com`',t:'testuser@gmail.com'},
+			{i:'"testuser@gmail.com"',o:'`testuser@gmail.com`',t:'"testuser@gmail.com"'},
+			{i:"'testuser@gmail.com'",o:'`testuser@gmail.com`',t:"'testuser@gmail.com'"},
+			{i:'**testuser@gmail.com**',o:'`testuser@gmail.com`'},
+			{i:'*testuser@gmail.com*',o:'`testuser@gmail.com`'},
+			{i:"http:// example.com:81/",o:'`http://example.com:81/`',t:"http://example.com:81/"},
+			{i:'From admin@mydomain.com.',o:'From `admin@mydomain.example`.',t:'From admin@mydomain.example.'},
+			{i:'(https://new.oldplace.tld/path?query)',o:'(`https://new.oldplace.example/path?query`)',t:'(https://new.oldplace.example/path?query)'},
 			{i:'`www.lorum-domain-1.net`',o:'`www.lorum-domain-1.example`'},
 			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
 			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'}
@@ -769,7 +814,7 @@
 		})
 
 		;[
-			// Don't change these
+			// These shouldn't get auto-edited
 			"IM",
 			"It doesn't have any suggestions.",
 			"so",
@@ -780,7 +825,8 @@
 			'I.E.',
 			'See foo.html here',
 			'i.e.',
-			'special thanks to'
+			'special thanks to',
+			'my-example.tld.sub.sub'
 		].forEach(r=>{
 			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
 			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
@@ -902,6 +948,13 @@
 			{i:"<code>~~~~~~~~~~~~~</code>",o:"code26"},
 			{i:"~~~\ncode\n	a\nfence\nhttps://incode.example/\n~~~",o:"code45"},
 			{i:"Https://url.example/",o:"url20"},
+			{i:"A **Https://url.example/** B",o:"text2,url24,text2"},
+			{i:"A *Https://url.example/* B",o:"text2,url22,text2"},
+			{i:"A __Https://url.example/__ B",o:"text2,url24,text2"},
+			{i:"A _Https://url.example/_ B",o:"text2,url22,text2"},
+			{i:"A \"Https://url.example/\" B",o:"text2,url22,text2"},
+			{i:"A 'Https://url.example/' B",o:"text2,url22,text2"},
+			{i:"A (Https://url.example/) B",o:"text2,url22,text2"},
 			{i:"`Https://url.example/`",o:"code22"},
 			{i:"[link text](https://link.example/)",o:"text10,link24"},
 			{i:"```````fence\    indented\n```\n```````\ntext",o:"code36,text5"},
@@ -909,6 +962,17 @@
 			{i:"[1]: https://link.example/",o:"link26"}
 		].forEach(io=>{
 			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
+		})
+
+		;[
+			{s:'',u:'example.com',o:'`example.com`'},
+			{s:'',u:'example.com.',o:'`example.com`.'},
+			{s:'(',u:'example.com)',o:'(`example.com`)'},
+			{s:'"',u:'example.com"',o:'`example.com`'},
+			{s:'**',u:'example.com**',o:'`example.com`'},
+			{s:"'",u:"example.com'",o:'`example.com`'}
+		].forEach(io=>{
+			expectEql("applyCodeFormat", applyCodeFormat('','',io.s,io.u,''), io.o, io.s+io.u, io)
 		})
 
 		;[
