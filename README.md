@@ -22,9 +22,9 @@ This user script adds a button to the post editor toolbar on Stack Exchange site
 This script performs the following actions automatically:
 
  - Expands some acronyms such as "SO" and "SE"
- - Corrects commonly misspelled words such as `untill` → `until`
- - Capitalizes commonly used technologies names and acronyms such as `javascript` → `JavaScript`
- - Fixes contractions with a missing apostrophe such as  such as `dont` → `don't`
+ - Corrects commonly misspelled words such as "untill" → "until"
+ - Capitalizes commonly used technologies names and acronyms such as "javascript" → "JavaScript"
+ - Fixes contractions with a missing apostrophe such as  such as "dont" → "don't"
  - Capitalizes the first letter of the title
  - Corrects all-caps titles
  - Removes niceties such as "hello", "thanks", and "please help"
