@@ -44,7 +44,7 @@
 		"Firebase|Flutter|Git|Google|Joomla|I'd|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
 		"Microsoft|NumPy|OpenCV|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|"+
 		"Windows|WinForms|Xcode|YouTube|"+
-		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URIs|URL|URLs|USB|VBA|VPN|XAML|XML|WPF|"+
+		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
 		"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
 		"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
@@ -84,7 +84,7 @@
 		"restarant,restaraunt:restaurant|rime:rhyme|rythm,rythem:rhythm|secratary,secretery:secretary|sieze:seize|seperate:separate|"+
 		"sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|succesful,successfull,sucessful:successful|supercede:supersede|"+
 		"suprise,surprize:surprise|ty:thank you|thx:thanks|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
-		"upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
+		"uris,uri's:URIs|urls,url's:URLs|upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
 		"wierd:weird|wellfare,welfair:welfare|wether:whether|wilfull:wilful|willfull:willful|withold:withhold|writting,writeing:writing"
 	).split("|").map(l=>{
 		var r = l.split(/:/)
@@ -130,7 +130,17 @@
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.example))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.(?:example|localhost|invalid|test)))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			replacement: applyCodeFormat,
+			reason: "code format example URL",
+			context: ["text","url"]
+		},{
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)[a-zA-Z0-9]+(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			replacement: applyCodeFormat,
+			reason: "code format example URL",
+			context: ["text","url"]
+		},{
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:[a-zA-Z0-9]+\:[0-9]+)\/[^ ]*(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
@@ -829,6 +839,9 @@
 			{i:'**testuser@gmail.com**',o:'`testuser@gmail.com`'},
 			{i:'*testuser@gmail.com*',o:'`testuser@gmail.com`'},
 			{i:"http:// example.com:81/",o:'`http://example.com:81/`',t:"http://example.com:81/"},
+			{i:"http://localhost:8080/foo",o:'`http://localhost:8080/foo`',t:"http://localhost:8080/foo"},
+			{i:"http://a.test/",o:'`http://a.test/`',t:"http://a.test/"},
+			{i:"localhost:8080/foo",o:'`localhost:8080/foo`',t:"localhost:8080/foo"},
 			{i:'From admin@mydomain.com.',o:'From `admin@mydomain.example`.',t:'From admin@mydomain.example.'},
 			{i:'(https://new.oldplace.tld/path?query)',o:'(`https://new.oldplace.example/path?query`)',t:'(https://new.oldplace.example/path?query)'},
 			{i:'`www.lorum-domain-1.net`',o:'`www.lorum-domain-1.example`'},
@@ -851,7 +864,8 @@
 			'See foo.html here',
 			'i.e.',
 			'special thanks to',
-			'my-example.tld.sub.sub'
+			'my-example.tld.sub.sub',
+			'test invalid localhost example'
 		].forEach(r=>{
 			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
 			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
@@ -944,9 +958,9 @@
 			{i:['sqlite3','Sqlite3'],o:'SQLite3'},
 			{i:['ubunto','ubunut','ubunutu','ubunu','ubntu','ubutnu','ubantoo','unbuntu','ubunt','ubutu'],o:'Ubuntu'},
 			{i:['url','Url'],o:'URL'},
-			{i:['urls','Urls'],o:'URLs'},
+			{i:['urls','Urls',"url's"],o:'URLs'},
 			{i:['uri','Uri'],o:'URI'},
-			{i:['uris','Uris'],o:'URIs'},
+			{i:['uris','Uris',"uri's"],o:'URIs'},
 			{i:['win 7','WIN 7','windows 7','WINDOWS 7'],o:'Windows 7'},
 			{i:['win 95','windows 95','WIN 95','WINDOWS 95'],o:'Windows 95'},
 			{i:['win vista','WIN VISTA','windows vista','windows VISTA'],o:'Windows Vista'},
