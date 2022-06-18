@@ -41,10 +41,10 @@
 	}
 
 	const MISSPELLINGS = Object.assign({},...("Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|"+
-		"Firebase|Flutter|Git|Google|I'd|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
+		"Firebase|Flutter|Git|Google|Joomla|I'd|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
 		"Microsoft|NumPy|OpenCV|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|"+
 		"Windows|WinForms|Xcode|YouTube|"+
-		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URIs|URL|URLs|USB|VBA|VPN|XAML|XML|WPF|"+
+		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URIs|URL|URLs|USB|VBA|VPN|XAML|XML|WPF|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
 		"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
 		"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
@@ -53,7 +53,7 @@
 		"theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|"+
 		"whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|"+
 		"wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
-		"absense,absentse,abcense,absance:absence|acceptible:acceptable|accomodate,acommodate:accommodate|acheive:achieve|"+
+		"absense,absentse,abcense,absance:absence|acceptible:acceptable|accesible,accessable,accesable:accessible|accomodate,acommodate:accommodate|acheive:achieve|"+
 		"acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|aquire,adquire:acquire|aquit:acquit|acrage,acerage:acreage|"+
 		"adress:address|adultary:adultery|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|"+
 		"allegaince,allegience,alegiance:allegiance|allmost:almost|alot:a lot|amatuer,amature:amateur|anually,annualy:annually|"+
@@ -63,7 +63,7 @@
 		"cauhgt,caugt:caught|cemetary:cemetery|changable:changeable|cheif:chief|collaegue,collegue:colleague|colum:column|comming:coming|"+
 		"commited,comitted:committed|comparsion:comparison|conceed:concede|congradulate:congratulate|consciencious:conscientious|"+
 		"concious,consious:conscious|concensus:consensus|contraversy:controversy|cooly:coolly|dacquiri,daquiri:daiquiri|decieve:deceive|"+
-		"definate:definite|definitly:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapoint:disappoint|"+
+		"definate:definite|definitly,definatly,definately:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapoint:disappoint|"+
 		"disasterous:disastrous|drunkeness:drunkenness|dumbell:dumbbell|embarass:embarrass|equiptment:equipment|excede:exceed|"+
 		"exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|facinating:fascinating|firey:fiery|flourescent:fluorescent|"+
 		"foriegn:foreign|freind:friend|fullfil:fulfil|fullfill:fulfill|guage:gauge|gratefull,greatful:grateful|grate,grat:great|"+
@@ -119,13 +119,13 @@
 			context: ["title","text","code","url"]
 		},{
 			// Domain name has an example-like prefix
-			expr: /(\b[_\"\*\'\(\`]?)((?:my|your|our|new|old|foo|client|some|any|test|xxx)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			expr: /(\b[_\"\*\'\(\`]?)((?:abc|any|client|domain|foo|my|new|old|our|sample|site|some|test|url|xxx|xyz|your)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2.example$3",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			// Domain name has an example-like suffix
-			expr: /(\b[_\"\*\'\(\`]?)([a-zA-Z0-9\-]*(?:site|domain|page|sample|test|xxx|xyz)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			expr: /(\b[_\"\*\'\(\`]?)([a-zA-Z0-9\-]*(?:abc|domain|foo|page|sample|site|test|url|xxx|xyz)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2.example$3",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
