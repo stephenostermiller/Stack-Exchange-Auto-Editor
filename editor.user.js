@@ -107,30 +107,30 @@
 			context: ["fullbody","title"]
 		},{
 			// Domain name ends with or contains "example" but isn't "example.tld"
-			expr: /(\b[_\"\*\'\(\`]?)(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			expr: /(\b[_\"\*\'\(\`]?)(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2$3.example$4",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			// Domain name starts with or contains "example" but isn't "example.tld"
-			expr: /(\b[_\"\*\'\(\`]?)(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			expr: /(\b[_\"\*\'\(\`]?)(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2$3.example$4",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			// Domain name has an example-like prefix
-			expr: /(\b[_\"\*\'\(\`]?)((?:abc|any|client|domain|foo|my|new|old|our|sample|site|some|test|url|xxx|xyz|your)[a-zA-Z0-9\-]*)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			expr: /(\b[_\"\*\'\(\`]?)((?:abc|any|client|domain|foo|my|new|old|our|sample|site|some|test|url|xxx|xyz|your)[a-zA-Z0-9\-]*)\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2.example$3",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
 			// Domain name has an example-like suffix
-			expr: /(\b[_\"\*\'\(\`]?)([a-zA-Z0-9\-]*(?:abc|domain|foo|page|sample|site|test|url|xxx|xyz)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:com|net|org|tld|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
+			expr: /(\b[_\"\*\'\(\`]?)([a-zA-Z0-9\-]*(?:abc|domain|foo|page|sample|site|test|url|xxx|xyz)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
 			replacement: "$1$2.example$3",
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:com|net|org|tld|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
