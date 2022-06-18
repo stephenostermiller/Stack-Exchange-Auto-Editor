@@ -30,7 +30,7 @@ This script performs the following actions automatically:
  - Ensures the title starts with a capital letter but is not all caps.
  - Removes niceties such as "hello", "thanks", and "please help"
  - Removes "Edit:"
- - Replaces domains like `my-site.tld` with officially approved example domains like `my-site.example`
+ - Replaces domains like `my-site.tld` with [officially approved example domains](https://datatracker.ietf.org/doc/html/rfc2606#section-2) like `my-site.example`
  - Applies code formatting to example URLs
 
 To minimize false-auto-corrections, these rules are markdown-aware. For example, spelling corrections are not applied inside code blocks or URLs. Each rule has a list of places where it should be applied.
