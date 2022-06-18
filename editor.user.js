@@ -44,7 +44,7 @@
 		"Firebase|Flutter|Git|Google|Joomla|I'd|I'll|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
 		"Microsoft|NumPy|OpenCV|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|"+
 		"Windows|WinForms|Xcode|YouTube|"+
-		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
+		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|IP|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,"+
 		"ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,"+
 		"unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
@@ -131,7 +131,7 @@
 			context: ["title","text","code","url"]
 		},{
 			// example.com, some.example, or IP address in URLs and mentions
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.(?:example|localhost|invalid|test))|(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.(?:example|localhost|invalid|test))|(?:(?:[A-Fa-f0-9]{1,4}:?){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})|(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
@@ -804,6 +804,9 @@
 			{i:'    fooexample.org',o:'    foo.example'},
 			{i:'    server fooexample.org;',o:'    server foo.example;'},
 			{i:'127.0.0.1',o:'`127.0.0.1`',t:'127.0.0.1'},
+			{i:'1:2:3abc:4de:5f:6:7:8',o:'`1:2:3abc:4de:5f:6:7:8`',t:'1:2:3abc:4de:5f:6:7:8'},
+			{i:'1::2',o:'`1::2`',t:'1::2'},
+			{i:'::1',o:'`::1`',t:'::1'},
 			{i:'**Edit:** Lorum ipsum.',o:'Lorum ipsum.'},
 			{i:'Double!  Space?  After:  Any.  Punctuation.',o:"Double! Space? After: Any. Punctuation."},
 			{i:'Edit: Lorum ipsum.',o:'Lorum ipsum.'},
@@ -862,6 +865,7 @@
 			"It doesn't have any suggestions.",
 			"so",
 			'12,345',
+			'1:3',
 			'90% hit rate',
 			'A ... b',
 			'Edit',
