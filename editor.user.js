@@ -131,7 +131,7 @@
 			context: ["title","text","code","url"]
 		},{
 			// example.com, some.example, or IP address in URLs and mentions
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.(?:example|localhost|invalid|test))|(?:(?:[A-Fa-f0-9]{1,4}:?){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})|(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.(?:example|localhost|invalid|test))|(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})|(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
@@ -862,6 +862,7 @@
 		;[
 			// These shouldn't get auto-edited
 			"IM",
+			"Add",
 			"It doesn't have any suggestions.",
 			"so",
 			'12,345',
