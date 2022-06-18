@@ -130,7 +130,7 @@
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:[a-zA-Z\-\.]+\.)?example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:[a-zA-Z\-\.]+\.example))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.example))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
@@ -804,6 +804,7 @@
 			{i:'What ?',o:"What?"},
 			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
 			{i:'`examplelorum.org`',o:'`lorum.example`'},
+			{i:'*.abc.online',o:'`*.abc.example`'},
 			{i:'`ourHome.net`',o:'`ourHome.example`'},
 			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
