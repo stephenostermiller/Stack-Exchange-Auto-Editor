@@ -94,10 +94,10 @@
 	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
 		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|first|fix|" +
 		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|" +
-		"i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+		"i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
 		"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|seek|so|solve|solutions?|" +
 		"some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
-		"things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|well|weeks?|will|with|would|your?)"
+		"things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	var rules = [
 		{
@@ -893,6 +893,7 @@
 			'thx.',
 			'Thx for your help :)',
 			'Thanks to everyone.',
+			'Thanks works for me, good luck!',
 			'ty in advance'
 		].forEach(r=>{
 			testEdit(r,"")
