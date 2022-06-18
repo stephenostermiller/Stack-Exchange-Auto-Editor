@@ -41,7 +41,7 @@
 	}
 
 	const MISSPELLINGS = Object.assign({},...("Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|"+
-		"Firebase|Flutter|Git|Google|Joomla|I'd|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
+		"Firebase|Flutter|Git|Google|Joomla|I'd|I'll|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|"+
 		"Microsoft|NumPy|OpenCV|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|"+
 		"Windows|WinForms|Xcode|YouTube|"+
 		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
@@ -84,7 +84,7 @@
 		"restarant,restaraunt:restaurant|rime:rhyme|rythm,rythem:rhythm|secratary,secretery:secretary|sieze:seize|seperate:separate|"+
 		"sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|succesful,successfull,sucessful:successful|supercede:supersede|"+
 		"suprise,surprize:surprise|ty:thank you|thx:thanks|tomatos:tomatoes|tommorow,tommorrow:tomorrow|twelth:twelfth|tyrany:tyranny|underate:underrate|untill:until|"+
-		"uris,uri's:URIs|urls,url's:URLs|upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|wether,whether:weather|"+
+		"uris,uri's:URIs|urls,url's:URLs|upholstry:upholstery|usible:useable|vaccuum,vaccum,vacume:vacuum|vehical:vehicle|visious:vicious|"+
 		"wierd:weird|wellfare,welfair:welfare|wether:whether|wilfull:wilful|willfull:willful|withold:withhold|writting,writeing:writing"
 	).split("|").map(l=>{
 		var r = l.split(/:/)
