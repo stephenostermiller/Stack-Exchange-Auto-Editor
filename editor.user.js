@@ -118,7 +118,7 @@
 				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 					// Made entirely of example-like words
 					// Followed by an optional number or single letter
-					/(?:(?:-?(?:a|an|abc|another|any|app|back|bad|banks?|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|this|url|web|what|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+					/(?:(?:-?(?:a|an|abc|address|another|any|app|back|bad|banks?|bar|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|thing|this|url|web|what|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
 				')('+TLD.source +')'+
 				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
 			,'gmi'),
