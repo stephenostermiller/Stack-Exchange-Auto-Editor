@@ -33,7 +33,7 @@ EOF
 	exit 1
 fi
 
-commit_files=`git diff --cached --name-only --diff-filter=AM $against`
+commit_files=`git diff --cached --name-only --diff-filter=ACMTUXB $against`
 if [ "z$commit_files" != "z" ]
 then
 	text_files=`echo "$commit_files" | xargs file -i | grep -vE 'binary$' | sed -E 's/: .*//g'` || true
