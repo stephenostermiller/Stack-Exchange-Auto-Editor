@@ -118,7 +118,7 @@
 				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 					// Made entirely of example-like words
 					// Followed by an optional number or single letter
-					/(?:(?:-?(?:a|an|abc|address|another|any|app|back|bad|banks?|bar|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|thing|this|url|web|what|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+					/(?:(?:-?(?:a|an|abc|address|another|any|app|back|bad|banks?|bar|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|thing|this|url|web|what|where|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
 				')('+TLD.source +')'+
 				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
 			,'gmi'),
@@ -131,49 +131,6 @@
 			},
 			reason: "use example domain",
 			context: ["title","text","code","url"]
-		},{
-			expr: new RegExp(
-				/(^|\s)([_\*\"\'\(\<]*)/.source +
-				'(' +
-					'(?:' +
-						'(?:' +
-							'(?:' +
-								'(?:https?:\\/\\/)?'+ // Optional protocol
-								USER_OPT.source +
-								'(?:'+
-									// example.tld style domains
-									'(?:'+SUBDOM.source+'example'+TLD.source +')|'+
-									// some.example style domains
-									'(?:'+SUBDOM.source+'[a-zA-Z0-9\\-]+\\.(?:example|localhost|invalid|test))|' +
-									// IPV6 IP addresses
-									/(?:(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6}))/.source + '|' +
-									// IPV4 IP addresses
-									/(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3})/.source +
-								')'+
-							')|(?:' +
-								// domains without TLD (like localhost) formatted in URL
-								'(?:https?:\\/\\/)' + // Required protocol
-								USER_OPT.source +
-								'[a-zA-Z0-9]+' + // Host name with no dots
-							')' +
-						')' +
-						PORT_OPT.source +
-						REST_OF_URL.source +
-					')|(?:' +
-						// domains without TLD (like localhost) with port number
-						USER_OPT.source +
-						'(?:[a-zA-Z0-9\-]*[a-zA-Z]+[a-zA-Z0-9\-]*\\:[0-9]+)' +
-						REST_OF_URL.source +
-					')|(?:' +
-						// email addresses
-						'[a-zA-Z0-9\\-_]+\\@(?:[a-zA-Z0-9\\-]+\\.)*[a-zA-Z]+' +
-					')' +
-				')'+
-				/([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/.source
-			,'gmi'),
-			replacement: applyCodeFormat,
-			reason: "code format example URL",
-			context: ["text","url"]
 		},{
 			// Insert spaces after commas
 			expr: /,([[a-z])/g,
@@ -192,6 +149,7 @@
 		},
 		capitalizeWord("AngularJS"),
 		capitalizeWord("GitHub"),
+		capitalizeWord(".htaccess","\\.?htacc?ess?"),
 		capitalizeWord("iOS"),
 		capitalizeWordAndVersion("iOS", null, " "),
 		capitalizeWord("JavaScript"),
@@ -285,7 +243,8 @@
 			// No lower case at all
 			expr: /^((?=.*[A-Z])[^a-z]*)$/g,
 			replacement: ($0,$1) => $1[0] + $1.substring(1).toLowerCase(),
-			reason: "capitalization"
+			reason: "capitalization",
+			context: ["title"]
 		},{
 			expr: /\[enter image description here\]/g,
 			replacement: "[]",
@@ -296,6 +255,54 @@
 			replacement: $0 => $0[0].toUpperCase()+$0.substring(1),
 			reason: "capitalization",
 			context: ["title"]
+		},{
+			expr: new RegExp(
+				/(^|\s)([_\*\"\'\(\<]*)/.source +
+				'(' +
+					'(?:' +
+						'(?:' +
+							'(?:' +
+								'(?:https?:\\/\\/)?'+ // Optional protocol
+								USER_OPT.source +
+								'(?:'+
+									// example.tld style domains
+									'(?:'+SUBDOM.source+'example'+TLD.source +')|'+
+									// some.example style domains
+									'(?:'+SUBDOM.source+'[a-zA-Z0-9\\-]+\\.(?:example|localhost|invalid|test))|' +
+									// IPV6 IP addresses
+									/(?:(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6}))/.source + '|' +
+									// IPV4 IP addresses
+									/(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3})/.source +
+								')'+
+							')|(?:' +
+								// domains without TLD (like localhost) formatted in URL
+								'(?:https?:\\/\\/)' + // Required protocol
+								USER_OPT.source +
+								'[a-zA-Z0-9]+' + // Host name with no dots
+							')' +
+						')' +
+						PORT_OPT.source +
+						REST_OF_URL.source +
+					')|(?:' +
+						// domains without TLD (like localhost) with port number
+						USER_OPT.source +
+						'(?:[a-zA-Z0-9\-]*[a-zA-Z]+[a-zA-Z0-9\-]*\\:[0-9]+)' +
+						REST_OF_URL.source +
+					')|(?:' +
+						// email addresses
+						'[a-zA-Z0-9\\-_]+\\@(?:[a-zA-Z0-9\\-]+\\.)*[a-zA-Z]+' +
+					')' +
+				')'+
+				/([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/.source
+			,'gmi'),
+			replacement: applyCodeFormat,
+			reason: "code format example URL",
+			context: ["text","url"]
+		},{
+			expr: /(^|\s)([_\*\"\'\(\<]*)([a-zA-Z0-9\._\-\/]*\.(?:1in|1m|1x|3dm|3ds|3g2|3gp|3in|3m|3qt|3x|4th|6pl|6pm|7z|E|ML|_coffee|_js|_ls|a51|abap|accdb|ada|adb|ado|adoc|adp|ads|agda|ahk|ahkl|ai|aif|aj|al|als|ampl|anim|ant|apacheconf|apib|apk|apl|app|applescript|arc|arpa|as|asax|asc|asciidoc|ascx|asd|asf|ash|ashx|asm|asmx|asp|aspx|asset|au3|aug|auk|aux|avi|aw|awk|axd|axi|axml|axs|b|bak|bas|bash|bat|bats|bb|bbx|befunge|bf|bib|bin|bison|bmp|bmx|bones|boo|boot|brd|bro|brs|bsv|builder|bzl|c|c\+\+|c\+\+-objdump|c\+\+objdump|c-objdump|cab|cake|capnp|cats|cbl|cbr|cbx|cc|ccp|ccxml|cdf|cer|ceylon|cfc|cfg|cfm|cfml|cgi|ch|chpl|chs|cirru|cjsx|ck|cl|cl2|class|click|clixml|clj|cljc|cljs|cljscm|cljx|clp|cls|clw|cmake|cmd|cob|cobol|coffee|com|command|conf|coq|cp|cpl|cpp|cpp-objdump|cppobjdump|cproject|cps|cpy|cql|cr|crdownload|creole|crx|cs|csh|cshtml|csl|cson|csproj|csr|css|csv|csx|ct|ctp|cu|cue|cuh|cur|cw|cxx|cxx-objdump|cy|d|d-objdump|darcspatch|dart|dat|dats|db|db2|dbf|dcl|dcr|ddl|dds|deb|decls|deface|dem|deskthemepack|desktop|dfm|di|diff|dist|dita|ditamap|ditaval|djs|dll|dlm|dm|dmg|dmp|do|doc|dockerfile|docx|doh|dot|dotsettings|dpatch|dpr|druby|drv|dtd|dtx|duby|dwg|dxf|dyalog|dyl|dylan|e|ebuild|ec|ecl|eclass|eclxml|edn|eex|eh|el|eliom|eliomi|elm|em|emacs|emberscript|epj|eps|erb|erl|es|es6|escript|ex|exe|exs|f|f03|f08|f77|f90|f95|factor|fan|fancypack|fcgi|feature|filters|fish|fla|flex|flux|flv|fnt|fon|for|forth|fp|fpp|fr|frag|frg|frm|frt|frx|fs|fsh|fshader|fsi|fsproj|fsx|fth|ftl|fun|fx|fxh|fxml|fy|g|g4|gadget|gam|gap|gawk|gco|gcode|gd|ged|gemspec|geo|geojson|geom|gf|gi|gif|glade|glf|glsl|glslv|gml|gms|gnu|gnuplot|go|god|golo|gp|gpx|grace|gradle|graphql|groovy|grt|grxml|gs|gshader|gsp|gst|gsx|gtpl|gv|gvy|gyp|gz|h|h\+\+|haml|handlebars|hats|hb|hbs|hcl|heic|hh|hic|hl|hlean|hlsl|hlsli|hpp|hqf|hqx|hrl|hs|hsc|htaccess|htm|html|http|hx|hxsl|hxx|hy|i7x|iced|icl|icns|ico|ics|idc|idr|iff|ihlp|ijs|ik|ily|iml|in|inc|indd|ini|inl|ino|ins|intr|io|ipf|ipp|ipynb|irbrc|irclog|iso|iss|ivy|j|jade|jake|jar|java|jbuilder|jelly|jflex|jinja|jl|jpg|jq|js|jsb|jscad|jsfl|jsm|json|json5|jsonld|jsp|jsproj|jss|jsx|key|keychain|kicad_pcb|kid|kit|kml|kmz|krl|ksh|kt|ktm|kts|l|lagda|las|lasso|lasso8|lasso9|latte|launch|lbx|ld|ldml|lds|lean|less|lex|lfe|lgt|lhs|lid|lidr|liquid|lisp|litcoffee|ll|lmi|lnk|lock|log|logtalk|lol|lookml|lpr|ls|lsl|lslp|lsp|ltx|lua|lvproj|ly|m|m3u|m4|m4a|m4v|ma|mak|mako|man|mao|markdown|mask|mat|mata|matah|mathematica|matlab|mawk|max|maxhelp|maxpat|maxproj|mcr|md|mdb|mdf|mdpolicy|me|mediawiki|meta|metadata|metal|mid|mim|minid|mir|mirah|mk|mkd|mkdn|mkdown|mkfile|mkii|mkiv|mkvi|ml|ml4|mli|mll|mly|mm|mmk|mms|mo|mod|monkey|moo|moon|mov|mp3|mp4|mpa|mpg|ms|msg|msi|mspec|mss|mt|mtml|mu|muf|mumps|mustache|mxml|mxt|myt|n|nasm|nawk|nb|nbp|nc|ncl|nes|nginxconf|ni|nim|nimrod|ninja|nit|nix|njs|nl|nlogo|no|nproj|nqp|nse|nsh|nsi|nu|numpy|numpyw|numsc|nuspec|nut|ny|obj|objdump|odd|odt|omgrofl|ooc|opa|opal|opencl|org|osm|otf|owl|ox|oxh|oxo|oxygene|oz|p|p6|p6l|p6m|pac|pages|pan|parrot|part|pas|pasm|pat|patch|pb|pbi|pck|pct|pd|pd_lua|pdb|pde|pdf|perl|ph|php|php3|php4|php5|phps|phpt|phtml|pig|pike|pir|pkb|pkg|pkl|pks|pl|pl6|plb|plist|plot|pls|plsql|plt|plugin|pluginspec|plx|pm|pm6|pmod|png|po|pod|podsl|podspec|pogo|pony|pot|pov|pp|ppt|pptx|prc|prefab|prefs|prf|prg|pri|pro|prolog|properties|props|proto|prw|ps|ps1|ps1xml|psc|psc1|psd|psd1|psgi|psm1|pspimage|pt|pub|purs|pwn|pxd|pxi|py|pyde|pyp|pyt|pytb|pyw|pyx|qbs|qml|r|r2|r3|rabl|rake|raml|rar|raw|rb|rbbas|rbfrm|rbmnu|rbres|rbtbar|rbuild|rbuistate|rbw|rbx|rbxs|rd|rdf|rdoc|reb|rebol|red|reds|reek|rest|rg|rhtml|rkt|rktd|rktl|rl|rm|rmd|rno|robot|roff|rom|ron|rpm|rpy|rq|rs|rsh|rss|rst|rsx|rtf|ru|ruby|rviz|s|sage|sagews|sas|sass|sats|sav|sbt|sc|scad|scala|scaml|scd|sce|sch|sci|scm|scpt|scrbl|scss|scxml|sdf|self|sexp|sh|sh-session|shader|shen|sig|sitx|sj|sjs|sl|sld|slim|sln|sls|sma|smali|sml|smt|smt2|sp|sparql|spin|sps|sqf|sql|srdf|srt|ss|ssjs|st|stTheme|stan|sthlp|ston|storyboard|sty|styl|sublime-build|sublime-commands|sublime-completions|sublime-keymap|sublime-macro|sublime-menu|sublime-mousemap|sublime-project|sublime-settings|sublime-syntax|sublime-theme|sublime-workspace|sublime_metrics|sublime_session|sv|svg|svh|swf|swift|syntax|sys|t|tab|tac|tar|targets|targz|tcc|tcl|tcsh|tea|tex|textile|tf|tga|tgz|thm|thor|thrift|thy|tif|tiff|tm|tmCommand|tmLanguage|tmPreferences|tmSnippet|tmTheme|tml|tmp|tmux|toast|toc|toml|tool|topojson|torrent|tpl|tpp|ts|tst|tsx|ttf|ttl|tu|twig|txl|txt|uc|udf|ui|unity|uno|upc|ur|urdf|urs|uue|ux|v|vala|vapi|vark|vb|vba|vbhtml|vbproj|vbs|vcd|vcf|vcl|vcxproj|veo|vert|vh|vhd|vhdl|vhf|vhi|vho|vhost|vhs|vht|vhw|vim|viw|vob|volt|vrx|vsh|vshader|vssettings|vue|vxml|w|watchr|wav|webidl|weechatlog|wiki|wisp|wl|wlt|wlua|wma|wmv|wpd|wps|wsdl|wsf|wsgi|wxi|wxl|wxs|x|x10|x3d|xacro|xaml|xc|xcodeproj|xht|xhtml|xi|xib|xlf|xliff|xlr|xls|xlsx|xm|xmi|xml|xojo_code|xojo_menu|xojo_report|xojo_script|xojo_toolbar|xojo_window|xpl|xproc|xproj|xpy|xq|xql|xqm|xquery|xqy|xrl|xs|xsd|xsjs|xsjslib|xsl|xslt|xsp-config|xtend|xul|y|yacc|yaml|yaml-tmlanguage|yang|yap|yml|yrl|yuv|yy|zcml|zep|zimpl|zip|zipx|zmpl|zone|zpl|zsh))([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/gmi,
+			replacement: applyCodeFormat,
+			reason: "code format file name",
+			context: ["text"]
 		},{
 			// Remove trailing white space
 			expr: /[ \t]+(\r\n|\n|$)/gm,
@@ -313,6 +320,7 @@
 
 	function applyCodeFormat (m,prefix,start,url,suffix){
 		start=start||''
+		var code='`'
 		if ((m = url.search(/[_\*\"\'\`\;\,\.\?\:\!\)\>]+$/)) != -1){
 			suffix = url.substr(m) + suffix
 			url = url.substr(0,m)
@@ -320,8 +328,10 @@
 		if (start && /[\_\*\"\']+/.exec(start) && suffix.startsWith(start)){
 			suffix=suffix.substr(start.length)
 			start = ""
+		} else if (url.length<=4 && !url.match(/::/)){
+			code=""
 		}
-		return prefix+start+'`'+url+'`'+suffix
+		return prefix+start+code+url+code+suffix
 	}
 
 	function removeLeaveSpace(s){
@@ -460,8 +470,8 @@
 	}
 
 	function edit(d){
-		for (var editsMade = 1; editsMade > 0;){
-			editsMade = d.replacements.length
+		do {
+			var editsMade = d.replacements.length
 
 			d.body = applyRules(d, d.body, "fullbody")
 			d.bodyTokens = tokenizeMarkdown(d.body)
@@ -473,7 +483,7 @@
 			if (d.title) d.title = applyRules(d, d.title, "title")
 
 			editsMade = d.replacements.length - editsMade
-		}
+		}while(editsMade>0)
 
 		// Create a summary of all the reasons
 		for (var reason in d.reasons){
@@ -833,7 +843,7 @@
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
 			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},
-			{i:'NO, NEED, TO+ YELL!',o:'No, need, to+ yell!'},
+			{i:'NO, NEED, TO+ YELL!',o:'NO, NEED, TO+ YELL!',t:'No, need, to+ yell!'},
 			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
 			{i:'Trailing white space\t \t',o:"Trailing white space"},
 			{i:'Vaccuum: beatiful, tomatos! tommorow?',o:'Vacuum: beautiful, tomatoes! tomorrow?'},
@@ -874,7 +884,11 @@
 			{i:'(https://new.oldplace.tld/path?query)',o:'(`https://new.oldplace.example/path?query`)',t:'(https://new.oldplace.example/path?query)'},
 			{i:'`www.test-domain-1.net`',o:'`www.test-domain-1.example`'},
 			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
-			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'}
+			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'},
+			{i:'.htaccess',o:'`.htaccess`',t:'.htaccess'},
+			{i:'/path/file.txt',o:'`/path/file.txt`',t:'/path/file.txt'},
+			{i:'foo.html',o:'`foo.html`',t:'foo.html'},
+			{i:'new-test.js',o:'`new-test.js`',t:'new-test.js'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
@@ -891,7 +905,6 @@
 			'A ... b',
 			'Edit',
 			'I.E.',
-			'See foo.html here',
 			'i.e.',
 			'special thanks to',
 			'my-example.tld.sub.sub',
@@ -900,9 +913,8 @@
 			'`example.com`',
 			'`sub.example.com`',
 			'`example.co.uk`',
-			'apple.com',
+			'https://apple.com',
 			'lorum-example.net',
-			'new-test.js'
 		].forEach(r=>{
 			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
 			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
@@ -916,6 +928,7 @@
 			'Any help will be appreciated, thank you in advance.',
 			'Any suggestions would be highly appreciated, thank you!',
 			//'Any help would be much appreciated.',
+			//"Hope that's useful!",
 			'Appreciate for any help!',
 			'Can anybody give me any suggestions, pls?',
 			'can I seek some advice on',
@@ -1011,6 +1024,17 @@
 				testEdit('Lorum ' + i + ' ipsum.', 'Lorum ' + io.o + ' ipsum.')
 				testEdit('Lorum ipsum ' + i, 'Lorum ipsum ' + io.o)
 				testEdit('Lorum ipsum ' + i + '.', 'Lorum ipsum ' + io.o + '.')
+			})
+		})
+
+		;[
+			{i:['.htacess','.htacces','.htacess','htaccess','htacess','htacces','htaces','.HTACCESS','HTACCESS'],o:'.htaccess'},
+		].forEach(io=>{
+			io.i.push(io.o)
+			io.i.forEach(i=>{
+				testEdit('Lorum ' + i + ' ipsum.', 'Lorum `' + io.o + '` ipsum.', 'Lorum ' + io.o + ' ipsum.')
+				testEdit('Lorum ipsum ' + i, 'Lorum ipsum `' + io.o + '`', 'Lorum ipsum ' + io.o)
+				testEdit('Lorum ipsum ' + i + '.', 'Lorum ipsum `' + io.o + '`.', 'Lorum ipsum ' + io.o + '.')
 			})
 		})
 
