@@ -99,6 +99,17 @@
 		"some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
 		"things?|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|this|to|very|we|well|weeks?|will|with|works?|would|your?)"
 
+	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
+	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
+
+	const SUBDOM = /(?:(?:[a-zA-Z0-9\-]+|[\*\%])\.)*/
+	const IPV6 = /(?:(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6}))/
+	const IPV4 = /(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3})/
+	const URL_PRE = /(^|\s)([_\*\"\'\(\<]*)/
+	const URL_POST = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
+	const REST_OF_URL = /(?:[\/\$\{][^ ]*?)?/
+	const PORT = /(?:\:[0-9]+)?/
+
 	var rules = [
 		{
 			expr: /\b(https?)[ \t]*:[ \t]*\/[ \t]*\/[ \t]*([a-zA-Z0-9\-]+)[ \t]*\./gi,
@@ -106,51 +117,85 @@
 			reason: "fix URL",
 			context: ["fullbody","title"]
 		},{
-			// Domain name ends with or contains "example" but isn't "example.tld"
-			expr: /(\b[_\"\*\'\(\`]?)(?:((?:[a-zA-Z0-9\.\-]+\.)?[a-zA-Z0-9\-]+)example([a-zA-Z0-9\-]*))\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\;\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
-			replacement: "$1$2$3.example$4",
+			expr: new RegExp(
+				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
+					// Made entirely of example-like words
+					// Followed by an optional number or single letter
+					/(?:(?:-?(?:a|an|abc|another|any|app|back|bad|banks?|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|this|url|web|what|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+				')('+TLD.source +')'+
+				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
+			,'gmi'),
+			replacement: (m,pre,name,tld,post)=>{
+				if (!/^example$/i.test(name)){
+					name = name.replace(/example/gi,'')
+					tld='.example'
+				}
+				return pre+name+tld+post
+			},
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			// Domain name starts with or contains "example" but isn't "example.tld"
-			expr: /(\b[_\"\*\'\(\`]?)(?:([a-zA-Z0-9\-\.]*)example([a-zA-Z0-9\-]+))\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\;\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
-			replacement: "$1$2$3.example$4",
-			reason: "use example domain",
-			context: ["title","text","code","url"]
-		},{
-			// Domain name has an example-like prefix
-			expr: /(\b[_\"\*\'\(\`]?)((?:abc|any|client|domain|foo|my|new|old|our|sample|site|some|test|url|xxx|xyz|your)[a-zA-Z0-9\-]*)\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|whatever|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\;\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
-			replacement: "$1$2.example$3",
-			reason: "use example domain",
-			context: ["title","text","code","url"]
-		},{
-			// Domain name has an example-like suffix
-			expr: /(\b[_\"\*\'\(\`]?)([a-zA-Z0-9\-]*(?:abc|domain|foo|page|sample|site|test|url|whatever|xxx|xyz)(?:-?(?:[0-9]*|[A-Za-z]))?)\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-zA-Z]{2}))(\.?(?:[\;\,\:\/_\"\*\'\)\?\!\` \t\$]|$))/gmi,
-			replacement: "$1$2.example$3",
-			reason: "use example domain",
-			context: ["title","text","code","url"]
-		},{
-			// example.com, some.example, or IP address in URLs and mentions
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)?(?:[a-zA-Z\-\.]+\@)?(?:(?:(?:[a-zA-Z\-]+|\*)\.)*example\.(?:app|club|com|edu|info|live|online|org|pro|net|shop|site|store|tld|top|xyz|(?:(?:com?\.)?[a-z]{2}))|(?:(?:(?:[a-zA-Z\-]+|\*)\.)*[a-zA-Z\-]+\.(?:example|localhost|invalid|test))|(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})|(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3}))(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			// example.tld, some.example, or IP address in URLs and mentions
+			expr: new RegExp(
+				URL_PRE.source +
+				'(' +
+					'(?:https?:\\/\\/)?'+
+					'(?:[a-zA-Z\\-\\.]+\\@)?'+
+					'(?:'+
+						'(?:'+SUBDOM.source+'example'+TLD.source +')|'+
+						'(?:'+SUBDOM.source+'[a-zA-Z\\-]+\\.(?:example|localhost|invalid|test))|' +
+						IPV6.source + '|' +
+						IPV4.source +
+					')'+
+					PORT.source +
+					REST_OF_URL.source +
+				')'+
+				URL_POST.source
+			,'gmi'),
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
 		},{
 			// domains without TLD (like localhost) formatted in URL
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:(?:https?:\/\/)[a-zA-Z0-9]+(?:\:[0-9]+)?(?:[\/\$\{}][^ ]*?)?)(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: new RegExp(
+				URL_PRE.source+
+				'(' +
+					'(?:https?:\\/\\/)' +
+					'[a-zA-Z0-9]+' +
+					PORT.source +
+					REST_OF_URL.source +
+				')'+
+				URL_POST.source
+			,"gmi"),
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
 		},{
 			// domains without TLD (like localhost) with port number
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?((?:[a-zA-Z0-9]+\:[0-9]+)\/[^ ]*(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			expr: new RegExp(
+				URL_PRE.source+
+				'('+
+					'(?:[a-zA-Z0-9\-]*[a-zA-Z]+[a-zA-Z0-9\-]*\\:[0-9]+)'+
+					REST_OF_URL.source +
+				')' +
+				URL_POST.source
+			,'gmi'),
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
 			context: ["text","url"]
 		},{
-			expr: /(^|\s)(_{1,2}|\*{1,2}|[\"\'\()])?([a-zA-Z0-9\-_]+\@(?:[a-zA-Z0-9\-]+\.)*[a-zA-Z]+(?:_{1,2}|\*{1,2}|[\"\'\)])?)([\,\.\?\:]?(?:\s|$))/gmi,
+			// email addresses
+			expr: new RegExp(
+				URL_PRE.source+
+				'('+
+					'[a-zA-Z0-9\\-_]+'+
+					'\\@'+
+					'(?:[a-zA-Z0-9\\-]+\\.)*[a-zA-Z]+'+
+				')' +
+				URL_POST.source
+			,'gmi'),
 			replacement: applyCodeFormat,
-			reason: "code format email",
+			reason: "code format example URL",
 			context: ["text","url"]
 		},{
 			// Insert spaces after commas
@@ -291,16 +336,13 @@
 
 	function applyCodeFormat (m,prefix,start,url,suffix){
 		start=start||''
-		if ((m = url.search(/[\;\,\.\?\:\!\)]+$/)) != -1){
+		if ((m = url.search(/[_\*\"\'\`\;\,\.\?\:\!\)\>]+$/)) != -1){
 			suffix = url.substr(m) + suffix
 			url = url.substr(0,m)
 		}
-		if (start && url.length>start.length){
-			var end = url.substr(url.length-start.length,url.length)
-			if (/[\_\*\"\']+/.exec(start) && start==end){
-				url = url.substr(0,url.length-end.length)
-				start = ""
-			}
+		if (start && /[\_\*\"\']+/.exec(start) && suffix.startsWith(start)){
+			suffix=suffix.substr(start.length)
+			start = ""
 		}
 		return prefix+start+'`'+url+'`'+suffix
 	}
@@ -792,7 +834,7 @@
 		function testEdit(input, output, titleOutput){
 			if (!titleOutput) titleOutput = output
 			var d=getDefaultData(),
-			testTitle = !/[\r\n`\*]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
+			testTitle = !/[\r\n`\*\%]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
 			if (testTitle) d.title=input
 			d.body=input
 			edit(d)
@@ -821,12 +863,13 @@
 			{i:'Visit site.tld',o:'Visit `site.example`',t:'Visit site.example'},
 			{i:'What ?',o:"What?"},
 			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
-			{i:'`examplelorum.org`',o:'`lorum.example`'},
+			{i:'`examplesite.org`',o:'`site.example`'},
 			{i:'*.abc.online',o:'`*.abc.example`'},
+			{i:'%.abc.online',o:'`%.abc.example`'},
 			{i:'`ourHome.net`',o:'`ourHome.example`'},
 			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
-			{i:'`sub.xexample1.tld`',o:'`sub.x1.example`'},
+			{i:'`sub.someexample1.tld`',o:'`sub.some1.example`'},
 			{i:'`www.website1.net`',o:'`www.website1.example`'},
 			{i:'`www.webpageA.net`',o:'`www.webpageA.example`'},
 			{i:'`my-domain.com:8080`',o:'`my-domain.example:8080`'},
@@ -852,7 +895,7 @@
 			{i:"localhost:8080/foo",o:'`localhost:8080/foo`',t:"localhost:8080/foo"},
 			{i:'From admin@mydomain.com.',o:'From `admin@mydomain.example`.',t:'From admin@mydomain.example.'},
 			{i:'(https://new.oldplace.tld/path?query)',o:'(`https://new.oldplace.example/path?query`)',t:'(https://new.oldplace.example/path?query)'},
-			{i:'`www.lorum-domain-1.net`',o:'`www.lorum-domain-1.example`'},
+			{i:'`www.test-domain-1.net`',o:'`www.test-domain-1.example`'},
 			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
 			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'}
 		].forEach(io=>{
@@ -875,7 +918,14 @@
 			'i.e.',
 			'special thanks to',
 			'my-example.tld.sub.sub',
-			'test invalid localhost example'
+			'test invalid localhost example',
+			'https://serverfault.com/',
+			'`example.com`',
+			'`sub.example.com`',
+			'`example.co.uk`',
+			'apple.com',
+			'lorum-example.net',
+			'new-test.js'
 		].forEach(r=>{
 			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
 			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
@@ -888,6 +938,7 @@
 			'Any halp?',
 			'Any help will be appreciated, thank you in advance.',
 			'Any suggestions would be highly appreciated, thank you!',
+			//'Any help would be much appreciated.',
 			'Appreciate for any help!',
 			'Can anybody give me any suggestions, pls?',
 			'can I seek some advice on',
@@ -1015,14 +1066,16 @@
 		})
 
 		;[
-			{s:'',u:'example.com',o:'`example.com`'},
-			{s:'',u:'example.com.',o:'`example.com`.'},
-			{s:'(',u:'example.com)',o:'(`example.com`)'},
-			{s:'"',u:'example.com"',o:'`example.com`'},
-			{s:'**',u:'example.com**',o:'`example.com`'},
-			{s:"'",u:"example.com'",o:'`example.com`'}
+			{u:'example.com',o:'`example.com`'},
+			{u:'example.com.',o:'`example.com`.'},
+			{s:'(',u:'example.com',e:')',o:'(`example.com`)'},
+			{s:'"',u:'example.com',o:'`example.com`'},
+			{s:'**',u:'example.com',o:'`example.com`'},
+			{s:"'",u:"example.com",o:'`example.com`'},
+			{s:"<",u:"example.com",e:'>',o:'<`example.com`>'}
 		].forEach(io=>{
-			expectEql("applyCodeFormat", applyCodeFormat('','',io.s,io.u,''), io.o, io.s+io.u, io)
+			var s=io.s||'',e=io.e||s
+			expectEql("applyCodeFormat", applyCodeFormat('','',s,io.u,e), io.o, s+io.u+e, io)
 		})
 
 		;[
