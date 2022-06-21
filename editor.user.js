@@ -103,12 +103,9 @@
 	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
 
 	const SUBDOM = /(?:(?:[a-zA-Z0-9\-]+|[\*\%])\.)*/
-	const IPV6 = /(?:(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6}))/
-	const IPV4 = /(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3})/
-	const URL_PRE = /(^|\s)([_\*\"\'\(\<]*)/
-	const URL_POST = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
 	const REST_OF_URL = /(?:[\/\$\{][^ ]*?)?/
-	const PORT = /(?:\:[0-9]+)?/
+	const PORT_OPT = /(?:\:[0-9]+)?/
+	const USER_OPT = /(?:[a-zA-Z\-\.]+\@)?/
 
 	var rules = [
 		{
@@ -135,64 +132,44 @@
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
-			// example.tld, some.example, or IP address in URLs and mentions
 			expr: new RegExp(
-				URL_PRE.source +
+				/(^|\s)([_\*\"\'\(\<]*)/.source +
 				'(' +
-					'(?:https?:\\/\\/)?'+
-					'(?:[a-zA-Z\\-\\.]+\\@)?'+
-					'(?:'+
-						'(?:'+SUBDOM.source+'example'+TLD.source +')|'+
-						'(?:'+SUBDOM.source+'[a-zA-Z\\-]+\\.(?:example|localhost|invalid|test))|' +
-						IPV6.source + '|' +
-						IPV4.source +
-					')'+
-					PORT.source +
-					REST_OF_URL.source +
+					'(?:' +
+						'(?:' +
+							'(?:' +
+								'(?:https?:\\/\\/)?'+ // Optional protocol
+								USER_OPT.source +
+								'(?:'+
+									// example.tld style domains
+									'(?:'+SUBDOM.source+'example'+TLD.source +')|'+
+									// some.example style domains
+									'(?:'+SUBDOM.source+'[a-zA-Z0-9\\-]+\\.(?:example|localhost|invalid|test))|' +
+									// IPV6 IP addresses
+									/(?:(?:(?:[A-Fa-f0-9]{1,4}:){2,7}[A-Fa-f0-9]{1,4})|(?:[A-Fa-f0-9]{0,4}::[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6}))/.source + '|' +
+									// IPV4 IP addresses
+									/(?:(?:[0-9]{1,3}\.){3}[0-9]{1,3})/.source +
+								')'+
+							')|(?:' +
+								// domains without TLD (like localhost) formatted in URL
+								'(?:https?:\\/\\/)' + // Required protocol
+								USER_OPT.source +
+								'[a-zA-Z0-9]+' + // Host name with no dots
+							')' +
+						')' +
+						PORT_OPT.source +
+						REST_OF_URL.source +
+					')|(?:' +
+						// domains without TLD (like localhost) with port number
+						USER_OPT.source +
+						'(?:[a-zA-Z0-9\-]*[a-zA-Z]+[a-zA-Z0-9\-]*\\:[0-9]+)' +
+						REST_OF_URL.source +
+					')|(?:' +
+						// email addresses
+						'[a-zA-Z0-9\\-_]+\\@(?:[a-zA-Z0-9\\-]+\\.)*[a-zA-Z]+' +
+					')' +
 				')'+
-				URL_POST.source
-			,'gmi'),
-			replacement: applyCodeFormat,
-			reason: "code format example URL",
-			context: ["text","url"]
-		},{
-			// domains without TLD (like localhost) formatted in URL
-			expr: new RegExp(
-				URL_PRE.source+
-				'(' +
-					'(?:https?:\\/\\/)' +
-					'[a-zA-Z0-9]+' +
-					PORT.source +
-					REST_OF_URL.source +
-				')'+
-				URL_POST.source
-			,"gmi"),
-			replacement: applyCodeFormat,
-			reason: "code format example URL",
-			context: ["text","url"]
-		},{
-			// domains without TLD (like localhost) with port number
-			expr: new RegExp(
-				URL_PRE.source+
-				'('+
-					'(?:[a-zA-Z0-9\-]*[a-zA-Z]+[a-zA-Z0-9\-]*\\:[0-9]+)'+
-					REST_OF_URL.source +
-				')' +
-				URL_POST.source
-			,'gmi'),
-			replacement: applyCodeFormat,
-			reason: "code format example URL",
-			context: ["text","url"]
-		},{
-			// email addresses
-			expr: new RegExp(
-				URL_PRE.source+
-				'('+
-					'[a-zA-Z0-9\\-_]+'+
-					'\\@'+
-					'(?:[a-zA-Z0-9\\-]+\\.)*[a-zA-Z]+'+
-				')' +
-				URL_POST.source
+				/([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/.source
 			,'gmi'),
 			replacement: applyCodeFormat,
 			reason: "code format example URL",
