@@ -173,7 +173,7 @@
 				if (ABBREVIATIONS.hasOwnProperty(w)) w = ABBREVIATIONS[w]
 				var lc = w.toLowerCase()
 				if (MISSPELLINGS.hasOwnProperty(lc)){
-					correct = MISSPELLINGS[lo]
+					correct = MISSPELLINGS[lc]
 					if (/[A-Z]/.exec(correct)) w = correct // Always use capitalization proper noun corrections
 					else if (/^(?:[A-Z][a-z]+)+$/.exec(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
 					else w = correct // Use lower case correction
