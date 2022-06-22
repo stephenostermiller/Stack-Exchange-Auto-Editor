@@ -103,7 +103,7 @@
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
 	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
 
-	const SUBDOM = /(?:(?:[a-zA-Z0-9\-]+|[\*\%])\.)*/
+	const SUBDOM = /(?:(?:[a-zA-Z0-9\-]+|[\*\%])\\?\.)*/
 	const REST_OF_URL = /(?:[\/\$\{][^ ]*?)?/
 	const PORT_OPT = /(?:\:[0-9]+)?/
 	const USER_OPT = /(?:[a-zA-Z\-\.]+\@)?/
@@ -121,7 +121,7 @@
 				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 					// Made entirely of example-like words
 					// Followed by an optional number or single letter
-					/(?:(?:-?(?:a|an|abc|address|another|any|app|back|bad|banks?|bar|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|thing|this|url|web|what|where|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+					/(?:(?:-?(?:a|an|abc|address|another|any|app|back|bad|banks?|bar|blah?|cdn|clients?|(?:(?<=\\b)co)|company|companies|custom|domains?|email|end|ever|evil|examples?|fake|fallback|foo|front|good|guys?|hacks?|hackers?|harm|harmless|home|hosts?|hosters?|info|information|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|place|proxy|safe|samples?|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|thing|this|url|web|what|where|xxx|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
 				')('+TLD.source +')'+
 				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
 			,'gmi'),
@@ -872,6 +872,7 @@
 			{i:'What ?',o:"What?"},
 			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
 			{i:'`examplesite.org`',o:'`site.example`'},
+			{i:"`sub\\.other-web\\.app`",o:"`sub\\.other-web\\.example`"},
 			{i:'*.abc.online',o:'`*.abc.example`'},
 			{i:'%.abc.online',o:'`%.abc.example`'},
 			{i:'`ourHome.net`',o:'`ourHome.example`'},
