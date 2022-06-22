@@ -55,9 +55,8 @@
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
 
-
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|if|in|is|issues?|it|just|kind|kindly|likely|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
-	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|right|seek|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|if|in|is|issues?|it|just|kind|kindly|likely|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|right|seek|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tips?|to|towards?|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
 	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
@@ -68,6 +67,7 @@
 	const USER_OPT = /(?:[a-zA-Z\-\.]+\@)?/
 	const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
 	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
+	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|help|hints?|guidance|point|pointers?|tips?|suggestions?)/
 
 	var rules = [
 		{
@@ -151,11 +151,11 @@
 		},{
 			expr: new RegExp(
 				"(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|^)[\r\n\t ]*(?:"+ // Required start of sentence or paragraph
-					"(?:(?:" + CONTENT_FREE_WORDS + ")[, \\-\\/]+)*(?:(?:"+[
+					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
 						"thanks",
 						"thank[ \\-]+you"
 					].join(")|(?:")+"))"+
-					"(?:[, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))*"+
+					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					" *(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|$)"+ // Required end of sentence or paragraph
 					"[ \r\n\t]*"+
 				")+","gi"
@@ -166,7 +166,7 @@
 			expr: new RegExp(
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*"+
-					"(any|some)\\s(?:answers?|assistance|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)"+
+					"(?:any|some)\\s"+ANSWER_WORDS.source+
 					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *\\?)+"+ // Required ending question mark
 					"(?: +|$)"+
@@ -179,13 +179,13 @@
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
 						// thanks ... help
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|assistance|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)",
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +"+ANSWER_WORDS.source,
 						// hope ... helps
-						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes|useful)",
+						"(?:hope|hopefully)([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +(?:helps?|helped|fix|fixes|useful)",
 						// thanks ... advance
-						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)",
+						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +(?:advance)",
 						// help ... please
-						"(?:answers?|assistance|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:appreciated|good|great|please)",
+						ANSWER_WORDS.source+"([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +(?:appreciated|good|great|please)",
 					].join(")|(?:")+"))"+
 					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
@@ -937,6 +937,7 @@
 			'Can anybody give me any suggestions, pls?',
 			'can I seek some advice on',
 			'Can someone help me to solve this problem?',
+			'Could anyone give me some hint towards this problem?',
 			'Does anybody have any suggestions?',
 			'Examples are appreciated.',
 			'First post over here and I hope someone will be able to give some advice.',
