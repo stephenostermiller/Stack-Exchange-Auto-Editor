@@ -56,8 +56,8 @@
 	}))
 
 
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|are|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
-	"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|seek|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|if|in|issues?|it|just|kind|kindly|likely|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|right|seek|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
 	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
@@ -179,13 +179,13 @@
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
 						// thanks ... help
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|tips?|suggestions?)",
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|point|pointers?|tips?|suggestions?)",
 						// hope ... helps
 						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes|useful)",
 						// thanks ... advance
 						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)",
 						// help ... please
-						"(?:answers?|advice|examples?|help|guidance|tips?|suggestions?)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:appreciated|good|great|please)",
+						"(?:answers?|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:appreciated|good|great|please)",
 					].join(")|(?:")+"))"+
 					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
@@ -929,6 +929,7 @@
 			'Any halp?',
 			'Any help will be appreciated, thank you in advance.',
 			'Any suggestions would be highly appreciated, thank you!',
+			'All suggestions below have been greatly appreciated, thanks.',
 			'Any help would be much appreciated.',
 			"Hope that's useful!",
 			'Appreciate for any help!',
@@ -938,6 +939,7 @@
 			'Does anybody have any suggestions?',
 			'Examples are appreciated.',
 			'First post over here and I hope someone will be able to give some advice.',
+			'If anyone could point me in the right direction, that would be much appreciated.',
 			'Hello guys , good afternoon.',
 			'Hi all!',
 			'Hope it halps!',
