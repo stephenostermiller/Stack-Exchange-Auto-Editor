@@ -91,6 +91,7 @@
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
 
+
 	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
 		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|first|fix|" +
 		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|" +
@@ -169,10 +170,10 @@
 		{
 			expr: /(^|\s)([A-Za-z][A-Za-z0-9']*)\b(\S|)(?!\S)/gm,
 			replacement: (p0,p1,w,p3)=>{
-				var expanded = ABBREVIATIONS[w]
-				if (expanded) w = expanded
-				var correct = MISSPELLINGS[w.toLowerCase()]
-				if (correct){
+				if (ABBREVIATIONS.hasOwnProperty(w)) w = ABBREVIATIONS[w]
+				var lc = w.toLowerCase()
+				if (MISSPELLINGS.hasOwnProperty(lc)){
+					correct = MISSPELLINGS[lo]
 					if (/[A-Z]/.exec(correct)) w = correct // Always use capitalization proper noun corrections
 					else if (/^(?:[A-Z][a-z]+)+$/.exec(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
 					else w = correct // Use lower case correction
