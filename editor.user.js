@@ -56,7 +56,7 @@
 	}))
 
 
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|if|in|issues?|it|just|kind|kindly|likely|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|if|in|is|issues?|it|just|kind|kindly|likely|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
 	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|right|seek|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
@@ -166,7 +166,7 @@
 			expr: new RegExp(
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*"+
-					"(any|some)\\s(?:answers?|help|advice|guidance|tips?|suggestions?)"+
+					"(any|some)\\s(?:answers?|assistance|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)"+
 					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *\\?)+"+ // Required ending question mark
 					"(?: +|$)"+
@@ -179,13 +179,13 @@
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
 						// thanks ... help
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|point|pointers?|tips?|suggestions?)",
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|assistance|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)",
 						// hope ... helps
 						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes|useful)",
 						// thanks ... advance
 						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)",
 						// help ... please
-						"(?:answers?|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:appreciated|good|great|please)",
+						"(?:answers?|assistance|advice|examples?|help|guidance|point|pointers?|tips?|suggestions?)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:appreciated|good|great|please)",
 					].join(")|(?:")+"))"+
 					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
@@ -933,6 +933,7 @@
 			'Any help would be much appreciated.',
 			"Hope that's useful!",
 			'Appreciate for any help!',
+			'Assistance is appreciated!',
 			'Can anybody give me any suggestions, pls?',
 			'can I seek some advice on',
 			'Can someone help me to solve this problem?',
