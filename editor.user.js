@@ -56,13 +56,8 @@
 	}))
 
 
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|" +
-		"appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|first|fix|" +
-		"fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|" +
-		"i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
-		"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|seek|so|solve|solutions?|" +
-		"some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|" +
-		"things?|this|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|very|we|well|weeks?|will|with|works?|would|your?)"
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|attention|bad|be|being|been|body|can|cheers?|code|concepts?|could|days?|does|doubts?|english|errors?|every|everybody|everyone|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|guys?|guidance|have|helps?|helping|here|highly|hopes?|hoping|hours|i|i'?[md]|i'?ve|ideas?|in|issues?|it|just|kind|kindly|likely|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+	"obvious|offer|offered|offering|our|over|please|post|problems?|provide[ds]?|questions?|query|queries|regarding|regards|resolve[ds]?|resolving|seek|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tips?|to|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
 	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
@@ -85,7 +80,7 @@
 				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 					// Made entirely of example-like words
 					// Followed by an optional number or single letter
-					/(?:(?:-?(?:1st|2nd|3rd|4th|a|an|abc|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|(?:(?<=\\b)co)|company|companies|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|places?|proxy|safe|samples?|second|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|things?|third|this|urls?|web|what|where|x{3,}|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
+					/(?:(?:-?(?:1st|2nd|3rd|4th|a|an|abc|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|(?:(?<=\\b)co)|company|companies|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|places?|proxy|safe|samples?|second|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|things?|third|this|unsafe|urls?|web|what|where|x{3,}|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
 				')('+TLD.source +')'+
 				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
 			,'gmi'),
@@ -184,7 +179,7 @@
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
 						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|someone|somebody|please|kindly|appreciate|need|seek)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:answers?|help|advice|guidance|tips?|suggestions?)",
-						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes)",
+						"(?:hope|hopefully)([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:helps?|helped|fix|fixes|useful)",
 						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+(?:" + CONTENT_FREE_WORDS + "))* +(?:advance)"
 					].join(")|(?:")+"))"+
 					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
@@ -930,7 +925,7 @@
 			'Any help will be appreciated, thank you in advance.',
 			'Any suggestions would be highly appreciated, thank you!',
 			//'Any help would be much appreciated.',
-			//"Hope that's useful!",
+			"Hope that's useful!",
 			'Appreciate for any help!',
 			'Can anybody give me any suggestions, pls?',
 			'can I seek some advice on',
