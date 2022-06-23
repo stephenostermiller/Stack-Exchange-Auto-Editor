@@ -67,7 +67,7 @@
 	const USER_OPT = /(?:[a-zA-Z\-\.]+\@)?/
 	const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
 	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
-	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|help|hints?|guidance|point|pointers?|tips?|suggestions?)/
+	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|point|pointers?|tips?|suggestions?)/
 
 	var rules = [
 		{
@@ -164,6 +164,7 @@
 			reason: "remove niceties"
 		},{
 			expr: new RegExp(
+				// any help?
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*"+
 					"(?:any|some)\\s"+ANSWER_WORDS.source+
@@ -631,7 +632,7 @@
 					d.setTitle = function(s){
 						if (!titleBox.length) return
 						titleBox.val(s)
-						titleBox[0].dispatchEvent(new Event('keypress')) // Cause title display to be updated
+						titleBox[0].dispatchEvent(new Event('keyup')) // Cause title display to be updated
 					}
 					d.getBody = function(){
 						return bodyBox.val()
@@ -927,6 +928,7 @@
 			'Any suggestions?',
 			'Any tips?',
 			'Any halp?',
+			'Any help to fix this is greatly appreciated.',
 			'Any help will be appreciated, thank you in advance.',
 			'Any suggestions would be highly appreciated, thank you!',
 			'All suggestions below have been greatly appreciated, thanks.',
