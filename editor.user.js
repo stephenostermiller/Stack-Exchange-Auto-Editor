@@ -180,14 +180,14 @@
 			expr: new RegExp(
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + BETWEEN_WORDS + ")*(?:(?:"+[
-						// thanks ... help
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +"+ANSWER_WORDS.source,
+						// thanks ... answer
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + ANSWER_WORDS.source,
 						// hope ... helps
-						"(?:hope|hopefully)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +(?:helps?|helped|fix|fixes|useful)",
+						"(?:hope|hopefully)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + "(?:helps?|helped|fix|fixes|useful)",
 						// thanks ... advance
-						"(?:thanks|(?:thank[ \\-]+you))(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +(?:advance)",
-						// help ... please
-						ANSWER_WORDS.source+"(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +(?:appreciated|good|great|please)",
+						"(?:thanks|(?:thank[ \\-]+you))(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + "(?:advance)",
+						// answer ... please
+						ANSWER_WORDS.source+"(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + "(?:appreciated|good|great|please)",
 					].join(")|(?:")+"))"+
 					"(?:" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
