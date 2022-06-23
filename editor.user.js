@@ -55,7 +55,7 @@
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
 
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|in|is|issues?|it|just|kind|kindly|likely|little|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|illuminate|illumination|in|is|issues?|it|just|kind|kindly|likely|little|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
 	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|really|regarding|regards|resolve[ds]?|resolving|right|seek|small|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tiny|tips?|to|towards?|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
@@ -68,6 +68,7 @@
 	const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
 	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
 	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|point|pointers?|tips?|suggestions?)/
+	const BETWEEN_WORDS = "[, \\-\\/]+"
 
 	var rules = [
 		{
@@ -151,11 +152,11 @@
 		},{
 			expr: new RegExp(
 				"(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|^)[\r\n\t ]*(?:"+ // Required start of sentence or paragraph
-					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
+					"(?:" + CONTENT_FREE_WORDS + BETWEEN_WORDS + ")*(?:(?:"+[
 						"thanks",
 						"thank[ \\-]+you"
 					].join(")|(?:")+"))"+
-					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?:" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*"+
 					" *(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|$)"+ // Required end of sentence or paragraph
 					"[ \r\n\t]*"+
 				")+","gi"
@@ -166,9 +167,9 @@
 			expr: new RegExp(
 				// any help?
 				"(?:^| +)(?:"+
-					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*"+
+					"(?:" + CONTENT_FREE_WORDS + BETWEEN_WORDS + ")*"+
 					"(?:any|some)\\s"+ANSWER_WORDS.source+
-					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?:" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*"+
 					"(?: *\\?)+"+ // Required ending question mark
 					"(?: +|$)"+
 				")+","gmi"
@@ -178,17 +179,17 @@
 		},{
 			expr: new RegExp(
 				"(?:^| +)(?:"+
-					"(?:" + CONTENT_FREE_WORDS + "[, \\-\\/]+)*(?:(?:"+[
+					"(?:" + CONTENT_FREE_WORDS + BETWEEN_WORDS + ")*(?:(?:"+[
 						// thanks ... help
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +"+ANSWER_WORDS.source,
+						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +"+ANSWER_WORDS.source,
 						// hope ... helps
-						"(?:hope|hopefully)([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +(?:helps?|helped|fix|fixes|useful)",
+						"(?:hope|hopefully)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +(?:helps?|helped|fix|fixes|useful)",
 						// thanks ... advance
-						"(?:thanks|(?:thank[ \\-]+you))([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +(?:advance)",
+						"(?:thanks|(?:thank[ \\-]+you))(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +(?:advance)",
 						// help ... please
-						ANSWER_WORDS.source+"([, \\-\\/]+" + CONTENT_FREE_WORDS + ")* +(?:appreciated|good|great|please)",
+						ANSWER_WORDS.source+"(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")* +(?:appreciated|good|great|please)",
 					].join(")|(?:")+"))"+
-					"(?:[, \\-\\/]+" + CONTENT_FREE_WORDS + ")*"+
+					"(?:" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
 					"(?: +|$)"+
 				")+","gmi"
@@ -940,6 +941,7 @@
 			'can I seek some advice on',
 			'Can someone help me to solve this problem?',
 			'Could anyone give me some hint towards this problem?',
+			'Could you illuminate me with some suggestions/tips please?',
 			'Does anybody have any suggestions?',
 			'Examples are appreciated.',
 			'First post over here and I hope someone will be able to give some advice.',
