@@ -55,7 +55,7 @@
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
 
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|illuminate|illumination|in|is|issues?|it|just|kind|kindly|know|let|likely|little|look|looking|lucky?|me|might|missing|months?|most|much|need|new|one?|or|over|" +
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|illuminate|illumination|in|is|issues?|it|just|kind|kindly|know|let|likely|little|look|looking|lucky?|may|me|might|missing|months?|most|much|need|new|one?|or|over|" +
 	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|really|regarding|regards|resolve[ds]?|resolving|right|seek|small|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tiny|tips?|to|towards?|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
@@ -961,6 +961,7 @@
 			'I hope this fixes your issue.',
 			'I hope this help your problem.',
 			'I need some advice regarding',
+			'May I have some tips please?',
 			'Need some advice on',
 			'Will you provide any suggestions for me, please?',
 			'any suggestions?',
