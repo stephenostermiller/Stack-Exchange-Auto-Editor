@@ -81,7 +81,7 @@
 				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 					// Made entirely of example-like words
 					// Followed by an optional number or single letter
-					/(?:(?:-?(?:1st|2nd|3rd|4th|a|an|abc|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|(?:(?<=\\b)co)|company|companies|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|places?|proxy|safe|samples?|second|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|things?|third|this|unsafe|urls?|web|what|where|x{3,}|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
+					/(?:(?:-?(?:1st|2nd|3rd|4th|a|an|abc|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|(?:(?<=\\b)co)|company|companies|child||children|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|parents?|places?|production|proxy|safe|samples?|second|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|things?|third|this|unsafe|urls?|web|what|where|x{3,}|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
 				')('+TLD.source +')'+
 				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
 			,'gmi'),
