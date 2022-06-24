@@ -60,7 +60,7 @@
 	"missing|months?|most|much|need|new|no|one?|or|over|obvious|offer|offered|offering|our|out|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|really|regarding|regards|resolve[ds]?|resolving|right|seek|small|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tiny|tips?|to|towards?|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|what|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
-	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
+	const TLD = /(?:\\?\.com?)?\\?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
 
 	const SUBDOM = /(?:(?:[a-zA-Z0-9\-]+|[\*\%])\\?\.)*/
 	const REST_OF_URL = /(?:[\/\$\{][^ ]*?)?/
@@ -70,6 +70,14 @@
 	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
 	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|ideas?|point|pointers?|tips?|suggestions?)/
 	const BETWEEN_WORDS = "[, \\-\\/]+"
+	const EXAMPLE_DOMAIN = new RegExp(
+		'((?:^|[^A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
+			// Made entirely of example-like words
+			// Followed by an optional number or single letter
+			/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|def|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+		')('+TLD.source +')'+
+		/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
+	,'gmi')
 
 	var rules = [
 		{
@@ -78,20 +86,22 @@
 			reason: "fix URL",
 			context: ["fullbody","title"]
 		},{
-			expr: new RegExp(
-				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
-					// Made entirely of example-like words
-					// Followed by an optional number or single letter
-					/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|malicious|mine|my|names?|new|of|old|other|our|package|pages?|parents?|places?|private|production|protected|proxy|public|safe|samples?|second|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
-				')('+TLD.source +')'+
-				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
-			,'gmi'),
+			expr: EXAMPLE_DOMAIN,
 			replacement: (m,pre,name,tld,post)=>{
-				if (!/^[\\\\]?[\.]?example[\\\\]?[\.]?$/i.test(name)){
-					name = name.replace(/-example-/gi,'-').replace(/-?example-?/gi,'')
-					tld='.example'
+				var escape = "";
+				if (/^\\/.exec(tld)){
+					escape="\\"
+					tld = tld.substr(1)
 				}
-				return pre+name+tld+post
+				if (!/^example$/i.test(name)){
+					if (context.exampleDomains[normalizeDomain(tld)] != 1){
+						name = name.replace(/-example-/gi,'-').replace(/-?example-?/gi,'')
+						tld='.example'
+					} else {
+						name = "example"
+					}
+				}
+				return pre+name+escape+tld+post
 			},
 			reason: "use example domain",
 			context: ["title","text","code","url"]
@@ -347,6 +357,10 @@
 		return prefix+start+code+url+code+suffix
 	}
 
+	function normalizeDomain(d){
+		return d.replace(/\\/g,"").toLowerCase()
+	}
+
 	function removeLeaveSpace(s){
 		var start = "", end=""
 		if (/^[\.\!\?]/.exec(s)){
@@ -482,12 +496,38 @@
 		return input
 	}
 
+	function recordExampleDomainsInput(d,input){
+		if (!input) return;
+		for(let m of input.matchAll(EXAMPLE_DOMAIN)){
+			var name=normalizeDomain(m[2]), tld=normalizeDomain(m[3]),domain=name+tld
+			if (!d.exampleDomains.hasOwnProperty(domain)){
+				d.exampleDomains[domain] = 1
+				if (!d.exampleDomains.hasOwnProperty(tld)) d.exampleDomains[tld]=0
+				d.exampleDomains[tld]++
+			}
+		}
+	}
+
+	function recordExampleDomains(d){
+		for (var i=0; i<d.bodyTokens.length; i++){
+			if (/^(?:text|code|url)$/.exec(d.bodyTokens[i].type)){
+				recordExampleDomainsInput(d,d.bodyTokens[i].content)
+			}
+		}
+		if (d.title) recordExampleDomainsInput(d, d.title)
+	}
+
+	var context
+
 	function edit(d){
+		context = d
+		d.exampleDomains = {}
 		do {
 			var editsMade = d.replacements.length
 
 			d.body = applyRules(d, d.body, "fullbody")
 			d.bodyTokens = tokenizeMarkdown(d.body)
+			if (!Object.keys(d.exampleDomains).length) recordExampleDomains(d)
 			for (var i=0; i<d.bodyTokens.length; i++){
 				d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type)
 			}
@@ -843,8 +883,8 @@
 		}
 
 		[
-			{i:'    fooexample.org',o:'    foo.example'},
-			{i:'    server fooexample.org;',o:'    server foo.example;'},
+			{i:'    fooexample.org, barexample.org',o:'    foo.example, bar.example'},
+			{i:'    server example-stuff.org;\n    more-example-stuff.org',o:'    server stuff.example;\n    more-stuff.example'},
 			{i:'127.0.0.1',o:'`127.0.0.1`',t:'127.0.0.1'},
 			{i:'1:2:3abc:4de:5f:6:7:8',o:'`1:2:3abc:4de:5f:6:7:8`',t:'1:2:3abc:4de:5f:6:7:8'},
 			{i:'1::2',o:'`1::2`',t:'1::2'},
@@ -860,47 +900,48 @@
 			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
 			{i:'Trailing white space\t \t',o:"Trailing white space"},
 			{i:'Vaccuum: beatiful, tomatos! tommorow?',o:'Vacuum: beautiful, tomatoes! tomorrow?'},
-			{i:'Visit site.tld',o:'Visit `site.example`',t:'Visit site.example'},
+			{i:'Visit site.tld',o:'Visit `example.tld`',t:'Visit example.tld'},
 			{i:'What ?',o:"What?"},
 			{i:'Wierd surprize marshmellow.',o:'Weird surprise marshmallow.'},
-			{i:'`examplesite.org`',o:'`site.example`'},
-			{i:"`sub\\.other-web\\.app`",o:"`sub\\.other-web\\.example`"},
-			{i:'*.abc.online',o:'`*.abc.example`'},
-			{i:'%.xxxxx.biz',o:'`%.xxxxx.example`'},
-			{i:'`ourHome.net`',o:'`ourHome.example`'},
-			{i:'`sub.another-example.com.au`',o:'`sub.another.example`'},
-			{i:'`some-example-domain.edu`',o:'`some-domain.example`'},
-			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
-			{i:'`sub.someexample1.tld`',o:'`sub.some1.example`'},
-			{i:'`www.website1.net`',o:'`www.website1.example`'},
-			{i:'`www.webpageA.net`',o:'`www.webpageA.example`'},
-			{i:'`my-domain.com:8080`',o:'`my-domain.example:8080`'},
+			{i:'`foo.org$ examplesite.org`',o:'`foo.example$ site.example`'},
+			{i:"`sub\\.other-web\\.app`",o:"`sub\\.example\\.app`"},
+			{i:"`1sthack\\.com\\.fr`",o:"`example\\.com\\.fr`"},
+			{i:'*.abc.online',o:'`*.example.online`'},
+			{i:'%.xxxxx.biz',o:'`%.example.biz`'},
+			{i:'`ourHome.net: ourHost.net`',o:'`ourHome.example: ourHost.example`'},
+			{i:'`sub.another-example.com.au lorum sub.pages.com.au`',o:'`sub.another.example lorum sub.pages.example`'},
+			{i:'`some-example-domain.edu, foo.edu`',o:'`some-domain.example, foo.example`'},
+			{i:'`example.co.uk, sub.example2.co.uk`',o:'`example.co.uk, sub.2.example`'},
+			{i:'`example.za - sub.someexample1.za`',o:'`example.za - sub.some1.example`'},
+			{i:'`www.website1.net`',o:'`www.example.net`'},
+			{i:'`www.webpageA.net`',o:'`www.example.net`'},
+			{i:'`my-domain.com:8080`',o:'`example.com:8080`'},
 			{i:'On domain-a.com, domain-b.com, and domain-c.com',o:'On `domain-a.example`, `domain-b.example`, and `domain-c.example`',t:'On domain-a.example, domain-b.example, and domain-c.example'},
-			{i:'(Found on some-x.com)',o:'(Found on `some-x.example`)',t:'(Found on some-x.example)'},
-			{i:'`*.site1.jp`',o:'`*.site1.example`'},
-			{i:'`site99.ru$path`',o:'`site99.example$path`'},
-			{i:'"http://www.testx.net"',o:'`http://www.testx.example`',t:'"http://www.testx.example"'},
-			{i:'*some.client-of-mine.org*',o:'`some.client-of-mine.example`'},
-			{i:'**https://yourstuff.com.ir/path**',o:'`https://yourstuff.example/path`'},
-			{i:'**https://yourstuff.com.ir/path**,',o:'`https://yourstuff.example/path`,'},
-			{i:'**https://yourstuff.com.ir/path**.',o:'`https://yourstuff.example/path`.'},
-			{i:'**https://yourstuff.com.ir/path**?',o:'`https://yourstuff.example/path`?'},
-			{i:'user@my.tld',o:'`user@my.example`',t:'user@my.example'},
+			{i:'(Found on some-x.com)',o:'(Found on `example.com`)',t:'(Found on example.com)'},
+			{i:'`*.site1.jp`',o:'`*.example.jp`'},
+			{i:'`site99.ru$path`',o:'`example.ru$path`'},
+			{i:'"http://www.testx.net"',o:'`http://www.example.net`',t:'"http://www.example.net"'},
+			{i:'*some.client-of-mine.org*',o:'`some.example.org`'},
+			{i:'**https://evilcompany.co.pl/path**',o:'`https://example.co.pl/path`'},
+			{i:'**https://fourthproxy.kr/path**,',o:'`https://example.kr/path`,'},
+			{i:'**https://good-guys.ph/path**.',o:'`https://example.ph/path`.'},
+			{i:'**https://yourstuff.com.ir/path**?',o:'`https://example.com.ir/path`?'},
+			{i:'user@my.tld',o:'`user@example.tld`',t:'user@example.tld'},
 			{i:'testuser@gmail.com',o:'`testuser@gmail.com`',t:'testuser@gmail.com'},
 			{i:'"testuser@gmail.com"',o:'`testuser@gmail.com`',t:'"testuser@gmail.com"'},
 			{i:"'testuser@gmail.com'",o:'`testuser@gmail.com`',t:"'testuser@gmail.com'"},
 			{i:'**testuser@gmail.com**',o:'`testuser@gmail.com`'},
 			{i:'*testuser@gmail.com*',o:'`testuser@gmail.com`'},
-			{i:'`http://someco.com/`',o:'`http://someco.example/`'},
+			{i:'`http://someco.com/`',o:'`http://example.com/`'},
 			{i:"http:// example.com:81/",o:'`http://example.com:81/`',t:"http://example.com:81/"},
 			{i:"http://localhost:8080/foo",o:'`http://localhost:8080/foo`',t:"http://localhost:8080/foo"},
 			{i:"http://a.test/",o:'`http://a.test/`',t:"http://a.test/"},
 			{i:"localhost:8080/foo",o:'`localhost:8080/foo`',t:"localhost:8080/foo"},
-			{i:'From admin@mydomain.com.',o:'From `admin@mydomain.example`.',t:'From admin@mydomain.example.'},
-			{i:'(https://new.oldplace.tld/path?query)',o:'(`https://new.oldplace.example/path?query`)',t:'(https://new.oldplace.example/path?query)'},
-			{i:'`www.test-domain-1.net`',o:'`www.test-domain-1.example`'},
+			{i:'From admin@goodstore.xyz.',o:'From `admin@example.xyz`.',t:'From admin@example.xyz.'},
+			{i:'(https://new.oldplace.tld/path?query)',o:'(`https://new.example.tld/path?query`)',t:'(https://new.example.tld/path?query)'},
+			{i:'`www.test-domain-1.net`',o:'`www.example.net`'},
 			{i:'first letter upper',o:'first letter upper',t:'First letter upper'},
-			{i:'http://mydomain.com/',o:'`http://mydomain.example/`',t:'http://mydomain.example/'},
+			{i:'http://mydomain.com/',o:'`http://example.com/`',t:'http://example.com/'},
 			{i:'.htaccess',o:'`.htaccess`',t:'.htaccess'},
 			{i:'/path/file.txt',o:'`/path/file.txt`',t:'/path/file.txt'},
 			{i:'foo.html',o:'`foo.html`',t:'foo.html'},
