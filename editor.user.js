@@ -38,11 +38,12 @@
 	const ABBREVIATIONS = {
 		"SO":"Stack Overflow",
 		"SE":"Stack Exchange",
+		"SF":"Server Fault",
 	}
 
 	const MISSPELLINGS = Object.assign({},...(
-		"Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|Firebase|Flutter|Git|Google|Joomla|I'd|I'll|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|Microsoft|NumPy|OpenCV|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|Windows|WinForms|Xcode|YouTube|"+
-		"AJAX|API|AWS|CSS|CSV|DNS|EC2|HTTP|HTTPS|HTML|HTML5|I|IP|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SMTP|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
+		"Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|Firebase|Flutter|Git|Google|Joomla|I'd|I'll|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|Microsoft|NumPy|OpenCV|OpenSSL|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|Windows|WinForms|Xcode|YouTube|"+
+		"AJAX|API|AWS|CMS|CSS|CSV|DNS|EC2|GUI|HTTP|HTTPS|HTML|HTML5|I|IP|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SMTP|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
 		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
 		"absense,absentse,abcense,absance:absence|acceptible:acceptable|accesible,accessable,accesable:accessible|accomodate,acommodate:accommodate|acheive:achieve|acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|aquire,adquire:acquire|aquit:acquit|acrage,acerage:acreage|adress:address|adultary:adultery|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|allegaince,allegience,alegiance:allegiance|allmost:almost|alot:a lot|amatuer,amature:amateur|anually,annualy:annually|apparant,aparent,apparrent,aparrent:apparent|artic:arctic|arguement:argument|athiest,athist:atheist|awfull,aweful:awful|becuase:because|beatiful:beautiful|becomeing:becoming|begining:beginning|beleive:believe|bellweather:bellwether|benifit:benefit|bouy:buoy|bouyant:buoyant|buisness:business|calender:calendar|camoflage,camoflague:camouflage|capital:capitol|Carribean:Caribbean|catagory:category|"+
@@ -55,8 +56,8 @@
 		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
 	}))
 
-	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|illuminate|illumination|in|is|issues?|it|just|kind|kindly|know|let|likely|little|look|looking|lucky?|may|me|might|missing|months?|most|much|need|new|one?|or|over|" +
-	"obvious|offer|offered|offering|our|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|really|regarding|regards|resolve[ds]?|resolving|right|seek|small|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tiny|tips?|to|towards?|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|will|with|works?|would|your?)"
+	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|illuminate|illumination|in|is|issues?|it|just|kind|kindly|know|let|likely|little|look|looking|lucky?|many|may|me|might|" +
+	"missing|months?|most|much|need|new|no|one?|or|over|obvious|offer|offered|offering|our|out|over|please|point|pointers?|post|problems?|provide[ds]?|questions?|query|queries|really|regarding|regards|resolve[ds]?|resolving|right|seek|small|so|solve|solutions?|some|someone|somebody|something|sorry|spelling|suggestions?|sure|still|stuck|takes?|thanks?|that|the|these|things?|that|that's|this|time|tiny|tips?|to|towards?|trie[ds]|try|trying|understand|up|us|vote[ds]?|useful|very|we|well|weeks?|what|will|with|works?|would|your?)"
 
 	// Top 100 from https://dnsinstitute.com/research/popular-tld-rank/ plus "tld"
 	const TLD = /(?:\.com?)?\.(?:tld|com|net|ru|org|info|in|ir|uk|au|de|ua|ca|tr|co|jp|vn|cn|gr|fr|tk|tw|id|br|io|xyz|it|nl|pl|za|us|eu|mx|ch|biz|me|il|es|online|by|xn--p1ai|nz|kr|cz|ro|cf|ar|club|my|tv|kz|cl|pk|pro|site|th|se|sg|cc|be|rs|top|ga|ma|hu|ae|su|dk|hk|at|ml|shop|store|ng|np|no|app|live|pe|ph|ie|lk|gq|edu|fi|ai|sa|pw|tech|bd|sk|ke|pt|az|space|mk|ge|tn|lt|dev|to|gov)/
@@ -67,7 +68,7 @@
 	const USER_OPT = /(?:[a-zA-Z\-\.]+\@)?/
 	const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
 	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
-	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|point|pointers?|tips?|suggestions?)/
+	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|ideas?|point|pointers?|tips?|suggestions?)/
 	const BETWEEN_WORDS = "[, \\-\\/]+"
 
 	var rules = [
@@ -81,13 +82,13 @@
 				'((?:^|[^[A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 					// Made entirely of example-like words
 					// Followed by an optional number or single letter
-					/(?:(?:-?(?:1st|2nd|3rd|4th|a|an|abc|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|(?:(?<=\\b)co)|company|companies|child||children|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|mine|my|names?|new|of|old|other|our|pages?|parents?|places?|production|proxy|safe|samples?|second|servers?|services?|sites?|shops?|some|stores?|stuff|tests?|their|things?|third|this|unsafe|urls?|web|what|where|x{3,}|xyz|your))+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
+					/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|malicious|mine|my|names?|new|of|old|other|our|package|pages?|parents?|places?|private|production|protected|proxy|public|safe|samples?|second|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)\\?/.source +
 				')('+TLD.source +')'+
 				/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
 			,'gmi'),
 			replacement: (m,pre,name,tld,post)=>{
-				if (!/^example$/i.test(name)){
-					name = name.replace(/example/gi,'')
+				if (!/^[\\\\]?[\.]?example[\\\\]?[\.]?$/i.test(name)){
+					name = name.replace(/-example-/gi,'-').replace(/-?example-?/gi,'')
 					tld='.example'
 				}
 				return pre+name+tld+post
@@ -119,8 +120,10 @@
 		capitalizeWord("jQuery"),
 		capitalizeWord("JSFiddle", "js\\s*fiddle"),
 		capitalizeWord("MySQL"),
+		capitalizeWord("Node.js","node\\.js"),
 		capitalizeWord("Stack Exchange"),
 		capitalizeWord("Stack Overflow"),
+		capitalizeWord("Server Fault"),
 		capitalizeWord("SQLite"),
 		capitalizeWordAndVersion("SQLite"),
 		capitalizeWordAndVersion("Windows", "win|windows", " "),
@@ -181,7 +184,7 @@
 				"(?:^| +)(?:"+
 					"(?:" + CONTENT_FREE_WORDS + BETWEEN_WORDS + ")*(?:(?:"+[
 						// thanks ... answer
-						"(?:thanks|(?:thank[ \\-]+you)|can|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + ANSWER_WORDS.source,
+						"(?:thanks|(?:thank[ \\-]+you)|hoping|look|looking|someone|somebody|please|kindly|appreciate|need|seek|seeking)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + ANSWER_WORDS.source,
 						// hope ... helps
 						"(?:hope|hopefully)(" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*" + BETWEEN_WORDS + "(?:helps?|helped|fix|fixes|useful)",
 						// thanks ... advance
@@ -192,6 +195,17 @@
 					"(?:" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*"+
 					"(?: *[\\:\\.\\!\\,\\?])*"+ // Optional end of a phrase or sentence
 					"(?: +|$)"+
+				")+","gmi"
+			),
+			replacement: removeLeaveSpace,
+			reason: "remove niceties"
+		},{
+			expr: new RegExp(
+				"(?:^|(?<=[\\:\\.\\!\\?\\n] *))(?:"+ // end of previous phrase or sentence
+					"(?:" + CONTENT_FREE_WORDS + BETWEEN_WORDS + ")*(?:"+
+						"(?:help|please|thanks|(?:thank[ \\-]+you))" +
+					")(?:" + BETWEEN_WORDS + CONTENT_FREE_WORDS + ")*"+
+					"(?: *(?:[\\:\\.\\!\\?\\n]|$)) *"+ // end of a phrase or sentence
 				")+","gmi"
 			),
 			replacement: removeLeaveSpace,
@@ -326,6 +340,8 @@
 			suffix=suffix.substr(start.length)
 			start = ""
 		} else if (url.length<=4 && !url.match(/::/)){
+			code=""
+		} else if (url.match(/^node\.js$/i)){
 			code=""
 		}
 		return prefix+start+code+url+code+suffix
@@ -850,9 +866,10 @@
 			{i:'`examplesite.org`',o:'`site.example`'},
 			{i:"`sub\\.other-web\\.app`",o:"`sub\\.other-web\\.example`"},
 			{i:'*.abc.online',o:'`*.abc.example`'},
-			{i:'%.abc.online',o:'`%.abc.example`'},
+			{i:'%.xxxxx.biz',o:'`%.xxxxx.example`'},
 			{i:'`ourHome.net`',o:'`ourHome.example`'},
-			{i:'`sub.aexample.com.au`',o:'`sub.a.example`'},
+			{i:'`sub.another-example.com.au`',o:'`sub.another.example`'},
+			{i:'`some-example-domain.edu`',o:'`some-domain.example`'},
 			{i:'`sub.example2.co.uk`',o:'`sub.2.example`'},
 			{i:'`sub.someexample1.tld`',o:'`sub.some1.example`'},
 			{i:'`www.website1.net`',o:'`www.website1.example`'},
@@ -874,6 +891,7 @@
 			{i:"'testuser@gmail.com'",o:'`testuser@gmail.com`',t:"'testuser@gmail.com'"},
 			{i:'**testuser@gmail.com**',o:'`testuser@gmail.com`'},
 			{i:'*testuser@gmail.com*',o:'`testuser@gmail.com`'},
+			{i:'`http://someco.com/`',o:'`http://someco.example/`'},
 			{i:"http:// example.com:81/",o:'`http://example.com:81/`',t:"http://example.com:81/"},
 			{i:"http://localhost:8080/foo",o:'`http://localhost:8080/foo`',t:"http://localhost:8080/foo"},
 			{i:"http://a.test/",o:'`http://a.test/`',t:"http://a.test/"},
@@ -911,14 +929,19 @@
 			'i.e.',
 			'special thanks to',
 			'my-example.tld.sub.sub',
+			'So you can for example write:',
 			'test invalid localhost example',
 			'https://serverfault.com/',
 			'`example.com`',
 			'`sub.example.com`',
 			'`example.co.uk`',
+			'`ac.uk`',
+			'`co.uk`',
 			'https://apple.com',
 			'lorum-example.net',
-			'this/that/other'
+			'this/that/other',
+			'`^www\\.example\\.com$`',
+			'Node.js'
 		].forEach(r=>{
 			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
 			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
@@ -926,6 +949,7 @@
 
 		;[
 			// Removals
+			'Any ideas?',
 			'Any suggestions?',
 			'Any tips?',
 			'Any halp?',
@@ -961,6 +985,7 @@
 			'I hope this fixes your issue.',
 			'I hope this help your problem.',
 			'I need some advice regarding',
+			'Many thanks.',
 			'May I have some tips please?',
 			'Need some advice on',
 			'Will you provide any suggestions for me, please?',
@@ -969,6 +994,7 @@
 			'please help - any ideas would be amazing - been stuck on trying to fix this thing for a week!',
 			'please help me about this code! thank you very much!',
 			'please help me understand these concepts.',
+			'pls help me i have no idea what is the problem',
 			'thank you very much for all your help',
 			'thx.',
 			'Thx for your help :)',
@@ -986,6 +1012,7 @@
 			{i:['Javascript','Java script','java script','javascript','Java Script'],o:'JavaScript'},
 			{i:['Stackexchange','Stack exchange','stack exchange','StackExchange','stackexchange','SE'],o:'Stack Exchange'},
 			{i:['Stackoverflow','Stack overflow','stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
+			{i:['Serverfault','Server fault','server fault','ServerFault','serverfault','SF'],o:'Server Fault'},
 			{i:['ajax'],o:'AJAX'},
 			{i:['android'],o:'Android'},
 			{i:['angularjs','Angularjs','angularJs','angularJS','AngularJs'],o:'AngularJS'},
@@ -1015,6 +1042,7 @@
 			{i:['json','Json'],o:'JSON'},
 			{i:['linux'],o:'Linux'},
 			{i:['mysql','mySql','MySql','mySQL','MYSQL'],o:'MySQL'},
+			{i:['node.js','Node.JS'],o:'Node.js'},
 			{i:['oracle'],o:'Oracle'},
 			{i:['php','Php'],o:'PHP'},
 			{i:['restarant','restaraunt'],o:'restaurant'},
