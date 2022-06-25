@@ -6,7 +6,7 @@
 // @developer sathyabhat
 // @contributor Unihedron
 // @license MIT
-// @version 1.0.7
+// @version 1.0.8
 // @namespace https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor
 // @updateURL https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.meta.js
 // @downloadURL https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.user.js
