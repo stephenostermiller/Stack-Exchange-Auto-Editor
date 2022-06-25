@@ -74,7 +74,7 @@
 		'((?:^|[^A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 			// Made entirely of example-like words
 			// Followed by an optional number or single letter
-			/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|def|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+			/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|customer|def|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
 		')('+TLD.source +')'+
 		/((?=\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$)))/.source
 	,'gmi')
@@ -680,10 +680,10 @@
 			$('.wmd-button-bar').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					postId = this.id.match(/[0-9]+/)[0],
-					bodyBox = $('#wmd-input-' + postId),
-					titleBox = $(".js-post-title-field"),
-					summaryBox = $('.js-post-edit-comment-field')
+					inlineEditor = $(this).closest('.inline-editor'),
+					bodyBox = inlineEditor.find('.js-post-body-field'),
+					summaryBox = inlineEditor.find('.js-post-edit-comment-field')
+					titleBox = inlineEditor.find('.js-post-title-field')
 					d.getTitle = function(){
 						return titleBox.length?titleBox.val():''
 					}
@@ -709,9 +709,9 @@
 			$('.post-editor').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					postEditor = $(this),
-					editArea = postEditor.find('textarea'),
-					summaryBox = $('.js-post-edit-comment-field')
+					inlineEditor = $(this).closest('.inline-editor'),
+					editArea = inlineEditor.find('.js-post-body-field'),
+					summaryBox = inlineEditor.find('.js-post-edit-comment-field')
 					d.getTitle = function(){
 						return "" // This style editor only used for answers, so never a title
 					}
@@ -722,7 +722,7 @@
 					d.setBody = function(s){
 						editArea.val(s)
 					}
-					d.flashMe = postEditor.find('.js-editor')
+					d.flashMe = inlineEditor.find('.js-editor')
 					d.addSummary = function (s){
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
