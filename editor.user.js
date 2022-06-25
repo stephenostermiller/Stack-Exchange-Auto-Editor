@@ -67,7 +67,7 @@
 	const PORT_OPT = /(?:\:[0-9]+)?/
 	const USER_OPT = /(?:[a-zA-Z\-\.]+\@)?/
 	const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
-	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?:\s|$))/
+	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?=\s|$))/
 	const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|ideas?|point|pointers?|tips?|suggestions?)/
 	const BETWEEN_WORDS = "[, \\-\\/]+"
 	const EXAMPLE_DOMAIN = new RegExp(
@@ -76,7 +76,7 @@
 			// Followed by an optional number or single letter
 			/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|def|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|local|mail|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
 		')('+TLD.source +')'+
-		/(\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$))/.source
+		/((?=\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$)))/.source
 	,'gmi')
 
 	var rules = [
@@ -341,6 +341,7 @@
 
 	function applyCodeFormat (m,prefix,start,url,suffix){
 		start=start||''
+		suffix=suffix||''
 		var code='`'
 		if ((m = url.search(/[_\*\"\'\`\;\,\.\?\:\!\)\>]+$/)) != -1){
 			suffix = url.substr(m) + suffix
@@ -913,6 +914,7 @@
 			{i:'`some-example-domain.edu, foo.edu`',o:'`some-domain.example, foo.example`'},
 			{i:'`example.co.uk, sub.example2.co.uk`',o:'`example.co.uk, sub.2.example`'},
 			{i:'`example.za - sub.someexample1.za`',o:'`example.za - sub.some1.example`'},
+			{i:'`bardev.tech sub.sslhack.tech`',o:'`bardev.example sub.sslhack.example`'},
 			{i:'`www.website1.net`',o:'`www.example.net`'},
 			{i:'`www.webpageA.net`',o:'`www.example.net`'},
 			{i:'`my-domain.com:8080`',o:'`example.com:8080`'},
