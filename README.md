@@ -31,7 +31,7 @@ This script performs the following actions automatically:
  - Removes niceties such as "hello", "thanks", and "please help"
  - Removes "Edit:"
  - Replaces domain names like "mydomain", "abc" or "foo" that have a real top level domain with [officially approved example domains](https://datatracker.ietf.org/doc/html/rfc2606#section-3) like `example.com`. When multiple different example domains are used, the replacements will use the [`.example` top level domain which is also reserved for example usage](https://datatracker.ietf.org/doc/html/rfc2606#section-2).
- - Applies code formatting to example URLs
+ - Applies code formatting to example URLs and file names
 
 To minimize false-auto-corrections, these rules are markdown-aware. For example, spelling corrections are not applied inside code blocks or URLs. Each rule has a list of places where it should be applied.
 
