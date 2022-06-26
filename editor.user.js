@@ -680,7 +680,7 @@
 			$('.wmd-button-bar').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					inlineEditor = $(this).closest('.inline-editor'),
+					inlineEditor = $(this).closest('.inline-editor, .post-form'),
 					bodyBox = inlineEditor.find('.js-post-body-field'),
 					summaryBox = inlineEditor.find('.js-post-edit-comment-field')
 					titleBox = inlineEditor.find('.js-post-title-field')
@@ -709,7 +709,7 @@
 			$('.post-editor').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					inlineEditor = $(this).closest('.inline-editor'),
+					inlineEditor = $(this).closest('.inline-editor, .post-form'),
 					editArea = inlineEditor.find('.js-post-body-field'),
 					summaryBox = inlineEditor.find('.js-post-edit-comment-field')
 					d.getTitle = function(){
