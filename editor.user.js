@@ -680,10 +680,10 @@
 			$('.wmd-button-bar').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					inlineEditor = $(this).closest('.inline-editor, .post-form'),
-					bodyBox = inlineEditor.find('.js-post-body-field'),
-					summaryBox = inlineEditor.find('.js-post-edit-comment-field')
-					titleBox = inlineEditor.find('.js-post-title-field')
+					editContainer = $(this).closest('.inline-editor, .post-form'),
+					bodyBox = editContainer.find('.js-post-body-field'),
+					summaryBox = editContainer.find('.js-post-edit-comment-field')
+					titleBox = editContainer.find('.js-post-title-field')
 					d.getTitle = function(){
 						return titleBox.length?titleBox.val():''
 					}
@@ -709,9 +709,9 @@
 			$('.post-editor').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					inlineEditor = $(this).closest('.inline-editor, .post-form'),
-					editArea = inlineEditor.find('.js-post-body-field'),
-					summaryBox = inlineEditor.find('.js-post-edit-comment-field')
+					editContainer = $(this).closest('.inline-editor, .post-form'),
+					editArea = editContainer.find('.js-post-body-field'),
+					summaryBox = editContainer.find('.js-post-edit-comment-field')
 					d.getTitle = function(){
 						return "" // This style editor only used for answers, so never a title
 					}
@@ -722,7 +722,7 @@
 					d.setBody = function(s){
 						editArea.val(s)
 					}
-					d.flashMe = inlineEditor.find('.js-editor')
+					d.flashMe = editContainer.find('.js-editor')
 					d.addSummary = function (s){
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
