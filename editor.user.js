@@ -409,7 +409,7 @@
 		var tokens=[], m,
 		startSearchRegex = new RegExp("(?:" + [
 			/<[^>\r\n]+>/, // HTML tag
-			/^(?: {0,3}>)* {4}/, // start of indented code
+			/^(?: {0,3}>)*(?: {4}|\t)/, // start of indented code
 			/`/, // start of single backtick code
 			/^ {0,3}(?:~{3,}|`{3,})/, // start of code fence
 			/\]\([^\)\r\n]+\)/, // link
@@ -417,7 +417,7 @@
 			/(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/ // URL
 		].map(r=>r.source).join(')|(?:') + ")","gmi"),
 		codeMatchRegex = new RegExp("^(?:(?:" + [
-			/(?: {0,3}>)* {4}.*(?:[\r\n]+(?: {0,3}>)* {4}.*)*/, // indented block
+			/(?: {0,3}>)*(?: {4}|\t).*(?:[\r\n]+(?: {0,3}>)*(?: {4}|\t).*)*/, // indented block
 			/`[^`\r\n]*`/, // single back ticks
 			/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML pre tags
 			/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
@@ -986,8 +986,12 @@
 			'`^www\\.example\\.com$`',
 			'Node.js'
 		].forEach(r=>{
-			testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
-			testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
+			if (/ {4}/.exec(r)){
+				testEdit(r, r)
+			} else {
+				testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
+				testEdit("Lorum "+r+" Ipsum","Lorum "+r+" Ipsum")
+			}
 		})
 
 		;[
@@ -1132,6 +1136,7 @@
 			{i:"<p>",o:"html3"},
 			{i:"lorum <p>\n",o:"text6,html3,text1"},
 			{i:"    indented    ~~~\n    indented\n    indented",o:"code45"},
+			{i:"\tindented",o:"code9"},
 			{i:"<code>~~~~~~~~~~~~~</code>",o:"code26"},
 			{i:"~~~\ncode\n	a\nfence\nhttps://incode.example/\n~~~",o:"code45"},
 			{i:"Https://url.example/",o:"url20"},
