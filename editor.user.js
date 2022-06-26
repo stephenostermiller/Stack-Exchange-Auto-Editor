@@ -146,7 +146,7 @@
 				if (ABBREVIATIONS.hasOwnProperty(w)) w = ABBREVIATIONS[w]
 				var lc = w.toLowerCase()
 				if (MISSPELLINGS.hasOwnProperty(lc)){
-					correct = MISSPELLINGS[lc]
+					var correct = MISSPELLINGS[lc]
 					if (/[A-Z]/.exec(correct)) w = correct // Always use capitalization proper noun corrections
 					else if (/^(?:[A-Z][a-z]+)+$/.exec(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
 					else w = correct // Use lower case correction
@@ -682,7 +682,7 @@
 					var d = getDefaultData(),
 					editContainer = $(this).closest('.inline-editor, .post-form'),
 					bodyBox = editContainer.find('.js-post-body-field'),
-					summaryBox = editContainer.find('.js-post-edit-comment-field')
+					summaryBox = editContainer.find('.js-post-edit-comment-field'),
 					titleBox = editContainer.find('.js-post-title-field')
 					d.getTitle = function(){
 						return titleBox.length?titleBox.val():''
