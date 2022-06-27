@@ -106,6 +106,11 @@
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
+			expr: /^``$/g,
+			replacement: "",
+			reason: "Remove empty code",
+			context: ["code"]
+		},{
 			// Insert spaces after commas
 			expr: /,([[a-z])/g,
 			replacement: ", $1",
@@ -531,7 +536,7 @@
 	function edit(d){
 		context = d
 		d.exampleDomains = {}
-		//do {
+		do {
 			var editsMade = d.replacements.length
 
 			d.body = applyRules(d, d.body, "fullbody")
@@ -545,7 +550,7 @@
 			if (d.title) d.title = applyRules(d, d.title, "title")
 
 			editsMade = d.replacements.length - editsMade
-		//} while(editsMade>0)
+		} while(editsMade>0)
 
 		// Create a summary of all the reasons
 		for (var reason in d.reasons){
@@ -960,6 +965,7 @@
 			{i:'`bardev.tech sub.sslhack.tech`',o:'`bardev.example sub.sslhack.example`'},
 			{i:'`www.website1.net`',o:'`www.example.net`'},
 			{i:'`www.webpageA.net`',o:'`www.example.net`'},
+			{i:'Lorum ```code``` ipsum',o:'Lorum `code` ipsum'},
 			{i:'`my-domain.com:8080`',o:'`example.com:8080`'},
 			{i:'On domain-a.com, domain-b.com, and domain-c.com',o:'On `domain-a.example`, `domain-b.example`, and `domain-c.example`',t:'On domain-a.example, domain-b.example, and domain-c.example'},
 			{i:'(Found on some-x.com)',o:'(Found on `example.com`)',t:'(Found on example.com)'},
