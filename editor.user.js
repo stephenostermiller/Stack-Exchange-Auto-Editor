@@ -706,11 +706,8 @@
 		}
 
 		function needsButton(editor){
-			// Not for the "add new answer" box
-			if (!/\d$/.exec(editor.id)) return false;
 			// Already has editor
-			if ($(editor).find('.autoEditorButton').length) return false;
-			return true
+			return ! $(editor).find('.autoEditorButton').length
 		}
 
 		function recordText(d,name){
