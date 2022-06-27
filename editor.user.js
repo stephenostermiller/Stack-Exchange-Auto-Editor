@@ -407,62 +407,70 @@
 	}
 	function tokenizeMarkdown(str){
 		var tokens=[], m,
-		startSearchRegex = new RegExp("(?:" + [
-			/<[^>\r\n]+>/, // HTML tag
-			/^(?: {0,3}>)*(?: {4}|\t)/, // start of indented code
-			/`/, // start of single backtick code
-			/^ {0,3}(?:~{3,}|`{3,})/, // start of code fence
-			/\]\([^\)\r\n]+\)/, // link
-			/^ {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*/, // link
-			/(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/ // URL
-		].map(r=>r.source).join(')|(?:') + ")","gmi"),
-		codeMatchRegex = new RegExp("^(?:(?:" + [
-			/(?: {0,3}>)*(?: {4}|\t).*(?:[\r\n]+(?: {0,3}>)*(?: {4}|\t).*)*/, // indented block
+		startRx = new RegExp("(" + [
+			/^ {0,3}([\~]{3,}|[\`]{3,})/, // start of code fence (group 1 and 2)
+			/<[^>\r\n]+>/, // HTML tag (group 3)
+			/^(?: {0,3}>)*(?: {4}|\t)/, // start of indented code (group 4)
+			/`/, // start of single backtick code (group 5)
+			/\]\([^\)\r\n]+\)/, // link (group 6)
+			/^ {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*/, // footnote link (group 7)
+			/(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/ // URL (group 8)
+		].map(r=>r.source).join(')|(') + ")","gim"),
+		codeRx = new RegExp("((?:" + [
+			/^(?: {0,3}>)*(?: {4}|\t).*(?:[\r\n]+(?: {0,3}>)*(?: {4}|\t).*)*/, // indented block
 			/`[^`\r\n]*`/, // single back ticks
 			/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML pre tags
 			/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
-		].map(r=>r.source).join(')|(?:') + "))")
-
-		while((m = str.search(startSearchRegex)) != -1){
-			if (m>0) tokens.push({type:"text",content:str.substr(0,m)})
-			str=str.substr(m)
-			if (m = ((tokens.length == 0 || /[\r\n]$/.exec(tokens[tokens.length-1].content)) && str.match(/^ {0,3}(~{3,}|`{3,})/))){
+		].map(r=>r.source).join(')|(?:') + "))","gi"),
+		lastEnd=0
+		while(m = (startRx.exec(str))){
+			var thisStart=m.index
+			if (m.index-lastEnd>0){
+				tokens.push({type:"text",content:str.slice(lastEnd,m.index)})
+				lastEnd=m.index
+			}
+			if (m[1]){
 				// code fence
-				var begin = m[0],
-				length = begin.length,
-				fence = m[1],
-				end = str.substr(length)
-				if ((m = end.search(new RegExp("^ {0,3}"+fence,"gm"))) != -1){
-					length+=m
-					end = end.substr(m)
-					m = end.match(new RegExp("^ {0,3}"+fence.charAt(0)+"+"))
-					length += m[0].length
-					tokens.push({type:"code",content:str.substr(0,length)})
-					str = str.substr(length)
+				var fence = m[2],
+				endRx = new RegExp("^ {0,3}"+fence,"gm")
+				endRx.lastIndex = lastEnd+fence.length
+				if (m=(endRx.exec(str))){
+					var end = m.index+fence.length
+					tokens.push({type:"code",content:str.slice(lastEnd,end)})
+					lastEnd=end
 				} else {
-					tokens.push({type:"code",content:str})
+					tokens.push({type:"code",content:str.substr(lastEnd)})
 					return tokens
 				}
-			} else if (m = str.match(codeMatchRegex)){
-				tokens.push({type:"code",content:m[0]})
-				str=str.substr(m[0].length)
-			} else if (m = str.match(/^<[^>]+>/)){
-				// Other HTML tags
-				tokens.push({type:"html",content:m[0]})
-				str=str.substr(m[0].length)
-			} else if (m = str.match(/^(?:(?:\]\([^\)\r\n]+\))|(?: {0,3}\[[^ \t\r\n]+\]\:\s[^\r\n]*))/)){
-				tokens.push({type:"link",content:m[0]})
-				str=str.substr(m[0].length)
-			} else if (m = str.match(/^(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/i)){
-				// Other HTML tags
-				tokens.push({type:"url",content:m[0]})
-				str=str.substr(m[0].length)
-			} else if (str){
-				tokens.push({type:"error",content:str})
+			} else if (m[3] || m[4] || m[5]){
+				// html tag OR indented code OR single backtick code
+				codeRx.lastIndex = lastEnd
+				var codeM=codeRx.exec(str)
+				if (codeM){
+					tokens.push({type:"code",content:codeM[1]})
+					lastEnd+=codeM[1].length
+				} else if (m[3]) {
+					// Other HTML tags
+					tokens.push({type:"html",content:m[3]})
+					lastEnd+=m[3].length
+				} else {
+					tokens.push({type:"error",content:str.substr(lastEnd)})
+					return tokens
+				}
+			} else if (m[6] || m[7]){
+				var link = m[6] || m[7]
+				tokens.push({type:"link",content:link})
+				lastEnd+=link.length
+			} else if (m[8]){
+				tokens.push({type:"url",content:m[8]})
+				lastEnd+=m[8].length
+			} else {
+				tokens.push({type:"error",content:str.substr(lastEnd)})
 				return tokens
 			}
+			startRx.lastIndex=lastEnd
 		}
-		if (str)tokens.push({type:"text",content:str})
+		if (lastEnd<str.length)tokens.push({type:"text",content:str.substr(lastEnd,str.length)})
 		return tokens
 	}
 
@@ -523,7 +531,7 @@
 	function edit(d){
 		context = d
 		d.exampleDomains = {}
-		do {
+		//do {
 			var editsMade = d.replacements.length
 
 			d.body = applyRules(d, d.body, "fullbody")
@@ -537,7 +545,7 @@
 			if (d.title) d.title = applyRules(d, d.title, "title")
 
 			editsMade = d.replacements.length - editsMade
-		} while(editsMade>0)
+		//} while(editsMade>0)
 
 		// Create a summary of all the reasons
 		for (var reason in d.reasons){
@@ -1186,9 +1194,13 @@
 			{i:"`Https://url.example/`",o:"code22"},
 			{i:"[link text](https://link.example/)",o:"text10,link24"},
 			{i:"```````fence\    indented\n```\n```````\ntext",o:"code36,text5"},
+			{i:"~~~\ncode \n",o:"code10"},
 			{i:"`one line` text",o:"code10,text5"},
 			{i:"text ```code``` text",o:"text5,code2,code6,code2,text5"},
-			{i:"[1]: https://link.example/",o:"link26"}
+			{i:"[1]: https://link.example/",o:"link26"},
+			{i:"text <tag attribute=value> text",o:"text5,html21,text5"},
+			{i:'text `code`, `code` text',o:"text5,code6,text2,code6,text5"}
+
 		].forEach(io=>{
 			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
 		})
