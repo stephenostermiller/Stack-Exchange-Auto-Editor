@@ -7,7 +7,7 @@ This user script adds a button when editing Stack Exchange sites that automatica
 ## Installation
 
 1. Install a user script extension (such as [Tampermonkey](https://www.tampermonkey.net/)) for your browser. [Greasy Fork](https://greasyfork.org/en) maintains a list of user script extensions that are available for various browsers.
-2. [Click here to install editor.user.js](https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.user.js) within your user script manager.
+2. [Click here to install `editor.user.js`](https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.user.js) within your user script manager.
 
 ## Usage
 
