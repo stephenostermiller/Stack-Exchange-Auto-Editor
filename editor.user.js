@@ -722,8 +722,9 @@
 		}
 
 		function needsButton(editor){
-			// Already has editor
-			return ! $(editor).find('.autoEditorButton').length
+			if (!$(editor).is(':visible')) return false // not showing up
+			if ($(editor).find('.autoEditorButton').length > 0) return false // Already has editor
+			return true
 		}
 
 		function recordText(d,name){
@@ -738,7 +739,7 @@
 			$('.wmd-button-bar').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					editContainer = $(this).closest('.inline-editor, .post-form, .post-editor'),
+					editContainer = $(this).parents('.inline-editor, .post-form, .post-editor').last(),
 					bodyBox = editContainer.find('.js-post-body-field'),
 					summaryBox = editContainer.find('.js-post-edit-comment-field'),
 					titleBox = editContainer.find('.js-post-title-field')
@@ -768,7 +769,7 @@
 			$('.js-stacks-editor-container').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					editContainer = $(this).closest('.inline-editor, .post-form', '.post-editor'),
+					editContainer = $(this).parents('.inline-editor, .post-form, .post-editor').last(),
 					editArea = editContainer.find('.js-post-body-field'),
 					summaryBox = editContainer.find('.js-post-edit-comment-field')
 					d.getTitle = function(){
