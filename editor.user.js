@@ -89,7 +89,7 @@
 			expr: EXAMPLE_DOMAIN,
 			replacement: (m,pre,name,tld,post)=>{
 				var escape = "";
-				if (/^\\/.exec(tld)){
+				if (/^\\/.test(tld)){
 					escape="\\"
 					tld = tld.substr(1)
 				}
@@ -152,8 +152,8 @@
 				var lc = w.toLowerCase()
 				if (MISSPELLINGS.hasOwnProperty(lc)){
 					var correct = MISSPELLINGS[lc]
-					if (/[A-Z]/.exec(correct)) w = correct // Always use capitalization proper noun corrections
-					else if (/^(?:[A-Z][a-z]+)+$/.exec(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
+					if (/[A-Z]/.test(correct)) w = correct // Always use capitalization proper noun corrections
+					else if (/^(?:[A-Z][a-z]+)+$/.test(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
 					else w = correct // Use lower case correction
 				}
 				return p1+w+p3
@@ -352,7 +352,7 @@
 			suffix = url.substr(m) + suffix
 			url = url.substr(0,m)
 		}
-		if (start && /[\_\*\"\']+/.exec(start) && suffix.startsWith(start)){
+		if (start && /[\_\*\"\']+/.test(start) && suffix.startsWith(start)){
 			suffix=suffix.substr(start.length)
 			start = ""
 		} else if (url.length<=4 && !url.match(/::/)){
@@ -369,15 +369,15 @@
 
 	function removeLeaveSpace(s){
 		var start = "", end=""
-		if (/^[\.\!\?]/.exec(s)){
+		if (/^[\.\!\?]/.test(s)){
 			start = s[0]
 			s = s.substr(1)
 		}
-		if(/^(?:\r\r|\n\n|\r\n\r\n)(\s|\S)*[ \t\r\n]$/.exec(s)) end="\n\n"
-		else if(/^[ \t\r\n](\s|\S)*(?:\r\r|\n\n|\r\n\r\n)$/.exec(s)) end="\n\n"
-		else if(/^[\r\n](\s|\S)*[ \t\r\n]$/.exec(s)) end="\n"
-		else if(/^[ \t\r\n](\s|\S)*(?:\r|\n|\r\n)$/.exec(s)) end="\n"
-		else if(/^[ \t\r\n](\s|\S)*[ \t\r\n]$/.exec(s)) end=" "
+		if(/^(?:\r\r|\n\n|\r\n\r\n)(\s|\S)*[ \t\r\n]$/.test(s)) end="\n\n"
+		else if(/^[ \t\r\n](\s|\S)*(?:\r\r|\n\n|\r\n\r\n)$/.test(s)) end="\n\n"
+		else if(/^[\r\n](\s|\S)*[ \t\r\n]$/.test(s)) end="\n"
+		else if(/^[ \t\r\n](\s|\S)*(?:\r|\n|\r\n)$/.test(s)) end="\n"
+		else if(/^[ \t\r\n](\s|\S)*[ \t\r\n]$/.test(s)) end=" "
 		return start+end
 	}
 
@@ -524,7 +524,7 @@
 
 	function recordExampleDomains(d){
 		for (var i=0; i<d.bodyTokens.length; i++){
-			if (/^(?:text|code|url)$/.exec(d.bodyTokens[i].type)){
+			if (/^(?:text|code|url)$/.test(d.bodyTokens[i].type)){
 				recordExampleDomainsInput(d,d.bodyTokens[i].content)
 			}
 		}
@@ -920,7 +920,7 @@
 		function testEdit(input, output, titleOutput){
 			if (!titleOutput) titleOutput = output
 			var d=getDefaultData(),
-			testTitle = !/[\r\n`\*\%]| {4}|~~~/.exec(input) // No title tests multi-line or markdown
+			testTitle = !/[\r\n`\*\%]| {4}|~~~/.test(input) // No title tests multi-line or markdown
 			if (testTitle) d.title=input
 			d.body=input
 			edit(d)
@@ -1033,7 +1033,7 @@
 			'Node.js',
 			'Broken windows'
 		].forEach(r=>{
-			if (/ {4}/.exec(r)){
+			if (/ {4}/.test(r)){
 				testEdit(r, r)
 			} else {
 				testEdit("Lorum ipsum "+r,"Lorum ipsum "+r)
