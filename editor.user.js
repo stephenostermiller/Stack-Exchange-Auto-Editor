@@ -106,6 +106,22 @@
 			reason: "use example domain",
 			context: ["title","text","code","url"]
 		},{
+			// https://meta.stackexchange.com/questions/1777/what-html-tags-are-allowed-on-stack-exchange-sites
+			expr: /.+/g,
+			replacement: m=>{
+				if (/^<\s*\/?\s*(?:a|b|blockquote|br|code|del|dd|dl|dt|em|h1|h2|h3|h4|h5|h6|hr|i|img|kbd|li|ol|p|pre|s|strike|strong|sub|sup|ul)(?:\s|\>|\/)/i.test(m)){
+					// allowed tags
+					return m
+				}
+				if(/^<\!\-\-\s*(?:language|language-all|begin snippet|end snippet|summary)/.test(m)){
+					// Special comments
+					return m
+				}
+				return "`"+m+"`"
+			},
+			reason: 'Code format HTML',
+			context: ["html"]
+		},{
 			expr: /^``$/g,
 			replacement: "",
 			reason: "Remove empty code",
@@ -998,7 +1014,9 @@
 			{i:'/fully/qualified/directory/',o:'`/fully/qualified/directory/`',t:'/fully/qualified/directory/'},
 			{i:'/from/root/directory',o:'`/from/root/directory`',t:'/from/root/directory'},
 			{i:'win\\file.exe',o:'`win\\file.exe`',t:'win\\file.exe'},
-			{i:'C:\\path\\file.ppk',o:'`C:\\path\\file.ppk`',t:'C:\\path\\file.ppk'}
+			{i:'C:\\path\\file.ppk',o:'`C:\\path\\file.ppk`',t:'C:\\path\\file.ppk'},
+			{i:'<tag>',o:'`<tag>`',t:'<tag>'},
+			{i:'<p><STRONG><br/>',o:'<p><STRONG><br/>',t:'<p><STRONG><br/>'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
