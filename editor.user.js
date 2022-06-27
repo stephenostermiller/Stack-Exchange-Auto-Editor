@@ -430,7 +430,7 @@
 		var tokens=[], m,
 		startRx = new RegExp("(" + [
 			/^ {0,3}([\~]{3,}|[\`]{3,})/, // start of code fence (group 1 and 2)
-			/<[^>\r\n]+>/, // HTML tag (group 3)
+			/\<(?:[^\>\r\n]+)[\>\r\n]/, // HTML tag (group 3)
 			/^(?: {0,3}>)*(?: {4}|\t)/, // start of indented code (group 4)
 			/`/, // start of single backtick code (group 5)
 			/\]\([^\)\r\n]+\)/, // link (group 6)
@@ -467,7 +467,7 @@
 				// html tag OR indented code OR single backtick code
 				codeRx.lastIndex = lastEnd
 				var codeM=codeRx.exec(str)
-				if (codeM){
+				if (codeM && codeM.index == lastEnd){
 					tokens.push({type:"code",content:codeM[1]})
 					lastEnd+=codeM[1].length
 				} else if (m[3]) {
@@ -1015,8 +1015,7 @@
 			{i:'/from/root/directory',o:'`/from/root/directory`',t:'/from/root/directory'},
 			{i:'win\\file.exe',o:'`win\\file.exe`',t:'win\\file.exe'},
 			{i:'C:\\path\\file.ppk',o:'`C:\\path\\file.ppk`',t:'C:\\path\\file.ppk'},
-			{i:'<tag>',o:'`<tag>`',t:'<tag>'},
-			{i:'<p><STRONG><br/>',o:'<p><STRONG><br/>',t:'<p><STRONG><br/>'}
+			{i:'<tag>',o:'`<tag>`',t:'<tag>'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
@@ -1049,7 +1048,9 @@
 			'this/that/other',
 			'`^www\\.example\\.com$`',
 			'Node.js',
-			'Broken windows'
+			'Broken windows',
+			'<p><STRONG><br/>',
+			'<a>`code`'
 		].forEach(r=>{
 			if (/ {4}/.test(r)){
 				testEdit(r, r)
@@ -1220,10 +1221,12 @@
 			{i:"text ```code``` text",o:"text5,code2,code6,code2,text5"},
 			{i:"[1]: https://link.example/",o:"link26"},
 			{i:"text <tag attribute=value> text",o:"text5,html21,text5"},
-			{i:'text `code`, `code` text',o:"text5,code6,text2,code6,text5"}
+			{i:'text `code`, `code` text',o:"text5,code6,text2,code6,text5"},
+			{i:'<a>`code`',o:"html3,code6"},
 
 		].forEach(io=>{
-			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
+			var tokens=tokenizeMarkdown(io.i)
+			expectEql("tokenizeMarkdown", markdownSizes(tokens), io.o, io.i, tokens)
 		})
 
 		;[
