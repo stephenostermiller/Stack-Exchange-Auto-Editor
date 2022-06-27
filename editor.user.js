@@ -426,7 +426,7 @@
 		while((m = str.search(startSearchRegex)) != -1){
 			if (m>0) tokens.push({type:"text",content:str.substr(0,m)})
 			str=str.substr(m)
-			if (m = str.match(/^ {0,3}(~{3,}|`{3,})/)){
+			if (m = ((tokens.length == 0 || /[\r\n]$/.exec(tokens[tokens.length-1].content)) && str.match(/^ {0,3}(~{3,}|`{3,})/))){
 				// code fence
 				var begin = m[0],
 				length = begin.length,
@@ -1186,6 +1186,7 @@
 			{i:"[link text](https://link.example/)",o:"text10,link24"},
 			{i:"```````fence\    indented\n```\n```````\ntext",o:"code36,text5"},
 			{i:"`one line` text",o:"code10,text5"},
+			{i:"text ```code``` text",o:"text5,code2,code6,code2,text5"},
 			{i:"[1]: https://link.example/",o:"link26"}
 		].forEach(io=>{
 			expectEql("tokenizeMarkdown", markdownSizes(tokenizeMarkdown(io.i)), io.o, io.i)
