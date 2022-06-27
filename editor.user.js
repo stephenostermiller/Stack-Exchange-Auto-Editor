@@ -748,7 +748,7 @@
 					d.addSummary = function (s){
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
-					$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button autoEditorButton" title="Auto edit Ctrl+E">'),d))
+					editContainer.find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button autoEditorButton" title="Auto edit Ctrl+E">'),d))
 					recordText(d,"initial")
 				}
 			})
@@ -772,7 +772,7 @@
 					d.addSummary = function (s){
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
-					$(this).find('.js-editor-btn').last().before(addClick(
+					editContainer.find('.js-editor-btn').last().before(addClick(
 						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
 					)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
 					recordText(d,"initial")
