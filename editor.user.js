@@ -468,7 +468,7 @@
 
 	function getDefaultData(){
 		return {
-			editCount:0, reasons:{}, completed:0, replacements:[], summary:''
+			editCount:0, reasons:{}, replacements:[], summary:''
 		}
 	}
 
@@ -560,9 +560,10 @@
 			button.autoEditorButton{width:2em;height:2em}
 			.autoEditorInfo{height:100%;width:100%;left:0;top:0;position:fixed;background:#000A;z-index:99999;padding:1em}
 			.autoEditorInfo .content{max-height:100%;max-width:1000px;margin:0 auto;overflow:auto;background:var(--white);padding:.5em}
+			.autoEditorInfo *+h1{margin-top: 1em}
 			.autoEditorInfo table{border-spacing.5em;margin-bottom:2em;}
 			.autoEditorInfo th{font-weight:bold}
-			.autoEditorInfo button{float:right}
+			.autoEditorInfo button.close{float:right}
 			.autoEditorInfo th,.autoEditorInfo td{border:1px solid black;padding:0.5em}
 			.autoEditorInfo td:not(:last-child){font-family:monospace;white-space:pre-wrap}
 			.autoEditorInfo .diff{font-family:monospace;white-space:pre-wrap;margin-bottom:2em;max-width:600px}
@@ -605,15 +606,19 @@
 		function addClick(button,d){
 			return button.click(function(e){
 				e.preventDefault()
-				if (d.completed){
+				if (d.lastrun){
 					// Second time button clicked, show a report
 					if($('.autoEditorInfo').length) return // already open
 					var td = runTests()
-					var info = $('<div class=content>').append($("<button>Close</button>").click(()=>info.parent().remove())), table
+					var info = $('<div class=content>').append($("<button class=close>Close</button>").click(()=>info.parent().remove())), table
+					d.info=info
+					if(d.getBody() != d.lastrun.body || d.getTitle() != d.lastrun.title){
+						info.append("<h1>Manual edits detected</h1>").append($("<button>Re-run auto-edits</button>").click(()=>replaceFromUi(d)))
+					}
 					if (!d.replacements.length){
-						info.append($("<h1>No edits made!</h1>"))
+						info.append($("<h1>No auto-edits</h1>"))
 					} else {
-						info.append($("<h1>Edits made:</h1>"))
+						info.append($("<h1>Auto-edits</h1>"))
 						table = $("<table class=editsMade>").append($("<tr><th>Found</th><th>Replaced</th><th>Reason</th></tr>"))
 						$.each(d.replacements, (x,r)=>{
 							if (r.i.search(/^[ \t]+/)!=-1 && r.o.search(/^[ \t]+/)!=-1){
@@ -623,13 +628,12 @@
 							table.append($("<tr>").append($("<td>").html(visibleSpace(r.i))).append($("<td>").html(visibleSpace(r.o))).append($("<td>").html(r.r)))
 						})
 						info.append(table)
-						try {
-							if(d.originalTitle) info.append($("<div class=diff>").html(diff2html(d.originalTitle, d.title)))
-							info.append($("<div class=diff>").html(diff2html(d.originalBody, d.body)))
-						} catch (x){
-							info.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
-						}
 					}
+					d.diffsfrom=$("<select class=diffsfrom><option value=initial>Before all edits</option><option selected value=before>Before last auto-edit</option></select>").on("change",(()=>doDiffs(d)))
+					d.diffsto=$("<select class=diffsto><option value=lastrun>After last auto-edit</option><option value=now>Now</option></select>").on("change",(()=>doDiffs(d)))
+					info.append($("<h1>Diffs from </h1>").append(d.diffsfrom).append(" to ").append(d.diffsto))
+					info.append(d.diffs = $("<div class=diff>"))
+					doDiffs(d)
 					if (!td.failures.length){
 						info.append($("<h1>All " + td.passed + " unit tests passed!</h1>"))
 					} else {
@@ -650,21 +654,42 @@
 					}))
 				} else {
 					// First time button clicked, do all the replacements
-					d.originalTitle = d.title = d.getTitle()
-					d.originalBody = d.body = d.getBody()
-					edit(d)
-					// Flash red or green depending on whether edits were made
-					d.flashMe.animate({backgroundColor:d.editCount==0?cssColorVar('--red-100'):cssColorVar('--green-100')},10)
-					// Then back to white
-					d.flashMe.animate({backgroundColor:cssColorVar('--white')})
-					// Update values in UI
-					d.setTitle(d.title)
-					d.setBody(d.body)
-					if(d.summary) d.addSummary(d.summary)
-					d.completed=true
+					replaceFromUi(d)
 				}
 				return false
 			})
+		}
+
+		function doDiffs(d){
+			recordText(d, "now")
+			var diffsfrom=d.diffsfrom.val(),
+			diffsto=d.diffsto.val()
+			try {
+				var title = ""
+				if(d[diffsfrom].title) title += "<h1>" + diff2html(d[diffsfrom].title, d[diffsto].title) + "</h1>"
+				d.diffs.html(title + diff2html(d[diffsfrom].body, d[diffsto].body))
+			} catch (x){
+				d.diffs.html("")
+				d.diffs.append($("<pre>").text("Diffs failed to render\n" + x.toString() + "\n\n" + x.stack))
+			}
+		}
+
+		function replaceFromUi(d){
+			if (d.info) d.info.parent().remove()
+			recordText(d, "before")
+			d.body = d.before.body
+			d.title = d.before.title
+			edit(d)
+			// Flash red or green depending on whether edits were made
+			d.flashMe.animate({backgroundColor:d.editCount==0?cssColorVar('--red-100'):cssColorVar('--green-100')},10)
+			// Then back to white
+			d.flashMe.animate({backgroundColor:cssColorVar('--white')})
+			// Update values in UI
+			d.setTitle(d.title)
+			d.setBody(d.body)
+			if(d.summary) d.addSummary(d.summary)
+			recordText(d,"lastrun")
+
 		}
 
 		function needsButton(editor){
@@ -673,6 +698,13 @@
 			// Already has editor
 			if ($(editor).find('.autoEditorButton').length) return false;
 			return true
+		}
+
+		function recordText(d,name){
+			d[name]={
+				title: d.getTitle(),
+				body: d.getBody()
+			}
 		}
 
 		// Continually monitor for newly created editing widgets
@@ -704,6 +736,7 @@
 						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
 					}
 					$(this).find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button autoEditorButton" title="Auto edit Ctrl+E">'),d))
+					recordText(d,"initial")
 				}
 			})
 			$('.post-editor').each(function(){
@@ -729,6 +762,7 @@
 					$(this).find('.js-editor-btn').last().before(addClick(
 						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
 					)).before(($('<div class="flex--item w16 is-disabled" data-key=spacer>')))
+					recordText(d,"initial")
 				}
 			})
 			$('.js-edit-comment-form').each(function(){
@@ -751,6 +785,7 @@
 					$(this).find('.form-error').before(addClick(
 						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit">'),d
 					))
+					recordText(d,"initial")
 				}
 			})
 		},200)
