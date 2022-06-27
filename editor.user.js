@@ -725,7 +725,7 @@
 			$('.wmd-button-bar').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					editContainer = $(this).closest('.inline-editor, .post-form'),
+					editContainer = $(this).closest('.inline-editor, .post-form, .post-editor'),
 					bodyBox = editContainer.find('.js-post-body-field'),
 					summaryBox = editContainer.find('.js-post-edit-comment-field'),
 					titleBox = editContainer.find('.js-post-title-field')
@@ -752,10 +752,10 @@
 					recordText(d,"initial")
 				}
 			})
-			$('.post-editor').each(function(){
+			$('.js-stacks-editor-container').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					editContainer = $(this).closest('.inline-editor, .post-form'),
+					editContainer = $(this).closest('.inline-editor, .post-form', '.post-editor'),
 					editArea = editContainer.find('.js-post-body-field'),
 					summaryBox = editContainer.find('.js-post-edit-comment-field')
 					d.getTitle = function(){
