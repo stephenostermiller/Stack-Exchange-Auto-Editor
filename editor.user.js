@@ -42,7 +42,7 @@
 	}
 
 	const MISSPELLINGS = Object.assign({},...(
-		"Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|Firebase|Flutter|Git|Google|Joomla|I'd|I'll|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|Microsoft|NumPy|OpenCV|OpenSSL|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|Windows|WinForms|Xcode|YouTube|"+
+		"Android|AngularJS|Apache|CentOS|CodeIgniter|Cordova|cPanel|Debian|Django|English|Excel|Facebook|Firebase|Flutter|Git|Google|Joomla|I'd|I'll|iPhone|iPod|IIS|Java|Kotlin|Laravel|Linux|macOS|Maven|Matplotlib|MongoDB|Nginx|Microsoft|NumPy|OpenCV|OpenSSL|Oracle|Pandas|Perl|PowerShell|PostgreSQL|Qt|Selenium|TensorFlow|TypeScript|UITableView|WinForms|Xcode|YouTube|"+
 		"AJAX|API|AWS|CMS|CSS|CSV|DNS|EC2|GUI|HTTP|HTTPS|HTML|HTML5|I|IP|JSON|LINQ|MATLAB|MVC|OK|OOP|PHP|SEO|SMTP|SQL|SSH|SSL|TLS|URI|URL|USB|VBA|VPN|XAML|XML|WPF|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
 		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
@@ -1019,7 +1019,8 @@
 			'lorum-example.net',
 			'this/that/other',
 			'`^www\\.example\\.com$`',
-			'Node.js'
+			'Node.js',
+			'Broken windows'
 		].forEach(r=>{
 			if (/ {4}/.exec(r)){
 				testEdit(r, r)
