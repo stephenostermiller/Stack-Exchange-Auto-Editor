@@ -775,7 +775,7 @@
 					recordText(d,"initial")
 				}
 			})
-			$('.js-edit-comment-form').each(function(){
+			$('.js-edit-comment-form, .comment-form').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
 					postEditor = $(this),
