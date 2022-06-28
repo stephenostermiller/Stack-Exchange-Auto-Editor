@@ -76,7 +76,7 @@
 			// Followed by an optional number or single letter
 			/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|customers?|def|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|list|local|mail|mailing|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
 		')('+TLD.source +')'+
-		/((?=\.?(?:[\;\,\:\/_\"\*'\)\>\?\!\` \t\$]|$)))/.source
+		/((?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$)))/.source
 	,'gmi')
 
 	var rules = [
@@ -438,7 +438,7 @@
 			/(?:_+|\*+|[\'\"\(])?https?\:\/\/[^ \t\r\n]*/ // URL (group 8)
 		].map(r=>r.source).join(')|(') + ")","gim"),
 		codeRx = new RegExp("((?:" + [
-			/^(?: {0,3}>)*(?: {4}|\t).*(?:[\r\n]+(?: {0,3}>)*(?: {4}|\t).*)*/, // indented block
+			/(?: {0,3}>)*(?: {4}|\t).*(?:[\r\n]+(?: {0,3}>)*(?: {4}|\t).*)*/, // indented block
 			/`[^`\r\n]*`/, // single back ticks
 			/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML pre tags
 			/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
@@ -941,6 +941,7 @@
 			if (testTitle) d.title=input
 			d.body=input
 			edit(d)
+			expectEql("error in tokenizeMarkdown", d.bodyTokens.map(o=>o.type=='error'?'error':'').join(''), '', input, d.bodyTokens)
 			if (testTitle) expectEql("editTitle", d.title, titleOutput, input, d)
 			expectEql("editBody", d.body, output, input, d)
 		}
@@ -1016,7 +1017,9 @@
 			{i:'/from/root/directory',o:'`/from/root/directory`',t:'/from/root/directory'},
 			{i:'win\\file.exe',o:'`win\\file.exe`',t:'win\\file.exe'},
 			{i:'C:\\path\\file.ppk',o:'`C:\\path\\file.ppk`',t:'C:\\path\\file.ppk'},
-			{i:'<tag>',o:'`<tag>`',t:'<tag>'}
+			{i:'<tag>',o:'`<tag>`',t:'<tag>'},
+			{i:'<code>email@domain.com</code>', o:'<code>email@example.com</code>'},
+			{i:'\n    email@domain.com',o:'\n    email@example.com'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
@@ -1204,6 +1207,7 @@
 			{i:"lorum <p>\n",o:"text6,html3,text1"},
 			{i:"    indented    ~~~\n    indented\n    indented",o:"code45"},
 			{i:"\tindented",o:"code9"},
+			{i:"\n    indented",o:"text1,code12"},
 			{i:"<code>~~~~~~~~~~~~~</code>",o:"code26"},
 			{i:"~~~\ncode\n	a\nfence\nhttps://incode.example/\n~~~",o:"code45"},
 			{i:"Https://url.example/",o:"url20"},
