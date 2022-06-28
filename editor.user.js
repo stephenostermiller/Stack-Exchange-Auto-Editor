@@ -1053,7 +1053,7 @@
 			'this/that/other',
 			'`^www\\.example\\.com$`',
 			'Node.js',
-			'Broken windows',
+			'Valid words: capital, principal, windows, grate, loose, then',
 			'<p><STRONG><br/>',
 			'<a>`code`'
 		].forEach(r=>{
@@ -1229,7 +1229,7 @@
 			{i:"text <tag attribute=value> text",o:"text5,html21,text5"},
 			{i:'text `code`, `code` text',o:"text5,code6,text2,code6,text5"},
 			{i:'<a>`code`',o:"html3,code6"},,
-            {i:'\n    code\n`code`',o:'text1,code8,text1,code6'}
+			{i:'\n    code\n`code`',o:'text1,code8,text1,code6'}
 		].forEach(io=>{
 			var tokens=tokenizeMarkdown(io.i)
 			expectEql("tokenizeMarkdown", markdownSizes(tokens), io.o, io.i, tokens)
