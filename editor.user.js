@@ -120,7 +120,7 @@
 					// allowed tags
 					return m
 				}
-				if(/^<\!\-\-\s*(?:language|language-all|begin snippet|end snippet|summary)/.test(m)){
+				if(/^<\!\-\-\s*(?:language|language-all|begin snippet|end snippet|summary|End of automatically inserted text)/.test(m)){
 					// Special comments
 					return m
 				}
