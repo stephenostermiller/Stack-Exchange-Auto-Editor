@@ -87,6 +87,12 @@
 			reason: "fix URL",
 			context: ["fullbody","title"]
 		},{
+			// Remove blank lines from beginning
+			expr: /^[\n\r]+/gi,
+			replacement: "",
+			reason: "formatting",
+			context: ["fullbody"]
+		},{
 			expr: EXAMPLE_DOMAIN,
 			replacement: (m,pre,name,tld,post)=>{
 				var escape = "";
@@ -960,7 +966,7 @@
 			{i:'Lorum git://github.com/foo/bar.git ipsum.',o:'Lorum git://github.com/foo/bar.git ipsum.'},
 			{i:'Lorum https : / / stackexchange.com ipsum',o:'Lorum https://stackexchange.com ipsum'},
 			{i:'Missing,space,after,comma',o:"Missing, space, after, comma"},
-			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},
+			{i:'Multiple\n\n\nblank\n\n\n\nlines\n\n    even\n\n\n    in\n\n\n\n    code',o:"Multiple\n\nblank\n\nlines\n\n    even\n\n    in\n\n    code"},	{i:'\r\n\n\nStarts with\nnew lines.',o:"Starts with\nnew lines."},
 			{i:'NO, NEED, TO+ YELL!',o:'NO, NEED, TO+ YELL!',t:'No, need, to+ yell!'},
 			{i:'Trailing \nwhite\t\nspace \t',o:"Trailing\nwhite\nspace"},
 			{i:'Trailing white space\t \t',o:"Trailing white space"},
@@ -1020,7 +1026,7 @@
 			{i:'C:\\path\\file.ppk',o:'`C:\\path\\file.ppk`',t:'C:\\path\\file.ppk'},
 			{i:'<tag>',o:'`<tag>`',t:'<tag>'},
 			{i:'<code>email@domain.com</code>', o:'<code>email@example.com</code>'},
-			{i:'\n    email@domain.com',o:'\n    email@example.com'}
+			{i:'Lorum:\n    email@domain.com',o:'Lorum:\n    email@example.com'}
 		].forEach(io=>{
 			testEdit(io.i, io.o, io.t)
 		})
