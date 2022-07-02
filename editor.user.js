@@ -42,10 +42,10 @@
 	}
 
 	const MISSPELLINGS = Object.assign({},...(
-		"Android|AngularJS|Apache|CakePHP|CentOS|CMake|CodeIgniter|Cordova|cPanel|Debian|Delphi|Django|ECMAScript|English|Excel|Facebook|Firebase|Firefox|Flutter|Git|Google|Gradle|Grails|Hadoop|Haskell|Heroku|Highcharts|Jakarta|Jenkins|Joomla|JUnit|I'd|I'll|IntelliJ|iPhone|iPod|IIS|Java|Kafka|Keras|Kotlin|Kubernetes|Laravel|Linux|macOS|Magento|Maven|Matplotlib|MongoDB|NetBeans|Nginx|Microsoft|NumPy|OpenCV|OpenGL|OpenSSL|Oracle|Pandas|Perl|PowerShell|PostgreSQL|PySpark|Qt|Selenium|SharePoint|Silverlight|SwiftUI|TensorFlow|Twitter|TypeScript|UITableView|Unix|WinForms|WooCommerce|Xamarin|Xcode|YouTube|"+
-		"AJAX|API|AWK|AWS|CMS|CSS|CSV|DNS|DLL|DOM|EC2|GCC|GIF|GUI|HTTP|HTTPS|HTML|HTML5|I|IIS|IP|JDBC|JPA|JPG|JPEG|JSON|JSP|LINQ|MATLAB|MVC|MVVM|OK|OOP|ORM|PDF|PDO|PHP|PNG|SEO|SMTP|SQL|SSH|SSL|SVG|SVN|TLS|URI|URL|USB|VBA|VPN|XAML|WCF|XML|WPF|"+
+		"AngularJS|Ansible|Apache|Axios|BigQuery|Bluetooth|CakePHP|Cassandra|CentOS|Clojure|CMake|CodeIgniter|Cordova|Cisco|ColdFusion|cPanel|Debian|Delphi|Django|Dockerfile|Dovecot|Drupal|DynamoDB|ECMAScript|Emacs|English|Excel|Facebook|Firebase|Firefox|Fortran|FreeBSD|Git|GitHub|GitLab|Google|Gradle|Grails|GraphQL|Hadoop|HAProxy|Haskell|Heroku|Highcharts|Jakarta|JBoss|Jenkins|JMeter|Joomla|JUnit|I'd|I'll|IntelliJ|iPhone|iPod|IIS|IPv4|IPv6|Java|Jupyter|Kafka|Keras|Kivy|Kotlin|Kubernetes|Laravel|libGDX|Linux|Lua|Lucene|macOS|Magento|MariaDB|Maven|Matplotlib|MongoDB|MSBuild|NetBeans|Nginx|NHibernate|Microsoft|Mockito|Nagios|NoSQL|NumPy|OAuth|OpenCV|OpenGL|OpenLDAP|OpenSSL|OpenVPN|Pandas|PayPal|Perl|phpMyAdmin|PowerShell|PostgreSQL|PrimeFaces|Prolog|PyCharm|Pygame|PyQt|PyQt5|PySpark|PyTorch|Qt|RabbitMQ|RSpec|RxJS|Samba|SciPy|Selenium|SharePoint|Silverlight|Solr|SpriteKit|SQLAlchemy|SwiftUI|TensorFlow|Twitter|TypeScript|UICollectionView|UIKit|UITableView|UIView|UIViewController|Unix|VBScript|WiFi|WinForms|WooCommerce|Xamarin|Xcode|Yii|YouTube|Zend|"+
+		"3D|AJAX|API|AWK|AWS|CLI|CMS|CORS|CSS|CSV|DB2|DHCP|DLL|DNS|DOM|EC2|FTP|GCC|GIF|GUI|GWT|HTTP|HTTPS|HTML|HTML5|I|IIS|IP|JDBC|JPA|JPG|JPEG|JSON|JSP|JWT|KVM|LDAP|LINQ|LVM|MATLAB|MFC|MVC|MVVM|NAT|NFS|NLP|OK|OOP|ORM|PDF|PDO|PHP|PNG|POP3|SAS|SDK|SEO|SMTP|SQL|SSH|SSIS|SSL|STL|SVG|SVN|TCP|TLS|URI|URL|USB|UWP|VBA|VPN|VPS|XAML|XAMPP|XML|WCF|WPF|YAML|ZFS|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
-		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
+		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|heres:here's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
 		"Carribean:Caribbean|Phillipines:Philippines|uri's,uris:URIs|url's,urls:URLs|alot:a lot|abcense,absance,absense,absentse:absence|acceptible:acceptable|accesable,accesible,accessable:accessible|accomodate,acommodate:accommodate|accomodation:accommodation|acheive,achive:achieve|acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|adquire,aquire:acquire|aquit:acquit|acerage,acrage:acreage|accross:across|adress:address|adultary:adultery|advertisment:advertisement|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|alegiance,allegaince,allegience:allegiance|allmost:almost|amatuer,amature:amateur|annualy,anually:annually|appaling:appalling|aparent,aparrent,apparant,apparrent:apparent|apparantly:apparently|appearence:appearance|artic:arctic|arguement:argument|assasination:assassination|assesment:assessment|athiest,athist:atheist|aweful,awfull:awful|akward:awkward|basicly:basically|beatiful:beautiful|becuase:because|becomeing:becoming|begining:beginning|beleive,belive:believe|bellweather:bellwether|benifit:benefit|biogrophay:biography|bizzare:bizarre|bouy:buoy|bouyant:buoyant|buisness:business|calender:calendar|camoflage,camoflague:camouflage|catagory:category"+
 		"|caugt,cauhgt:caught|cemetary:cemetery|changable:changeable|cheif:chief|collaegue,collegue:colleague|colum:column|comming:coming|comission,commision:commission|comitted,commited:committed|commitee:committee|comparsion:comparison|compell:compel|completly:completely|conceed:concede|congradulate:congratulate|concience:conscience|consciencious:conscientious|concious,consious:conscious|concensus:consensus|contraversy:controversy|convinient:convenient|cooly:coolly|curiousity:curiosity|dacquiri,daquiri:daiquiri|decieve:deceive|definate:definite|definately,definatly,definitly:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapear:disappear|dissapoint:disappoint|disasterous:disastrous|desease:disease|devide:divide|drunkeness:drunkenness|dumbell:dumbbell|ecstacy:ecstasy|embarass:embarrass|embarassed,embarrased:embarrassed|endevour:endeavour|enterpreneur:entrepreneur|enviroment:environment|equiptment:equipment|excede:exceed|exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|familar:familiar|facinating:fascinating|firey:fiery|finaly:finally|florescent,flourescent:fluorescent|foriegn:foreign|fourty:forty|foward:forward|freind:friend|fullfil,fullfill:fulfil"+
 		"|futher:further|guage:gauge|glamourous:glamorous|goverment:government|grammer:grammar|gratefull,greatful:grateful|grat:great|garantee,garanty,garentee:guarantee|gaurd:guard|guidence:guidance|happend:happened|harrass:harass|harrassment:harassment|harddisk,hdd:hard disk|heighth,heigth:height|halp:help|halping:helping|halps:helps|heirarchy:hierarchy|honourary:honorary|humerous,humourous:humorous|higeine,hiygeine,hygeine,hygene,hygine:hygiene|hipocrit:hypocrite|ignorence:ignorance|immitate:imitate|imediately,immediatly:immediately|incidently:incidentally|independant:independent|indite:indict|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|interupt:interrupt|irresistable:irresistible|jewelery:jewelry|judgement:judgment|kernal:kernel|knowlege:knowledge|liesure:leisure|lenght:length|liason:liaison|libary,liberry:library|lisence:license|lightening:lightning|maintainance,maintnance:maintenance|marshmellow:marshmallow|medecine:medicine|medeval,medevil,mideval:medieval|momento:memento|millenia:millennia|milennium,millenium:millennium|miniture:miniature|miniscule:minuscule|mischevious,mischevous,mischievious:mischievous|mispell,misspel:misspell|neccessary,necessery:necessary"+
@@ -75,7 +75,7 @@
 		'((?:^|[^A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
 			// Made entirely of example-like words
 			// Followed by an optional number or single letter
-			/(?:(?:(?:1st|2nd|3rd|4th|an|abcd?|abcdef?|address|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|customers?|def|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|list|local|mail|mailing|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
+			/(?:(?:(?:1st|2nd|3rd|4th|a{3,}|an|abcd?|abcdef?|address|admin|another|any|apps?|back|bad|bah|banks?|bar|blah?|cdns?|clients?|company|companies|child|children|custom|customers?|def|default|dev|development|domains?|emails?|end|ever|evil|examples?|fake|fallback|first|foo|fourth|front|ghi|good|guys?|hacks?|hackers?|harm|harmless|hello|hi|home|hosts?|hosters?|info|information|last|list|local|mail|mailing|main|malicious|mine|more|my|names?|new|of|old|other|our|package|pages?|parents?|places?|primary|private|production|protected|proxy|public|recipients?|safe|samples?|second|secondary|servers?|services?|sites?|shops?|some|ssl|stores?|stuff|tertiary|tests?|their|things?|third|this|tls|unsafe|urls?|web|what|where|x{3,}|xyz|your|(?:(?<=[a-zA-Z\-])co)|(?:a(?=[a-zA-Z\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)/.source +
 		')('+TLD.source +')'+
 		/((?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$)))/.source
 	,'gmi')
@@ -164,6 +164,7 @@
 		capitalizeWord("Server Fault"),
 		capitalizeWord("SQLite"),
 		capitalizeWordAndVersion("SQLite"),
+		capitalizeWord("UTF-8"),
 		capitalizeWordAndVersion("Windows", "win|windows", " "),
 		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
 		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
@@ -410,7 +411,7 @@
 	// should be created if other white space removal desired
 	function capitalizeWord(word, re){
 		if (!re) re = word
-		re = re.replace(/ /g, "\\s*")
+		re = re.replace(/[ \-]+/g, "[\\s\\-]*")
 		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
 		return {
 			expr: new RegExp("(^|\\s)(?:"+re+")\\b(\\S|)(?!\\S)","igm"),
@@ -1138,7 +1139,6 @@
 			{i:['Stackoverflow','Stack overflow','stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
 			{i:['Serverfault','Server fault','server fault','ServerFault','serverfault','SF'],o:'Server Fault'},
 			{i:['ajax'],o:'AJAX'},
-			{i:['android'],o:'Android'},
 			{i:['angularjs','Angularjs','angularJs','angularJS','AngularJs'],o:'AngularJS'},
 			{i:['apache','Apache','APACHE'],o:'Apache'},
 			{i:['c#'],o:'C#'},
@@ -1167,7 +1167,6 @@
 			{i:['linux'],o:'Linux'},
 			{i:['mysql','mySql','MySql','mySQL','MYSQL'],o:'MySQL'},
 			{i:['node.js','Node.JS'],o:'Node.js'},
-			{i:['oracle'],o:'Oracle'},
 			{i:['php','Php'],o:'PHP'},
 			{i:['restarant','restaraunt'],o:'restaurant'},
 			{i:['sql','Sql'],o:'SQL'},
@@ -1178,6 +1177,7 @@
 			{i:['urls','Urls',"url's"],o:'URLs'},
 			{i:['uri','Uri'],o:'URI'},
 			{i:['uris','Uris',"uri's"],o:'URIs'},
+			{i:['utf8','Utf-8',"utf-8","UTF8","UTF 8","UTF - 8"],o:'UTF-8'},
 			{i:['win 7','WIN 7','windows 7','WINDOWS 7'],o:'Windows 7'},
 			{i:['win 95','windows 95','WIN 95','WINDOWS 95'],o:'Windows 95'},
 			{i:['win vista','WIN VISTA','windows vista','windows VISTA'],o:'Windows Vista'},
