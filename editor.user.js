@@ -42,7 +42,7 @@
 	}
 
 	const MISSPELLINGS = Object.assign({},...(
-		"AngularJS|Ansible|Apache|Axios|BigQuery|Bluetooth|CakePHP|Cassandra|CentOS|Clojure|CMake|CodeIgniter|Cordova|Cisco|ColdFusion|cPanel|Debian|Delphi|Django|Dockerfile|Dovecot|Drupal|DynamoDB|ECMAScript|Emacs|English|Excel|Facebook|Firebase|Firefox|Fortran|FreeBSD|Git|GitHub|GitLab|Google|Gradle|Grails|GraphQL|Hadoop|HAProxy|Haskell|Heroku|Highcharts|Jakarta|JBoss|Jenkins|JMeter|Joomla|JUnit|I'd|I'll|IntelliJ|iPhone|iPod|IIS|IPv4|IPv6|Java|Jupyter|Kafka|Keras|Kivy|Kotlin|Kubernetes|Laravel|libGDX|Linux|Lua|Lucene|macOS|Magento|MariaDB|Maven|Matplotlib|MongoDB|MSBuild|NetBeans|Nginx|NHibernate|Microsoft|Mockito|Nagios|NoSQL|NumPy|OAuth|OpenCV|OpenGL|OpenLDAP|OpenSSL|OpenVPN|Pandas|PayPal|Perl|phpMyAdmin|PowerShell|PostgreSQL|PrimeFaces|Prolog|PyCharm|Pygame|PyQt|PyQt5|PySpark|PyTorch|Qt|RabbitMQ|RSpec|RxJS|Samba|SciPy|Selenium|SharePoint|Silverlight|Solr|SpriteKit|SQLAlchemy|SwiftUI|TensorFlow|Twitter|TypeScript|UICollectionView|UIKit|UITableView|UIView|UIViewController|Unix|VBScript|WiFi|WinForms|WooCommerce|Xamarin|Xcode|Yii|YouTube|Zend|"+
+		"AngularJS|Ansible|Apache|Axios|BigQuery|Bluetooth|CakePHP|Cassandra|CentOS|Clojure|CMake|codeigniter,codeignitor:CodeIgniter|Cordova|Cisco|ColdFusion|cPanel|Debian|Delphi|Django|Dockerfile|Dovecot|Drupal|DynamoDB|ECMAScript|Emacs|English|Excel|Facebook|Firebase|Firefox|Fortran|FreeBSD|Git|GitHub|GitLab|Google|Gradle|Grails|GraphQL|Hadoop|HAProxy|Haskell|Heroku|Highcharts|Jakarta|JBoss|Jenkins|JMeter|Joomla|JUnit|I'd|I'll|IntelliJ|iPhone|iPod|IIS|IPv4|IPv6|Java|Jupyter|Kafka|Keras|Kivy|Kotlin|Kubernetes|Laravel|libGDX|Linux|Lua|Lucene|macOS|Magento|MariaDB|Maven|Matplotlib|MongoDB|MSBuild|NetBeans|Nginx|NHibernate|Microsoft|Mockito|Nagios|NoSQL|NumPy|OAuth|OpenCV|OpenGL|OpenLDAP|OpenSSL|OpenVPN|Pandas|PayPal|Perl|phpMyAdmin|PowerShell|PostgreSQL|PrimeFaces|Prolog|PyCharm|Pygame|PyQt|PyQt5|PySpark|PyTorch|Qt|RabbitMQ|RSpec|RxJS|Samba|SciPy|Selenium|SharePoint|Silverlight|Solr|SpriteKit|SQLAlchemy|SwiftUI|TensorFlow|Twitter|TypeScript|UICollectionView|UIKit|UITableView|UIView|UIViewController|Unix|VBScript|WiFi|WinForms|WooCommerce|Xamarin|Xcode|Yii|YouTube|Zend|"+
 		"3D|AJAX|API|AWK|AWS|CLI|CMS|CORS|CSS|CSV|DB2|DHCP|DLL|DNS|DOM|EC2|FTP|GCC|GIF|GUI|GWT|HTTP|HTTPS|HTML|HTML5|I|IIS|IP|JDBC|JPA|JPG|JPEG|JSON|JSP|JWT|KVM|LDAP|LINQ|LVM|MATLAB|MFC|MVC|MVVM|NAT|NFS|NLP|OK|OOP|ORM|PDF|PDO|PHP|PNG|POP3|SAS|SDK|SEO|SMTP|SQL|SSH|SSIS|SSL|STL|SVG|SVN|TCP|TLS|URI|URL|USB|UWP|VBA|VPN|VPS|XAML|XAMPP|XML|WCF|WPF|YAML|ZFS|"+
 		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
 		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|heres:here's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
@@ -177,7 +177,7 @@
 				if (MISSPELLINGS.hasOwnProperty(lc)){
 					var correct = MISSPELLINGS[lc]
 					if (/[A-Z]/.test(correct)) w = correct // Always use capitalization proper noun corrections
-					else if (/^(?:[A-Z][a-z]+)+$/.test(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match camel case of misspelling
+					else if (/^(?:[A-Z][a-z]+)+$/.test(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match capitalizization of misspelling
 					else w = correct // Use lower case correction
 				}
 				return p1+w+p3
@@ -505,7 +505,7 @@
 
 	function getDefaultData(){
 		return {
-			editCount:0, reasons:{}, replacements:[], summary:''
+			editCount:0, reasons:[], replacements:[]
 		}
 	}
 
@@ -525,8 +525,7 @@
 				var output = input.replace(rule.expr, rule.replacement)
 				if (output != input){
 					d.editCount+=ruleEditCount
-					// Store reasons as hash keys in a map to prevent duplicates
-					d.reasons[rule.reason] = 1
+					d.reasons.push(rule.reason)
 					input = output
 				}
 			}
@@ -576,15 +575,20 @@
 			editsMade = d.replacements.length - editsMade
 		} while(editsMade>0)
 
-		// Create a summary of all the reasons
-		for (var reason in d.reasons){
-			if (d.reasons.hasOwnProperty(reason)) {
-				// Check that summary is not getting too long
-				if (d.summary.length < 200) d.summary += (d.summary.length==0?"":", ") + reason
+		return d
+	}
+
+	function buildSummary(summary, reasons){
+		var used={}
+		summary.split(/, */).map(i=>{if(i)used[i]=1})
+		for (var i=0; i<reasons.length; i++){
+			// If this reason not already added, and overall summary not getting too long
+			if (!used.hasOwnProperty(reasons[i]) && summary.length < 200) {
+				summary += (summary.length==0?"":", ") + reasons[i]
+				used[reasons[i]]=1
 			}
 		}
-
-		return d
+		return summary
 	}
 
 	function ui(){
@@ -724,7 +728,7 @@
 			// Update values in UI
 			d.setTitle(d.title)
 			d.setBody(d.body)
-			if(d.summary) d.addSummary(d.summary)
+			d.setSummary(buildSummary(d.getSummary(),d.reasons))
 			recordText(d,"lastrun")
 
 		}
@@ -767,8 +771,11 @@
 						bodyBox[0].dispatchEvent(new Event('keypress')) // Cause markdown re-parse
 					}
 					d.flashMe = bodyBox
-					d.addSummary = function (s){
-						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
+					d.getSummary = function(){
+						return summaryBox.val()
+					}
+					d.setSummary = function(s){
+						summaryBox.val(s)
 					}
 					editContainer.find('.wmd-spacer').last().before($('<li class=wmd-spacer>')).before(addClick($('<li class="wmd-button autoEditorButton" title="Auto edit Ctrl+E">'),d))
 					recordText(d,"initial")
@@ -791,8 +798,11 @@
 						editArea.val(s)
 					}
 					d.flashMe = editContainer.find('.js-editor')
-					d.addSummary = function (s){
-						summaryBox.val((summaryBox.val()?summaryBox.val()+" ":"") + s)
+					d.getSummary = function(){
+						return summaryBox.val()
+					}
+					d.setSummary = function(s){
+						summaryBox.val(s)
 					}
 					editContainer.find('.js-editor-btn').last().before(addClick(
 						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit Ctrl+E">'),d
@@ -816,7 +826,10 @@
 						editArea.val(s)
 					}
 					d.flashMe = editArea
-					d.addSummary = function(){} // no-op, no summary for comment edits
+					d.getSummary = function(){
+						return ""
+					}
+					d.setSummary = function(){} // no-op, no summary for comment edits
 					$(this).find('.form-error').before(addClick(
 						$('<button class="autoEditorButton s-editor-btn js-editor-btn" title="Auto edit">'),d
 					))
@@ -1060,7 +1073,7 @@
 			'this/that/other',
 			'`^www\\.example\\.com$`',
 			'Node.js',
-			'Valid words: capital, principal, windows, grate, loose, then',
+			'Valid words: capital, principal, windows, grate, loose, then, oracle, android',
 			'<p><STRONG><br/>',
 			'<a>`code`'
 		].forEach(r=>{
@@ -1141,6 +1154,7 @@
 			{i:['ajax'],o:'AJAX'},
 			{i:['angularjs','Angularjs','angularJs','angularJS','AngularJs'],o:'AngularJS'},
 			{i:['apache','Apache','APACHE'],o:'Apache'},
+			{i:['codeigniter','codeignitor','CodeIgnitor'],o:'CodeIgniter'},
 			{i:['c#'],o:'C#'},
 			{i:['c+'],o:'C+'},
 			{i:['c++'],o:'C++'},
@@ -1252,6 +1266,19 @@
 		].forEach(io=>{
 			var s=io.s||'',e=io.e||s
 			expectEql("applyCodeFormat", applyCodeFormat('','',s,io.u,e), io.o, s+io.u+e, io)
+		})
+
+		;[
+			{s:'',r:[],o:""},
+			{s:'',r:["one"],o:"one"},
+			{s:'',r:["one","one","one"],o:"one"},
+			{s:'',r:["one", "two"],o:"one, two"},
+			{s:'one',r:[],o:"one"},
+			{s:'one',r:["two"],o:"one, two"},
+			{s:'one, two',r:["one", "two"],o:"one, two"}
+
+		].forEach(io=>{
+			expectEql("buildSummary", buildSummary(io.s,io.r), io.o, io.s + ", " + JSON.stringify(io.r), io)
 		})
 
 		;[
