@@ -15,7 +15,6 @@ then
     exit 0
 fi
 
-
 version=`cat version`
 newversion=`semver -i "$1" $version`
 echo "Old version: $version"
