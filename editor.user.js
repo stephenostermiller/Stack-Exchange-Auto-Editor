@@ -156,7 +156,7 @@
 		capitalizeWord("UTF-8"),
 		capitalizeWordAndVersion("Windows", "win|windows", " "),
 		{
-			expr: /((?:^|\s)\(?)([A-Za-z][A-Za-z0-9']*)\b(\S|)(?!\S)/gm,
+			expr: new RegExp(/((?:^|\s)\(?)([A-Za-z][A-Za-z0-9']*)/.source + POST_CODE_FORMAT.source, "gm"),
 			replacement: (p0,p1,w,p3)=>{
 				if (MISSPELLINGS.hasOwnProperty(w)){
 					w = MISSPELLINGS[w] // abbreviations or all lower case
@@ -202,7 +202,7 @@
 			replacement: "$1C$2",
 			reason: "spelling"
 		},{
-			expr: /((?:^|\s)\(?)[Ii]'?(m|ve)\b(\S|)(?!\S)/gm,
+			expr: new RegExp(/((?:^|\s)\(?)[Ii]'?(m|ve)/.source + POST_CODE_FORMAT.source, "gm"),
 			replacement: "$1I'$2$3",
 			reason: "spelling"
 		},{
@@ -428,7 +428,7 @@
 		re = re.replace(/[ \-]+/g, "[\\s\\-]*")
 		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
 		return {
-			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")\\b(\\S|)(?!\\S)","igm"),
+			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+POST_CODE_FORMAT.source,"igm"),
 			replacement: "$1"+word+"$2",
 			reason: "spelling"
 		}
@@ -443,7 +443,7 @@
 		re = re.replace(/ /g, "\\s*")
 		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
 		return {
-			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)\\b(\\S|)(?!\\S)","igm"),
+			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)"+POST_CODE_FORMAT.source,"igm"),
 			replacement: "$1"+word+separator+"$2$3",
 			reason: "spelling"
 		}
@@ -1230,6 +1230,8 @@
 				testEdit('Lorum ipsum ' + i, 'Lorum ipsum ' + io.o)
 				testEdit('Lorum ipsum ' + i + '.', 'Lorum ipsum ' + io.o + '.')
 				testEdit('Lorum ipsum (' + i + ')', 'Lorum ipsum (' + io.o + ')')
+				testEdit('Lorum ipsum (' + i + '.)', 'Lorum ipsum (' + io.o + '.)')
+				testEdit('Lorum ipsum (' + i + ').', 'Lorum ipsum (' + io.o + ').')
 			})
 		})
 
