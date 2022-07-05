@@ -4,15 +4,15 @@ set -e
 diffs=`git diff --cached --name-only --diff-filter=ACMTUXB editor.user.js editor.meta.js version`
 if [ "z$diffs" != "z" ]
 then
-    echo "Local changes detected, commit changes before bumping version"
-    exit 0
+	echo "Local changes detected, commit changes before bumping version"
+	exit 0
 fi
 
 diffs=`git diff --cached --name-only --diff-filter=ACMTUXB origin editor.user.js`
 if [ "z$diffs" == "z" ]
 then
-    echo "No changes compared to origin, version does not need to be bumped"
-    exit 0
+	echo "No changes compared to origin, version does not need to be bumped"
+	exit 0
 fi
 
 version=`cat version`
