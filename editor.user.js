@@ -35,26 +35,24 @@
 // @grant GM_addStyle
 // ==/UserScript==
 (()=>{
-	const ABBREVIATIONS = {
-		"SO":"Stack Overflow",
-		"SE":"Stack Exchange",
-		"SF":"Server Fault",
-	}
-
 	const MISSPELLINGS = Object.assign({},...(
-		"AngularJS|Ansible|Apache|Axios|BigQuery|Bluetooth|CakePHP|Cassandra|CentOS|Clojure|CMake|codeigniter,codeignitor:CodeIgniter|Cordova|Cisco|ColdFusion|cPanel|Debian|Delphi|Django|Dockerfile|Dovecot|Drupal|DynamoDB|ECMAScript|Emacs|English|Excel|Facebook|Firebase|Firefox|Fortran|FreeBSD|Git|GitHub|GitLab|Google|Gradle|Grails|GraphQL|Hadoop|HAProxy|Haskell|Heroku|Highcharts|Jakarta|JBoss|Jenkins|JMeter|Joomla|JUnit|I'd|I'll|IntelliJ|iPhone|iPod|IIS|IPv4|IPv6|Java|Jupyter|Kafka|Keras|Kivy|Kotlin|Kubernetes|Laravel|libGDX|Linux|Lua|Lucene|macOS|Magento|MariaDB|Maven|Matplotlib|MongoDB|MSBuild|NetBeans|Nginx|NHibernate|Microsoft|Mockito|Nagios|NoSQL|NumPy|OAuth|OpenCV|OpenGL|OpenLDAP|OpenSSL|OpenVPN|Pandas|PayPal|Perl|phpMyAdmin|PowerShell|PostgreSQL|PrimeFaces|Prolog|PyCharm|Pygame|PyQt|PyQt5|PySpark|PyTorch|Qt|RabbitMQ|RSpec|RxJS|Samba|SciPy|Selenium|SharePoint|Silverlight|Solr|SpriteKit|SQLAlchemy|SwiftUI|TensorFlow|Twitter|TypeScript|UICollectionView|UIKit|UITableView|UIView|UIViewController|Unix|VBScript|WiFi|WinForms|WooCommerce|Xamarin|Xcode|Yii|YouTube|Zend|"+
-		"3D|AJAX|API|AWK|AWS|CLI|CMS|CORS|CSS|CSV|DB2|DHCP|DLL|DNS|DOM|EC2|FTP|GCC|GIF|GUI|GWT|HTTP|HTTPS|HTML|HTML5|I|IIS|IP|JDBC|JPA|JPG|JPEG|JSON|JSP|JWT|KVM|LDAP|LINQ|LVM|MATLAB|MFC|MVC|MVVM|NAT|NFS|NLP|OK|OOP|ORM|PDF|PDO|PHP|PNG|POP3|SAS|SDK|SEO|SMTP|SQL|SSH|SSIS|SSL|STL|SVG|SVN|TCP|TLS|URI|URL|USB|UWP|VBA|VPN|VPS|XAML|XAMPP|XML|WCF|WPF|YAML|ZFS|"+
-		"ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubuno,ubunoo,ubunu,ubunuu,ubnto,ubntoo,ubntu,ubntuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubant,ubanto,ubantoo,ubantu,ubantuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu,ubunto,ubuntoo,ubuntu,ubuntuu,ubuto,ubutoo,ubutu,ubutuu:Ubuntu|"+
-		"arent:aren't|cant:can't|couldnt:couldn't|didnt:didn't|doesnt:doesn't|dont:don't|hadnt:hadn't|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|heres:here's|isnt:isn't|mightnt:mightn't|mustnt:mustn't|shant:shan't|shes:she's|shouldnt:shouldn't|thats:that's|theres:there's|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|weve:we've|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whod:who'd|wholl:who'll|whove:who've|wont:won't|wouldnt:wouldn't|youd:you'd|youll:you'll|youre:you're|youve:you've|"+
-		"Carribean:Caribbean|Phillipines:Philippines|uri's,uris:URIs|url's,urls:URLs|alot:a lot|abcense,absance,absense,absentse:absence|acceptible:acceptable|accesable,accesible,accessable:accessible|accomodate,acommodate:accommodate|accomodation:accommodation|acheive,achive:achieve|acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|adquire,aquire:acquire|aquit:acquit|acerage,acrage:acreage|accross:across|adress:address|adultary:adultery|advertisment:advertisement|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|alegiance,allegaince,allegience:allegiance|allmost:almost|amatuer,amature:amateur|annualy,anually:annually|appaling:appalling|aparent,aparrent,apparant,apparrent:apparent|apparantly:apparently|appearence:appearance|artic:arctic|arguement:argument|assasination:assassination|assesment:assessment|athiest,athist:atheist|aweful,awfull:awful|akward:awkward|basicly:basically|beatiful:beautiful|becuase:because|becomeing:becoming|begining:beginning|beleive,belive:believe|bellweather:bellwether|benifit:benefit|biogrophay:biography|bizzare:bizarre|bouy:buoy|bouyant:buoyant|buisness:business|calender:calendar|camoflage,camoflague:camouflage|catagory:category"+
-		"|caugt,cauhgt:caught|cemetary:cemetery|changable:changeable|cheif:chief|collaegue,collegue:colleague|colum:column|comming:coming|comission,commision:commission|comitted,commited:committed|commitee:committee|comparsion:comparison|compell:compel|completly:completely|conceed:concede|congradulate:congratulate|concience:conscience|consciencious:conscientious|concious,consious:conscious|concensus:consensus|contraversy:controversy|convinient:convenient|cooly:coolly|curiousity:curiosity|dacquiri,daquiri:daiquiri|decieve:deceive|definate:definite|definately,definatly,definitly:definitely|desparate:desperate|diffrence:difference|dilema:dilemma|dissapear:disappear|dissapoint:disappoint|disasterous:disastrous|desease:disease|devide:divide|drunkeness:drunkenness|dumbell:dumbbell|ecstacy:ecstasy|embarass:embarrass|embarassed,embarrased:embarrassed|endevour:endeavour|enterpreneur:entrepreneur|enviroment:environment|equiptment:equipment|excede:exceed|exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|familar:familiar|facinating:fascinating|firey:fiery|finaly:finally|florescent,flourescent:fluorescent|foriegn:foreign|fourty:forty|foward:forward|freind:friend|fullfil,fullfill:fulfil"+
-		"|futher:further|guage:gauge|glamourous:glamorous|goverment:government|grammer:grammar|gratefull,greatful:grateful|grat:great|garantee,garanty,garentee:guarantee|gaurd:guard|guidence:guidance|happend:happened|harrass:harass|harrassment:harassment|harddisk,hdd:hard disk|heighth,heigth:height|halp:help|halping:helping|halps:helps|heirarchy:hierarchy|honourary:honorary|humerous,humourous:humorous|higeine,hiygeine,hygeine,hygene,hygine:hygiene|hipocrit:hypocrite|ignorence:ignorance|immitate:imitate|imediately,immediatly:immediately|incidently:incidentally|independant:independent|indite:indict|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|interupt:interrupt|irresistable:irresistible|jewelery:jewelry|judgement:judgment|kernal:kernel|knowlege:knowledge|liesure:leisure|lenght:length|liason:liaison|libary,liberry:library|lisence:license|lightening:lightning|maintainance,maintnance:maintenance|marshmellow:marshmallow|medecine:medicine|medeval,medevil,mideval:medieval|momento:memento|millenia:millennia|milennium,millenium:millennium|miniture:miniature|miniscule:minuscule|mischevious,mischevous,mischievious:mischievous|mispell,misspel:misspell|neccessary,necessery:necessary"+
-		"|nieghbor:neighbor|neice:niece|noticable:noticeable|ocassion,occassion:occasion|occasionaly,occassionally:occasionally|occure:occur|occured:occurred|occurance,occurence,occurrance:occurrence|occuring:occurring|omision,ommision:omission|orignal:original|outragous:outrageous|paralel,parralel:parallel|parliment:parliament|passtime,pasttime:pastime|percieve:perceive|perseverence:perseverance|persistant:persistent|personel,personell:personnel|peice:piece|plagerize:plagiarize|playright,playwrite:playwright|pls,plz,plze:please|politican:politician|posession,possesion:possession|potatos:potatoes|preceed:precede|prefered:preferred|prefering:preferring|presance:presence|privelege,priviledge:privilege|professer:professor|promiss:promise|pronounciation:pronunciation|prufe:proof|protestor:protester|publically:publicly|persue:pursue|quarentine:quarantine|questionaire,questionnair:questionnaire|que:queue|readible:readable|realy:really|reciept:receipt|recieve:receive|reccommend,recomend:recommend|referance,refrence:reference|refered:referred|refering:referring|rehersal:rehearsal|relevent,revelant:relevant|religius,religous:religious|rember,remeber:remember|repitition:repetition|resistence:resistance"+
-		"|responsability:responsibility|restarant,restaraunt:restaurant|rime:rhyme|rythem,rythm:rhythm|secratary,secretery:secretary|sieze:seize|sence:sense|seperate:separate|sargent:sergeant|similer:similar|skilfull:skilful|speach,speeche:speech|strenght:strength|strech:stretch|succesful,successfull,sucessful:successful|succint:succinct|supercede:supersede|supress:suppress|suprise,surprize:surprise|tendancy:tendency|ty:thank you|thx:thanks|therefor:therefore|threshhold:threshold|throught:through|tomatos:tomatoes|tommorow,tommorrow:tomorrow|tounge:tongue|truely:truly|twelth:twelfth|tyrany:tyranny|underate:underrate|unforseen:unforeseen|unfortunatly:unfortunately|untill:until|upholstry:upholstery|usible:useable|vaccum,vaccuum,vacume:vacuum|vehical:vehicle|viscious,visious:vicious|waether:weather|wierd:weird|welfair,wellfare:welfare|whereever:wherever|wether:whether|wich:which|willfull:willful|withold:withhold|writeing,writting:writing"
-
+		"3D|alot:a lot|abcense,absance,absense,absentse:absence|acceptible:acceptable|accesable,accesible,accessable:accessible|accomodate,acommodate:accommodate|accomodation:accommodation|acheive,achive:achieve|acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|adquire,aquire:acquire|aquit:acquit|acerage,acrage:acreage|accross:across|adress:address|adultary:adultery|advertisment:advertisement|adviseable,advizable:advisable|agression:aggression|agressive:aggressive|AJAX|alegiance,allegaince,allegience:allegiance|allmost:almost|amatuer,amature:amateur|angular js,angularjs:AngularJS|annualy,anually:annually|Ansible|Apache|API|appaling:appalling|aparent,aparrent,apparant,apparrent:apparent|apparantly:apparently|appearence:appearance|artic:arctic|arent:aren't|arguement:argument|assasination:assassination|assesment:assessment|athiest,athist:atheist|aweful,awfull:awful|AWK|akward:awkward|AWS|Axios|basicly:basically|beatiful:beautiful|becuase:because|becomeing:becoming|begining:beginning|beleive,belive:believe|bellweather:bellwether|benifit:benefit|big query,bigquery:BigQuery|biogrophay:biography|bizzare:bizarre|blue tooth:Bluetooth|bouy:buoy|bouyant:buoyant|buisness:business"+
+		"|cake php:CakePHP|calender:calendar|camoflage,camoflague:camouflage|cant:can't|Carribean:Caribbean|Cassandra|catagory:category|caugt,cauhgt:caught|cemetary:cemetery|cent os:CentOS|changable:changeable|cheif:chief|Cisco|CLI|Clojure|CMake|CMS|code igniter,code ignitor,codeignitor:CodeIgniter|cold fusion:ColdFusion|collaegue,collegue:colleague|colum:column|comming:coming|comission,commision:commission|comitted,commited:committed|commitee:committee|comparsion:comparison|compell:compel|completly:completely|conceed:concede|congradulate:congratulate|concience:conscience|consciencious:conscientious|concious,consious:conscious|concensus:consensus|contraversy:controversy|convinient:convenient|cooly:coolly|Cordova|CORS|couldnt:couldn't|cPanel|CSS|CSV|curiousity:curiosity|dacquiri,daquiri:daiquiri|DB2|Debian|decieve:deceive|definate:definite|definately,definatly,definitly:definitely|Delphi|desparate:desperate|DHCP|didnt:didn't|diffrence:difference|dilema:dilemma|dissapear:disappear|dissapoint:disappoint|disasterous:disastrous|desease:disease|devide:divide|Django|DLL|DNS|Dockerfile|doesnt:doesn't|DOM|dont:don't|Dovecot|drunkeness:drunkenness|Drupal|dumbell:dumbbell|dynamo db:DynamoDB|EC2|ecma script:ECMAScript"+
+		"|ecstacy:ecstasy|Emacs|embarass:embarrass|embarassed,embarrased:embarrassed|endevour:endeavour|English|enterpreneur:entrepreneur|enviroment:environment|equiptment:equipment|excede:exceed|Excel|exilerate:exhilarate|existance:existence|experiance:experience|extreem:extreme|face book:Facebook|familar:familiar|facinating:fascinating|firey:fiery|finaly:finally|fire base:Firebase|fire fox:Firefox|florescent,flourescent:fluorescent|foriegn:foreign|Fortran|fourty:forty|foward:forward|free bsd:FreeBSD|freind:friend|FTP|fullfil,fullfill:fulfil|futher:further|guage:gauge|GCC|GIF|Git|git hub:GitHub|git lab:GitLab|glamourous:glamorous|Google|goverment:government|Gradle|Grails|grammer:grammar|graph ql:GraphQL|gratefull,greatful:grateful|grat:great|garantee,garanty,garentee:guarantee|gaurd:guard|GUI|guidence:guidance|GWT|hadnt:hadn't|Hadoop|happend:happened|ha proxy,haproxy:HAProxy|harrass:harass|harrassment:harassment|harddisk,hdd:hard disk|Haskell|hasnt:hasn't|havent:haven't|hed:he'd|hes:he's|heighth,heigth:height|halp:help|halping:helping|halps:helps|heres:here's|Heroku|heirarchy:hierarchy|high charts:Highcharts|honourary:honorary|HTML|HTML5|HTTP|HTTPS|humerous,humourous:humorous|higeine,hiygeine,hygeine,hygene,hygine:hygiene"+
+		"|hipocrit:hypocrite|I|I'd|I'll|i o,io:I/O|ignorence:ignorance|IIS|immitate:imitate|imediately,immediatly:immediately|incidently:incidentally|independant:independent|indite:indict|indispensible:indispensable|innoculate:inoculate|inteligence,intelligance:intelligence|IntelliJ|interupt:interrupt|iOS|IP|iPhone|iPod|IPv4|IPv6|irresistable:irresistible|isnt:isn't|Jakarta|Java|java script:JavaScript|JBoss|JDBC|Jenkins|jewelery:jewelry|JMeter|Joomla|JPA|JPEG|JPG|jQuery|js fiddle:JSFiddle|JSON|JSP|judgement:judgment|JUnit|Jupyter|JWT|Kafka|Keras|kernal:kernel|Kivy|knowlege:knowledge|Kotlin|Kubernetes|KVM|Laravel|LDAP|liesure:leisure|lenght:length|liason:liaison|lib gdx,libgdx:libGDX|libary,liberry:library|lisence:license|lightening:lightning|LINQ|Linux|Lua|Lucene|LVM|mac os:macOS|Magento|maintainance,maintnance:maintenance|maria db:MariaDB|marshmellow:marshmallow|MATLAB|Matplotlib|Maven|medecine:medicine|medeval,medevil,mideval:medieval|momento:memento|MFC|Microsoft|mightnt:mightn't|millenia:millennia|milennium,millenium:millennium|miniture:miniature|miniscule:minuscule|mischevious,mischevous,mischievious:mischievous|mispell,misspel:misspell|Mockito|mongo db:MongoDB|ms build:MSBuild|mustnt:mustn't"+
+		"|MVC|MVVM|my sql:MySQL|Nagios|NAT|neccessary,necessery:necessary|nieghbor:neighbor|net beans:NetBeans|NFS|Nginx|NHibernate|neice:niece|NLP|no sql:NoSQL|noticable:noticeable|NumPy|OAuth|ocassion,occassion:occasion|occasionaly,occassionally:occasionally|occure:occur|occured:occurred|occurance,occurence,occurrance:occurrence|occuring:occurring|OK|omision,ommision:omission|OOP|open cv:OpenCV|open gl:OpenGL|open ldap:OpenLDAP|open ssl,openssl:OpenSSL|open vpn:OpenVPN|orignal:original|ORM|outragous:outrageous|Pandas|paralel,parralel:parallel|parliment:parliament|passtime,pasttime:pastime|pay pal:PayPal|PDF|PDO|percieve:perceive|Perl|perseverence:perseverance|persistant:persistent|personel,personell:personnel|Phillipines:Philippines|PHP|phpMyAdmin|peice:piece|plagerize:plagiarize|playright,playwrite:playwright|pls,plz,plze:please|PNG|politican:politician|POP3|posession,possesion:possession|PostgreSQL|potatos:potatoes|power shell:PowerShell|preceed:precede|prefered:preferred|prefering:preferring|presance:presence|prime faces:PrimeFaces|privelege,priviledge:privilege|professer:professor|Prolog|promiss:promise|pronounciation:pronunciation|prufe:proof|protestor:protester|publically:publicly"+
+		"|persue:pursue|PyCharm|Pygame|PyQt|PyQt5|PySpark|PyTorch|Qt|quarentine:quarantine|questionaire,questionnair:questionnaire|que:queue|RabbitMQ|readible:readable|realy:really|reciept:receipt|recieve:receive|reccommend,recomend:recommend|referance,refrence:reference|refered:referred|refering:referring|rehersal:rehearsal|relevent,revelant:relevant|religius,religous:religious|rember,remeber:remember|repitition:repetition|resistence:resistance|responsability:responsibility|restarant,restaraunt:restaurant|rime:rhyme|rythem,rythm:rhythm|RSpec|RxJS|Samba|SAS|SciPy|SDK|secratary,secretery:secretary|sieze:seize|Selenium|sence:sense|SEO|seperate:separate|sargent:sergeant|serverfault,SF:Server Fault|shant:shan't|SharePoint|shes:she's|shouldnt:shouldn't|Silverlight|similer:similar|skilfull:skilful|SMTP|Solr|speach,speeche:speech|SpriteKit|SQL|SQLAlchemy|SQLite|SSH|SSIS|SSL|SE,stackexchange:Stack Exchange|SO,stackoverflow:Stack Overflow|STL|strenght:strength|strech:stretch|succesful,successfull,sucessful:successful|succint:succinct|supercede:supersede|supress:suppress|suprise,surprize:surprise|SVG|SVN|SwiftUI|TCP|tendancy:tendency|TensorFlow|ty:thank you|thx:thanks|thats:that's|theres:there's|therefor:therefore"+
+		"|theyd:they'd|theyll:they'll|theyre:they're|theyve:they've|threshhold:threshold|throught:through|TLS|tomatos:tomatoes|tommorow,tommorrow:tomorrow|tounge:tongue|truely:truly|twelth:twelfth|Twitter|type script:TypeScript|tyrany:tyranny|ubant,ubanto,ubantoo,ubantu,ubantuu,ubnto,ubntoo,ubntu,ubntuu,ubuno,ubunoo,ubunt,ubunto,ubuntoo,ubuntu,ubuntuu,ubunu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubunuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubuto,ubutoo,ubutu,ubutuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu:Ubuntu|UICollectionView|UIKit|UITableView|UIView|UIViewController|underate:underrate|unforseen:unforeseen|unfortunatly:unfortunately|Unix|untill:until|upholstry:upholstery|URI|uri's,uris:URIs|URL|url's,urls:URLs|USB|usible:useable|UWP|vaccum,vaccuum,vacume:vacuum|VBA|vb script,vbscript:VBScript|vehical:vehicle|viscious,visious:vicious|VPN|VPS|WCF|weve:we've|waether:weather|wierd:weird|welfair,wellfare:welfare|werent:weren't|whatll:what'll|whatre:what're|whats:what's|whatve:what've|wheres:where's|whereever:wherever|wether:whether|wich:which|whod:who'd|wholl:who'll|whove:who've|wi fi,wifi:WiFi|willfull:willful|win vista,windows vista:Windows Vista|win xp,windows xp:Windows XP|win forms:WinForms"+
+		"|withold:withhold|wont:won't|woo commerce:WooCommerce|word press:WordPress|wouldnt:wouldn't|WPF|writeing,writting:writing|Xamarin|XAML|XAMPP|Xcode|XML|YAML|Yii|youd:you'd|youll:you'll|youre:you're|youve:you've|you tube:YouTube|Zend|ZFS"
 	).split("|").map(l=>{
 		var r = l.split(/:/)
-		return Object.assign({},...r[0].split(/,/).map(w=>({[w.toLowerCase()]:(r.length>1?r[1]:w)})))
+		if(r.length>2) throw "Extra colons in " + l
+		var toc = [], cor=r[r.length-1]
+		if (!toc) throw "Empty correction: " + l
+		if (r.length==2) toc = r[0].split(/,/)
+		if (/[A-Z]/.test(cor)) toc.push(cor.toLowerCase())
+		if (!toc.length) throw "No correction for " + cor
+		return Object.assign({},...toc.map(w=>({[w]:cor})))
 	}))
 
 	const CONTENT_FREE_WORDS = "(?:\\:\\-?\\)|a|able|about|advance|advi[cs]e|accept|again|all|am|amazing|and|answers?|answered|any|anybody|anyone|appreciate[ds]?|assist|assistance|are|attention|bad|be|being|been|below|body|can|cheers?|code|concepts?|could|days?|directions?|does|doubts?|english|errors?|every|everybody|everyone|examples?|first|fix|fixe[ds]|fixing|folks?|following|for|friends?|get|gives?|good|grammar|grateful|great|greatly|guys?|guidance|have|helps?|helping|here|highly|hint|hopes?|hoping|hours|how|i|i'?[md]|i'?ve|ideas?|if|illuminate|illumination|in|is|issues?|it|just|kind|kindly|know|let|likely|little|look|looking|lucky?|many|may|me|might|" +
@@ -79,6 +77,8 @@
 		')('+TLD.source +')'+
 		/((?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$)))/.source
 	,'gmi')
+	const WORD_OR_NON = /(?:[A-Za-z0-9]+)|(?:[^A-Za-z0-9]+)/gmi
+	const WORD= /[A-Za-z0-9]+/gmi
 
 	var rules = [
 		{
@@ -149,38 +149,52 @@
 			replacement: "$1 ",
 			reason: "grammar"
 		},
-		capitalizeWord("AngularJS"),
-		capitalizeWord("GitHub"),
 		capitalizeWord(".htaccess","\\.?htacc?ess?"),
-		capitalizeWord("iOS"),
 		capitalizeWordAndVersion("iOS", null, " "),
-		capitalizeWord("JavaScript"),
-		capitalizeWord("jQuery"),
-		capitalizeWord("JSFiddle", "js\\s*fiddle"),
-		capitalizeWord("MySQL"),
 		capitalizeWord("Node.js","node\\.js"),
-		capitalizeWord("Stack Exchange"),
-		capitalizeWord("Stack Overflow"),
-		capitalizeWord("Server Fault"),
-		capitalizeWord("SQLite"),
 		capitalizeWordAndVersion("SQLite"),
 		capitalizeWord("UTF-8"),
 		capitalizeWordAndVersion("Windows", "win|windows", " "),
-		capitalizeWord("Windows Vista","(?:win|windows)\\s*vista"),
-		capitalizeWord("Windows XP", "(?:win|windows)\\s*xp"),
-		capitalizeWord("WordPress"),
 		{
 			expr: /(^|\s)([A-Za-z][A-Za-z0-9']*)\b(\S|)(?!\S)/gm,
 			replacement: (p0,p1,w,p3)=>{
-				if (ABBREVIATIONS.hasOwnProperty(w)) w = ABBREVIATIONS[w]
-				var lc = w.toLowerCase()
-				if (MISSPELLINGS.hasOwnProperty(lc)){
-					var correct = MISSPELLINGS[lc]
-					if (/[A-Z]/.test(correct)) w = correct // Always use capitalization proper noun corrections
-					else if (/^(?:[A-Z][a-z]+)+$/.test(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match capitalizization of misspelling
-					else w = correct // Use lower case correction
+				if (MISSPELLINGS.hasOwnProperty(w)){
+					w = MISSPELLINGS[w] // abbreviations or all lower case
+				} else {
+					var lc = w.toLowerCase()
+					if (MISSPELLINGS.hasOwnProperty(lc)){
+						var correct = MISSPELLINGS[lc]
+						if (/[A-Z]/.test(correct)) w = correct // Always use capitalization proper noun corrections
+						else if (/^(?:[A-Z][a-z]+)+$/.test(w)) w = correct[0].toUpperCase() + correct.substr(1) // Match capitalizization of misspelling
+						else w = correct // Use lower case correction
+					}
 				}
 				return p1+w+p3
+			},
+			reason: "spelling"
+		},{
+			edit: s=>{
+				var m, tokens=[], replacements = []
+				while (m = WORD_OR_NON.exec(s)){
+					tokens.push(m[0])
+				}
+				for (var i=0; i<tokens.length-2; i++){
+					if (WORD.test(tokens[i]) && /^[ \/]+$/.test(tokens[i+1])){
+						var lc = (tokens[i] + " " + tokens[i+2]).toLowerCase()
+						if (MISSPELLINGS.hasOwnProperty(lc)){
+							var original = tokens[i] + tokens[i+1] + tokens[i+2]
+							var correct = MISSPELLINGS[lc]
+							if (!/[A-Z]/.test(correct) && /^(?:[A-Z][a-z]+)+$/.test(original)) correct = correct[0].toUpperCase() + correct.substr(1) // Match capitalizization of misspelling
+							if (correct != original){
+								tokens[i] = correct
+								tokens[i+1] = ""
+								tokens[i+2] = ""
+								replacements.push({i:original,o:correct})
+							}
+						}
+					}
+				}
+				return [replacements.length==0?s:tokens.join(""),replacements]
 			},
 			reason: "spelling"
 		},{
@@ -513,16 +527,26 @@
 		rules.forEach(rule=>{
 			var context = rule.context || ["title","text"]
 			if (context.includes(type)){
-				var ruleEditCount = 0
-				for(let m of input.matchAll(rule.expr)){
-					var a = m[0]
-					var b = a.replace(rule.expr, rule.replacement)
-					if (a != b){
-						d.replacements.push({i:a,o:b,r:rule.reason})
-						ruleEditCount++
+				var ruleEditCount = 0,
+				output = input
+				if (rule.edit){
+					var o = rule.edit(input)
+					output = o[0]
+					for (var i=0; i<o[1].length; i++){
+						o[1][i].r = rule.reason;
+						d.replacements.push(o[1][i])
 					}
+				} else {
+					for(let m of input.matchAll(rule.expr)){
+						var a = m[0]
+						var b = a.replace(rule.expr, rule.replacement)
+						if (a != b){
+							d.replacements.push({i:a,o:b,r:rule.reason})
+							ruleEditCount++
+						}
+					}
+					output = input.replace(rule.expr, rule.replacement)
 				}
-				var output = input.replace(rule.expr, rule.replacement)
 				if (output != input){
 					d.editCount+=ruleEditCount
 					d.reasons.push(rule.reason)
@@ -1147,14 +1171,10 @@
 		})
 
 		;[
-			{i:['Javascript','Java script','java script','javascript','Java Script'],o:'JavaScript'},
-			{i:['Stackexchange','Stack exchange','stack exchange','StackExchange','stackexchange','SE'],o:'Stack Exchange'},
-			{i:['Stackoverflow','Stack overflow','stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
-			{i:['Serverfault','Server fault','server fault','ServerFault','serverfault','SF'],o:'Server Fault'},
 			{i:['ajax'],o:'AJAX'},
-			{i:['angularjs','Angularjs','angularJs','angularJS','AngularJs'],o:'AngularJS'},
+			{i:['angularjs','Angularjs','angularJs','angularJS','AngularJs','Angular js', 'Angular JS'],o:'AngularJS'},
 			{i:['apache','Apache','APACHE'],o:'Apache'},
-			{i:['codeigniter','codeignitor','CodeIgnitor'],o:'CodeIgniter'},
+			{i:['codeigniter','code igniter','codeignitor','CodeIgnitor','Code Ignitor'],o:'CodeIgniter'},
 			{i:['c#'],o:'C#'},
 			{i:['c+'],o:'C+'},
 			{i:['c++'],o:'C++'},
@@ -1162,7 +1182,7 @@
 			{i:['dont'],o:'don\'t'},
 			{i:['Dont'],o:'Don\'t'},
 			{i:['git','GIT'],o:'Git'},
-			{i:['github','GITHUB','Github'],o:'GitHub'},
+			{i:['github','GITHUB','Github','Git Hub'],o:'GitHub'},
 			{i:['google','gOOgle','GOOGLE'],o:'Google'},
 			{i:['hdd','HDD','harddisk','HARDDISK'],o:'hard disk'},
 			{i:['Hdd','Harddisk','HardDisk'],o:'Hard disk'},
@@ -1172,9 +1192,10 @@
 			{i:["i'd"],o:"I'd"},
 			{i:['ios','iOs','ioS','IOS','Ios','IoS'],o:'iOS'},
 			{i:['ios8','iOs8','ioS8','IOS8','Ios8','IoS8',"ios 8"],o:'iOS 8'},
+			{i:['io','i/o','I/o'],o:'I/O'},
 			{i:["i'm","im"],o:"I'm"},
 			{i:['java'],o:'Java'},
-			{i:['javascript','java script','Javascript','Java Script'],o:'JavaScript'},
+			{i:['javascript','Java script','java script','Javascript','Java Script'],o:'JavaScript'},
 			{i:['jquery','Jquery','JQuery','jQuery'],o:'jQuery'},
 			{i:['jsfiddle','Jsfiddle','JsFiddle','JSfiddle','jsFiddle','JS Fiddle','js fiddle'],o:'JSFiddle'},
 			{i:['json','Json'],o:'JSON'},
@@ -1183,9 +1204,12 @@
 			{i:['node.js','Node.JS'],o:'Node.js'},
 			{i:['php','Php'],o:'PHP'},
 			{i:['restarant','restaraunt'],o:'restaurant'},
+			{i:['server fault','Serverfault','Server fault','ServerFault','serverfault','SF'],o:'Server Fault'},
 			{i:['sql','Sql'],o:'SQL'},
 			{i:['sqlite','Sqlite'],o:'SQLite'},
 			{i:['sqlite3','Sqlite3'],o:'SQLite3'},
+			{i:['stack exchange','Stackexchange','Stack exchange','StackExchange','stackexchange','SE'],o:'Stack Exchange'},
+			{i:['stack overflow','Stackoverflow','Stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
 			{i:['ubunto','ubunut','ubunutu','ubunu','ubntu','ubutnu','ubantoo','unbuntu','ubunt','ubutu'],o:'Ubuntu'},
 			{i:['url','Url'],o:'URL'},
 			{i:['urls','Urls',"url's"],o:'URLs'},

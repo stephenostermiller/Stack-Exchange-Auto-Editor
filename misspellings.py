@@ -5,7 +5,13 @@ import re
 words = {}
 for line in re.split(r'[\|\n]',sys.stdin.read()):
 	if (line):
-		(wrong, correct) = re.split(r':', line)
+		line = re.sub("^[ \t\"\+]*", '', line)
+		line = re.sub("[ \t\"\+]*$", '', line)
+		if (re.search(":",line)):
+			(wrong, correct) = re.split(r':', line)
+		else:
+			correct = line
+			wrong = correct
 		correct = correct.strip()
 		if (correct):
 			if (correct not in words):
@@ -16,8 +22,12 @@ for line in re.split(r'[\|\n]',sys.stdin.read()):
 					words[correct][word] = 1
 
 line = ''
-for ms in sorted(words.items()):
-	ms = ",".join(sorted(ms[1]))+ ":" + ms[0]
+for ms in sorted(words.items(), key=lambda s:s[0].casefold()):
+	rep = ",".join(sorted(ms[1], key=lambda s:s.casefold()))
+	if (rep == ms[0] or len(rep)==0):
+		mp = ms[0]
+	else:
+		mp = rep+ ":" + ms[0]
 	if (len(line) > 1200):
 		print(line+'"+')
 		line = '\t\t"'
@@ -25,5 +35,5 @@ for ms in sorted(words.items()):
 		line = '\t\t"'
 	else:
 		line += '|'
-	line+=ms
-print(line)
+	line+=mp
+print(line+'"')
