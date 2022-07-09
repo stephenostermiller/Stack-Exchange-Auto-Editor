@@ -33,8 +33,14 @@
 // @match https://*.stackapps.com/questions/*
 // @match https://*.stackapps.com/review/*
 // @grant GM_addStyle
+// @grant GM_setValue
+// @grant GM_getValue
+// @grant GM_xmlhttpRequest
+// @connect raw.githubusercontent.com
 // ==/UserScript==
 (()=>{
+	const ENVIRONMENT = getEnvironment()
+
 	const MISSPELLINGS = Object.assign({},...(
 		"0's:0s|1D|1's:1s|2D|301's:301s|3D|404's:404s|alot:a lot|abcense,absance,absense,absentse:absence|acceptible:acceptable|accesable,accesible,accessable:accessible|accomodate,acommodate:accommodate|accomodation:accommodation|acheive,achive:achieve|acknowlege,aknowledge:acknowledge|acquaintence,aquaintance:acquaintance|adquire,aquire:acquire|aquit:acquit|acerage,acrage:acreage|accross:across|ActionScript|adress:address|AdSense|adultary:adultery|advertisment:advertisement|advices:advice|adviseable,advizable:advisable|AdWords|agression:aggression|agressive:aggressive|AJAX|alegiance,allegaince,allegience:allegiance|allmost:almost|amatuer,amature:amateur|Angular2|angular js,angularjs:AngularJS|annualy,anually:annually|Ansible|Apache|Apache2|API|api's,apis:APIs|APK|appaling:appalling|aparent,aparrent,apparant,apparrent:apparent|apparantly:apparently|appearence:appearance|artic:arctic|arent:aren't|arguement:argument|ArrayList|aswell:as well|ASCII|assasination:assassination|assesment:assessment|atleast:at least|athiest,athist:atheist|aweful,awfull:awful|akward:awkward|basicly:basically|beatiful:beautiful|becuase:because|becomeing:becoming|begining:beginning|beleive,belive:believe|bellweather:bellwether"+
 		"|benifit:benefit|big query,bigquery:BigQuery|Bing|biogrophay:biography|bizzare:bizarre|Blogspot|blue host:Bluehost|blue tooth:Bluetooth|binded:bound|BTW|bouy:buoy|bouyant:buoyant|buisness:business|cake php:CakePHP|calender:calendar|camoflage,camoflague:camouflage|cant:can't|Carribean:Caribbean|Cassandra|catagory:category|caugt,cauhgt:caught|cemetary:cemetery|cent os:CentOS|changable:changeable|chek:check|cheks:checks|cheif:chief|Cisco|CLI|Clojure|Cloudflare|CloudFront|CMake|CMS|Cocos2d|code igniter,code ignitor,codeignitor:CodeIgniter|cold fusion:ColdFusion|collaegue,collegue:colleague|colum:column|comming:coming|comission,commision:commission|comitted,commited:committed|commitee:committee|comparsion:comparison|compell:compel|completly:completely|conceed:concede|Conda|congradulate:congratulate|concience:conscience|consciencious:conscientious|concious,consious:conscious|concensus:consensus|contraversy:controversy|convinient:convenient|cooly:coolly|Cordova|CORS|couldnt:couldn't|cPanel|CPU|CSS|CSV|curiousity:curiosity|Cygwin|D3|dacquiri,daquiri:daiquiri|datas:data|DataFrame|DataGridView|DB2|DBML|Debian|decieve:deceive|definate:definite|definately,definatly,definitly:definitely|Delphi"+
@@ -956,6 +962,37 @@
 		eval(require('fs').readFileSync(command+'.js')+'')
 	}
 
-	if (typeof unsafeWindow !== 'undefined') ui() // Running as user script
-	if (typeof process !== 'undefined') main() // Running from command line
+	function getEnvironment(){
+		if (typeof unsafeWindow !== 'undefined'){
+			// Running as user script
+			return {
+				run: ui,
+				file: (name,cb)=>{
+					var data = GM_getValue(name)
+					if (data && data.version == GM_info.script.version) return cb(data.content)
+					GM_xmlhttpRequest({
+						method: "GET",
+						url: "https://raw.githubusercontent.com/stephenostermiller/Stack-Exchange-Auto-Editor/master/" + name,
+						onload: function(r){
+							GM_setValue(name, {version:GM_info.script.version,content:r.responseText})
+							cb(r.responseText)
+						},
+						onerror: function(){
+							alert("Could not load " + name)
+						}
+					})
+				}
+			}
+		}
+		if (typeof process !== 'undefined'){
+			// Running from node command line
+			return {
+				run: main,
+				file: (name,cb)=>{cb(require('fs').readFileSync(name, 'utf-8'))}
+			}
+		}
+		throw("Unknown environment")
+	}
+
+	ENVIRONMENT.run()
 })()

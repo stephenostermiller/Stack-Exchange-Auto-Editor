@@ -44,9 +44,9 @@ for (const [word, value] of Object.entries(EN_WORDS)) {
 }
 
 var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false
+	input: process.stdin,
+	output: process.stdout,
+	terminal: false
   })
 rl.on('line', function(line){
 	if (ROW.test(line)){
