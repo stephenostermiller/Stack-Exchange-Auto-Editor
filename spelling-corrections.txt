@@ -63,7 +63,7 @@ becuase:because
 becomeing:becoming
 begining:beginning
 beleive,belive:believe
-bellweather:bellwether"+
+bellweather:bellwether
 benifit:benefit
 big query,bigquery:BigQuery
 Bing
@@ -140,7 +140,7 @@ Debian
 decieve:deceive
 definate:definite
 definately,definatly,definitly:definitely
-Delphi"+
+Delphi
 desparate:desperate
 DF1
 DHCP
@@ -219,7 +219,7 @@ go daddy:GoDaddy
 Golang
 Google
 google bot:Googlebot
-goverment:government"+
+goverment:government
 Gradle
 Grails
 grammer:grammar
@@ -314,7 +314,7 @@ JS
 js fiddle:JSFiddle
 JSON
 JSP
-judgement:judgment"+
+judgement:judgment
 JUnit
 Jupyter
 JWT
@@ -399,7 +399,7 @@ ocassion,occassion:occasion
 occasionaly,occassionally:occasionally
 occure:occur
 occured:occurred
-occurance,occurence,occurrance:occurrence"+
+occurance,occurence,occurrance:occurrence
 occuring:occurring
 OK
 omision,ommision:omission
@@ -474,7 +474,7 @@ quarentine:quarantine
 questionaire,questionnair:questionnaire
 que:queue
 rabbit mq:RabbitMQ
-react native,react-native:React Native"+
+react native,react-native:React Native
 ReactJS
 readible:readable
 realy:really
@@ -552,7 +552,7 @@ swift ui:SwiftUI
 Symfony
 TCP
 tendancy:tendency
-tensor flow:TensorFlow"+
+tensor flow:TensorFlow
 TextView
 ty:thank you
 thanx,thx:thanks
@@ -622,7 +622,7 @@ werent:weren't
 whatll:what'll
 whatre:what're
 whats:what's
-whatve:what've"+
+whatve:what've
 wheres:where's
 whereever:wherever
 wether:whether
