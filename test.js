@@ -396,11 +396,13 @@ function runTests() {
 	})
 
 	const fs = require('fs')
-	fs.readFileSync('stack-exchange-words.txt', 'utf-8').split(/\r?\n/).forEach(w =>  {
-		if(w) expectEql("Correctly spelled", applyRules(getDefaultData(), w, "text"), w, w)
+	fs.readFileSync('stack-exchange-words.txt', 'utf-8').split(/\r?\n/).forEach(w=>{
+		var d=getDefaultData()
+		if(w) expectEql("Correctly spelled", applyRules(d, w, "text"), w, w, d)
 	})
-	fs.readFileSync('stack-exchange-misspellings.txt', 'utf-8').split(/\r?\n/).forEach(w =>  {
-		if(w) expectNotEql("Spelling error", applyRules(getDefaultData(), w, "text"), w, w)
+	fs.readFileSync('stack-exchange-misspellings.txt', 'utf-8').split(/\r?\n/).forEach(w=>{
+		var d=getDefaultData()
+		if(w) expectNotEql("Spelling error", applyRules(d, w, "text"), w, w, d)
 	})
 
 	return td

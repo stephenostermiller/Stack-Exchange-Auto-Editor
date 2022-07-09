@@ -3,15 +3,9 @@
 // then this command will get the top 50 misspellings from the first 10,000 posts
 // 7zcat /stackexchange/stackoverflow.com-Posts.7z | head -n 10000 | node editor.user.js stack-exchange-words | sort | uniq -c | sort -n | tail -n 50
 
-var readline = require('readline')
+const readline = require('readline')
 const fs = require('fs')
 const { exec } = require("child_process")
-
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false
-})
 
 const ROW = /^ *<row /
 const TITLE = /Title="([^"]+)"/
@@ -49,6 +43,11 @@ for (const [word, value] of Object.entries(EN_WORDS)) {
 	}
 }
 
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+  })
 rl.on('line', function(line){
 	if (ROW.test(line)){
 		var m, title="", body=""
