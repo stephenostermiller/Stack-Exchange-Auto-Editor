@@ -6,7 +6,7 @@
 // @developer sathyabhat
 // @contributor Unihedron
 // @license MIT
-// @version 1.0.16
+// @version 1.0.17
 // @namespace https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor
 // @updateURL https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.meta.js
 // @downloadURL https://github.com/stephenostermiller/Stack-Exchange-Auto-Editor/raw/master/editor.user.js
@@ -33,4 +33,8 @@
 // @match https://*.stackapps.com/questions/*
 // @match https://*.stackapps.com/review/*
 // @grant GM_addStyle
+// @grant GM_setValue
+// @grant GM_getValue
+// @grant GM_xmlhttpRequest
+// @connect raw.githubusercontent.com
 // ==/UserScript==
