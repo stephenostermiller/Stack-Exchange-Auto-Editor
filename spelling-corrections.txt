@@ -5,20 +5,18 @@
 301's:301s
 3D
 404's:404s
-alot:a lot
 abcense,absance,absense,absentse:absence
 acceptible:acceptable
 accesable,accesible,accessable:accessible
 accomodate,acommodate:accommodate
 accomodation:accommodation
+accross:across
+acerage,acrage:acreage
 acheive,achive:achieve
 acknowlege,aknowledge:acknowledge
 acquaintence,aquaintance:acquaintance
-adquire,aquire:acquire
-aquit:acquit
-acerage,acrage:acreage
-accross:across
 ActionScript
+adquire,aquire:acquire
 adress:address
 AdSense
 adultary:adultery
@@ -29,8 +27,10 @@ AdWords
 agression:aggression
 agressive:aggressive
 AJAX
+akward:awkward
 alegiance,allegaince,allegience:allegiance
 allmost:almost
+alot:a lot
 amatuer,amature:amateur
 Angular2
 angular js,angularjs:AngularJS
@@ -38,44 +38,44 @@ annualy,anually:annually
 Ansible
 Apache
 Apache2
+aparent,aparrent,apparant,apparrent:apparent
 API
 api's,apis:APIs
 APK
 appaling:appalling
-aparent,aparrent,apparant,apparrent:apparent
 apparantly:apparently
 appearence:appearance
-artic:arctic
+aquit:acquit
 arent:aren't
 arguement:argument
 ArrayList
-aswell:as well
+artic:arctic
 ASCII
 assasination:assassination
 assesment:assessment
-atleast:at least
+aswell:as well
 athiest,athist:atheist
+atleast:at least
 aweful,awfull:awful
-akward:awkward
 basicly:basically
 beatiful:beautiful
-becuase:because
 becomeing:becoming
+becuase:because
 begining:beginning
 beleive,belive:believe
 bellweather:bellwether
 benifit:benefit
 big query,bigquery:BigQuery
+binded:bound
 Bing
 biogrophay:biography
 bizzare:bizarre
 Blogspot
 blue host:Bluehost
 blue tooth:Bluetooth
-binded:bound
-BTW
-bouy:buoy
 bouyant:buoyant
+bouy:buoy
+BTW
 buisness:business
 cake php:CakePHP
 calender:calendar
@@ -88,9 +88,9 @@ caugt,cauhgt:caught
 cemetary:cemetery
 cent os:CentOS
 changable:changeable
+cheif:chief
 chek:check
 cheks:checks
-cheif:chief
 Cisco
 CLI
 Clojure
@@ -103,20 +103,20 @@ code igniter,code ignitor,codeignitor:CodeIgniter
 cold fusion:ColdFusion
 collaegue,collegue:colleague
 colum:column
-comming:coming
 comission,commision:commission
 comitted,commited:committed
+comming:coming
 commitee:committee
 comparsion:comparison
 compell:compel
 completly:completely
 conceed:concede
+concensus:consensus
+concience:conscience
+concious,consious:conscious
 Conda
 congradulate:congratulate
-concience:conscience
 consciencious:conscientious
-concious,consious:conscious
-concensus:consensus
 contraversy:controversy
 convinient:convenient
 cooly:coolly
@@ -131,9 +131,9 @@ curiousity:curiosity
 Cygwin
 D3
 dacquiri,daquiri:daiquiri
-datas:data
 DataFrame
 DataGridView
+datas:data
 DB2
 DBML
 Debian
@@ -141,18 +141,18 @@ decieve:deceive
 definate:definite
 definately,definatly,definitly:definitely
 Delphi
+desease:disease
 desparate:desperate
+devide:divide
 DF1
 DHCP
 didnt:didn't
 diffrence:difference
 digital ocean:DigitalOcean
 dilema:dilemma
+disasterous:disastrous
 dissapear:disappear
 dissapoint:disappoint
-disasterous:disastrous
-desease:disease
-devide:divide
 Django
 DLL
 DLLs
@@ -175,29 +175,29 @@ ecma script:ECMAScript
 ecstacy:ecstasy
 Elasticsearch
 Emacs
-embarass:embarrass
 embarassed,embarrased:embarrassed
+embarass:embarrass
 endevour:endeavour
 English
 enterpreneur:entrepreneur
 enviroment:environment
 equiptment:equipment
 everytime:every time
-exemple:example
 excede:exceed
 Excel
+exemple:example
 exilerate:exhilarate
 existance:existence
 experiance:experience
 extreem:extreme
 face book:Facebook
-familar:familiar
 facinating:fascinating
-firey:fiery
+familar:familiar
 finaly:finally
 fire base:Firebase
 fire fox:Firefox
 Firestore
+firey:fiery
 florescent,flourescent:fluorescent
 foriegn:foreign
 Fortran
@@ -208,7 +208,8 @@ freind:friend
 FTP
 fullfil,fullfill:fulfil
 futher:further
-guage:gauge
+garantee,garanty,garentee:guarantee
+gaurd:guard
 GCC
 GIF
 Git
@@ -226,8 +227,7 @@ grammer:grammar
 graph ql:GraphQL
 gratefull,greatful:grateful
 grat:great
-garantee,garanty,garentee:guarantee
-gaurd:guard
+guage:gauge
 GUI
 guidence:guidance
 GWT
@@ -239,25 +239,27 @@ H5
 H6
 hadnt:hadn't
 Hadoop
+halp:help
+halping:helping
+halps:helps
 happend:happened
 ha proxy,haproxy:HAProxy
+harddisk,hdd:hard disk
 harrass:harass
 harrassment:harassment
-harddisk,hdd:hard disk
 Haskell
 hasnt:hasn't
 havent:haven't
 hed:he'd
-hes:he's
 heighth,heigth:height
-halp:help
-halping:helping
-halps:helps
+heirarchy:hierarchy
 heres:here's
 Heroku
+hes:he's
 hetzneronline:Hetzner Online
-heirarchy:hierarchy
+higeine,hiygeine,hygeine,hygene,hygine:hygiene
 high charts:Highcharts
+hipocrit:hypocrite
 Homebrew
 honourary:honorary
 host gator:HostGator
@@ -266,25 +268,23 @@ HTML5
 HTTP
 HTTPS
 humerous,humourous:humorous
-higeine,hiygeine,hygeine,hygene,hygine:hygiene
-hipocrit:hypocrite
 I
-I'd
-I'll
 i'am:I'm
-i o,io:I/O
+I'd
 ignorence:ignorance
 IIS
-immitate:imitate
+I'll
 imediately,immediatly:immediately
+immitate:imitate
 incidently:incidentally
 independant:independent
-indite:indict
 indispensible:indispensable
+indite:indict
 innoculate:inoculate
 inteligence,intelligance:intelligence
 IntelliJ
 interupt:interrupt
+i o,io:I/O
 IONOS
 iOS
 IP
@@ -328,16 +328,16 @@ Kubernetes
 KVM
 Laravel
 LDAP
-liesure:leisure
 lenght:length
 liason:liaison
-lib gdx,libgdx:libGDX
 libary,liberry:library
-lisence:license
+lib gdx,libgdx:libGDX
+liesure:leisure
 lightening:lightning
 LINQ
 Linux
 liquidweb:Liquid Web
+lisence:license
 ListView
 Lodash
 Logcat
@@ -353,20 +353,20 @@ marshmellow:marshmallow
 mat lab:MATLAB
 Matplotlib
 Maven
-MediaWiki
 medecine:medicine
 medeval,medevil,mideval:medieval
-momento:memento
+MediaWiki
 MFC
 Microsoft
 mightnt:mightn't
-millenia:millennia
 milennium,millenium:millennium
-miniture:miniature
+millenia:millennia
 miniscule:minuscule
+miniture:miniature
 mischevious,mischevous,mischievious:mischievous
 mispell,misspel:misspell
 Mockito
+momento:memento
 Mongo
 mongo db:MongoDB
 MP4
@@ -380,13 +380,13 @@ Nagios
 name cheap:Namecheap
 NAT
 neccessary,necessery:necessary
-nieghbor:neighbor
+neice:niece
 net beans:NetBeans
 networksolutions:Network Solutions
 NFS
 Nginx
 NHibernate
-neice:niece
+nieghbor:neighbor
 NLP
 nodejs:Node.js
 no sql:NoSQL
@@ -397,9 +397,9 @@ OAuth
 Objective-C
 ocassion,occassion:occasion
 occasionaly,occassionally:occasionally
-occure:occur
-occured:occurred
 occurance,occurence,occurrance:occurrence
+occured:occurred
+occure:occur
 occuring:occurring
 OK
 omision,ommision:omission
@@ -423,20 +423,21 @@ pay pal:PayPal
 PC
 PDF
 PDO
+peice:piece
 percieve:perceive
 Perl
 perseverence:perseverance
 persistant:persistent
 personel,personell:personnel
+persue:pursue
 Phillipines:Philippines
 PhoneGap
 PHP
 phpMyAdmin
-peice:piece
 plagerize:plagiarize
 playright,playwrite:playwright
-pls,plz,plze:please
 Plotly
+pls,plz,plze:please
 Plunker
 PNG
 politican:politician
@@ -457,30 +458,29 @@ programatically:programmatically
 Prolog
 promiss:promise
 pronounciation:pronunciation
-prufe:proof
 protestor:protester
+prufe:proof
 PS
 publically:publicly
-persue:pursue
 py charm:PyCharm
 py game:Pygame
-py qt:PyQt
 PyQt5
+py qt:PyQt
 py spark:PySpark
 Python3
 py torch:PyTorch
 Qt
 quarentine:quarantine
-questionaire,questionnair:questionnaire
 que:queue
+questionaire,questionnair:questionnaire
 rabbit mq:RabbitMQ
-react native,react-native:React Native
 ReactJS
+react native,react-native:React Native
 readible:readable
 realy:really
+reccommend,recomend:recommend
 reciept:receipt
 recieve:receive
-reccommend,recomend:recommend
 RecyclerView
 referance,refrence:reference
 refered:referred
@@ -494,10 +494,11 @@ resistence:resistance
 responsability:responsibility
 restarant,restaraunt:restaurant
 rime:rhyme
-rythem,rythm:rhythm
 RSpec
 RxJS
+rythem,rythm:rhythm
 Samba
+sargent:sergeant
 SAS
 Scala
 SciPy
@@ -505,26 +506,27 @@ Scrapy
 SCSS
 SDK
 secratary,secretery:secretary
-sieze:seize
 Selenium
 sence:sense
 SEO
-seperate:separate
 seperated:separated
-sargent:sergeant
+seperate:separate
 SERPs
 serverfault,SF:Server Fault
+SE,stackexchange:Stack Exchange
 shant:shan't
 share point:SharePoint
 shes:she's
 Shopify
 shouldnt:shouldn't
+sieze:seize
 silver light:Silverlight
 similer:similar
 skilfull:skilful
 SMS
 SMTP
 Solr
+SO,stackoverflow:Stack Overflow
 speach,speeche:speech
 sprite kit:SpriteKit
 SQL
@@ -534,13 +536,11 @@ square space:Squarespace
 SSH
 SSIS
 SSL
-SE,stackexchange:Stack Exchange
-SO,stackoverflow:Stack Overflow
 STL
-strenght:strength
 strech:stretch
-succesful,successfull,sucessful:successful
+strenght:strength
 succesfully:successfully
+succesful,successfull,sucessful:successful
 succint:succinct
 supercede:supersede
 supress:suppress
@@ -554,11 +554,10 @@ TCP
 tendancy:tendency
 tensor flow:TensorFlow
 TextView
-ty:thank you
 thanx,thx:thanks
 thats:that's
-theres:there's
 therefor:therefore
+theres:there's
 theyd:they'd
 theyll:they'll
 theyre:they're
@@ -569,84 +568,86 @@ TLS
 tomatos:tomatoes
 tommorow,tommorrow:tomorrow
 tounge:tongue
-tryed:tried
 truely:truly
+tryed:tried
 Tucows
 twelth:twelfth
 Twitter
 type script:TypeScript
 tyrany:tyranny
+ty:thank you
 ubant,ubanto,ubantoo,ubantu,ubantuu,ubnto,ubntoo,ubntu,ubntuu,ubuno,ubunoo,ubunt,ubunto,ubuntoo,ubuntuu,ubunu,ubunut,ubunuto,ubunutoo,ubunutu,ubunutuu,ubunuu,ubutn,ubutno,ubutnoo,ubutnu,ubutnuu,ubuto,ubutoo,ubutu,ubutuu,unbunt,unbunto,unbuntoo,unbuntu,unbuntuu:Ubuntu
 UI
 UICollectionView
 UID
 ui kit:UIKit
 UITableView
-ui view:UIView
 UIViewController
+ui view:UIView
 underate:underrate
 unforseen:unforeseen
 unfortunatly:unfortunately
 Unicode
 Unix
 untill:until
-upto:up to
 upholstry:upholstery
+upto:up to
 URI
 uri's,uris:URIs
 URL
 url's,urls:URLs
+ur:your
 USB
-usible:useable
 usefull:useful
+usible:useable
 UWP
 vaccum,vaccuum,vacume:vacuum
 VBA
 vb script,vbscript:VBScript
 vehical:vehicle
-viscious,visious:vicious
 ViewModel
 ViewState
+viscious,visious:vicious
 VPN
 VPS
 Vue
-WCF
-weve:we've
 waether:weather
+WCF
 webbrowser:web browser
 WebKit
 WebView
-wierd:weird
 welfair,wellfare:welfare
 werent:weren't
+wether:whether
+weve:we've
 whatll:what'll
 whatre:what're
 whats:what's
 whatve:what've
-wheres:where's
 whereever:wherever
-wether:whether
-wich:which
+wheres:where's
 whod:who'd
 wholl:who'll
 whove:who've
+wich:which
+wierd:weird
 wi fi,wifi:WiFi
 Wikipedia
 willfull:willful
-Win32
-Win64
 win 10,win10,windows 10,windows10:Windows 10
 win 11,win11,windows 11,windows11:Windows 11
 win 2000,win2000,windows 2000,windows2000:Windows 2000
+Win32
+Win64
 win 7,win7,windows 7,windows7:Windows 7
 win 8,win8,windows 8,windows8:Windows 8
 win 95,win95,window95,windows 95:Windows 95
 win 98,win98,window98,windows 98:Windows 98
 windows me,windowsme:Windows Me
+win forms:WinForms
 win nt,windows nt:Windows NT
 win vista,windows vista:Windows Vista
 win xp,windows xp:Windows XP
-win forms:WinForms
 withold:withhold
 wont:won't
 woo commerce:WooCommerce
@@ -670,9 +671,8 @@ Yii
 youd:you'd
 youll:you'll
 youre:you're
-youve:you've
-ur:your
 your's:yours
 you tube:YouTube
+youve:you've
 Zend
 ZFS
