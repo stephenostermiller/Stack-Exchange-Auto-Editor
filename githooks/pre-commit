@@ -54,6 +54,13 @@ then
 			# All lines start with tabs not spaces in indented code files
 			echo "$tab_files" | xargs tabfix -t -w 4
 		fi
+
+		sort_files=`echo "$text_files" | grep -E 'example-domain-words.txt|spelling-corrections.txt|top-level-domains.txt|file-extensions.txt|stack-exchange-misspellings.txt|content-free-words.txt|stack-exchange-words.txt'`
+		echo "SORT FILES: $sort_files"
+		for file in $sort_files
+		do
+			sort $file | grep -Ev '^$' | grep -Ev '^[*+]' | uniq > temp && mv temp $file;
+		done
 	fi
 fi
 
