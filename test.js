@@ -146,7 +146,8 @@ function runTests() {
 		'Node.js',
 		'Valid words: so, capital, principal, windows, grate, loose, then, oracle, android',
 		'<p><STRONG><br/>',
-		'<a>`code`'
+		'<a>`code`',
+		'Java SE'
 	].forEach(r=>{
 		if (/ {4}/.test(r)){
 			testEdit(r, r)
@@ -251,12 +252,12 @@ function runTests() {
 		{i:['node.js','Node.JS'],o:'Node.js'},
 		{i:['php','Php'],o:'PHP'},
 		{i:['restarant','restaraunt'],o:'restaurant'},
-		{i:['server fault','Serverfault','Server fault','ServerFault','serverfault','SF'],o:'Server Fault'},
+		{i:['server fault','Serverfault','Server fault','ServerFault','serverfault'],o:'Server Fault'},
 		{i:['sql','Sql'],o:'SQL'},
 		{i:['sqlite','Sqlite'],o:'SQLite'},
 		{i:['sqlite3','Sqlite3'],o:'SQLite3'},
-		{i:['stack exchange','Stackexchange','Stack exchange','StackExchange','stackexchange','SE'],o:'Stack Exchange'},
-		{i:['stack overflow','Stackoverflow','Stack overflow','StackOverflow','stackoverflow','SO'],o:'Stack Overflow'},
+		{i:['stack exchange','Stackexchange','Stack exchange','StackExchange','stackexchange'],o:'Stack Exchange'},
+		{i:['stack overflow','Stackoverflow','Stack overflow','StackOverflow','stackoverflow'],o:'Stack Overflow'},
 		{i:['ubunto','ubunut','ubunutu','ubunu','ubntu','ubutnu','ubantoo','unbuntu','ubunt','ubutu'],o:'Ubuntu'},
 		{i:['url','Url'],o:'URL'},
 		{i:['urls','Urls',"url's"],o:'URLs'},

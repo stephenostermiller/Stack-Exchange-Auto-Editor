@@ -512,8 +512,8 @@ SEO
 seperated:separated
 seperate:separate
 SERPs
-serverfault,SF:Server Fault
-SE,stackexchange:Stack Exchange
+serverfault:Server Fault
+stackexchange:Stack Exchange
 shant:shan't
 share point:SharePoint
 shes:she's
@@ -526,7 +526,7 @@ skilfull:skilful
 SMS
 SMTP
 Solr
-SO,stackoverflow:Stack Overflow
+stackoverflow:Stack Overflow
 speach,speeche:speech
 sprite kit:SpriteKit
 SQL

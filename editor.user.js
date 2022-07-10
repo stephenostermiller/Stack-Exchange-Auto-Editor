@@ -105,7 +105,8 @@
 				expr: /^[\n\r]+/gi,
 				replacement: "",
 				reason: "formatting",
-				context: ["fullbody"]
+				context: ["fullbody"],
+				score: .1
 			},{
 				expr: EXAMPLE_DOMAIN,
 				replacement: (m,pre,name,tld,post)=>{
@@ -125,7 +126,8 @@
 					return pre+name+escape+tld+post
 				},
 				reason: "use example domain",
-				context: ["title","text","code","url"]
+				context: ["title","text","code","url"],
+				score: .5
 			},{
 				// https://meta.stackexchange.com/questions/1777/what-html-tags-are-allowed-on-stack-exchange-sites
 				expr: /.+/g,
@@ -141,27 +143,32 @@
 					return "`"+m+"`"
 				},
 				reason: 'Code format HTML',
-				context: ["html"]
+				context: ["html"],
+				score: 0
 			},{
 				expr: /^``$/g,
 				replacement: "",
 				reason: "Remove empty code",
-				context: ["code"]
+				context: ["code"],
+				score: .2
 			},{
 				// Insert spaces after commas
 				expr: /,([[a-z])/g,
 				replacement: ", $1",
-				reason: "grammar"
+				reason: "grammar",
+				score: .4
 			},{
 				// Remove spaces before punctuation
 				expr: /[ ]+([,\!\?\.\:](?:\s|$))/gm,
 				replacement: "$1",
-				reason: "grammar"
+				reason: "grammar",
+				score: .4
 			},{
 				// Remove double spaces after periods
 				expr: /([,\!\?\.\:]) {2,}/gm,
 				replacement: "$1 ",
-				reason: "grammar"
+				reason: "grammar",
+				score: .01
 			},
 			capitalizeWord(".htaccess","\\.?htacc?ess?"),
 			capitalizeWordAndVersion("iOS", null, " "),
@@ -184,7 +191,8 @@
 					}
 					return p1+w+p3
 				},
-				reason: "spelling"
+				reason: spellingReason,
+				score: spellingScore
 			},{
 				edit: s=>{
 					var m, tokens=[], replacements = []
@@ -209,15 +217,18 @@
 					}
 					return [replacements.length==0?s:tokens.join(""),replacements]
 				},
-				reason: "spelling"
+				reason: spellingReason,
+				score: spellingScore
 			},{
 				expr: /((?:^|\s)\(?)c(#|\++|\s|$)/gm,
 				replacement: "$1C$2",
-				reason: "spelling"
+				reason: spellingReason,
+				score: spellingScore
 			},{
 				expr: new RegExp(/((?:^|\s)\(?)[Ii]'?(m|ve)/.source + POST_CODE_FORMAT.source, "gm"),
 				replacement: "$1I'$2$3",
-				reason: "spelling"
+				reason: spellingReason,
+				score: spellingScore
 			},{
 				expr: new RegExp(
 					"(?:[\\.\\!\\?]|\n\n|\r\r|\r\n\r\n|^)[\r\n\t ]*(?:"+ // Required start of sentence or paragraph
@@ -231,7 +242,8 @@
 					")+","gi"
 				),
 				replacement: removeLeaveSpace,
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				expr: new RegExp(
 					// any help?
@@ -244,7 +256,8 @@
 					")+","gmi"
 				),
 				replacement: removeLeaveSpace,
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				expr: new RegExp(
 					"(?:^| +)(?:"+
@@ -264,7 +277,8 @@
 					")+","gmi"
 				),
 				replacement: removeLeaveSpace,
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				expr: new RegExp(
 					"(?:^|(?<=[\\:\\.\\!\\?\\n] *))(?:"+ // end of previous phrase or sentence
@@ -275,35 +289,42 @@
 					")+","gmi"
 				),
 				replacement: removeLeaveSpace,
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				expr: /(?:^|[ \t]+)(?:my\s+first\s+question)\s*[\.\!\,\?]?(?:[ \t]+|$)/gmi,
 				replacement: removeLeaveSpace,
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				expr: /(?:(?:^|[ \t]+)(?:greetings|cheers|hi|hello|regards|good\s(?:evening|morning|day|afternoon))(?:\s+(?:guys|folks|everybody|everyone|all))?\s*[\.\!\,]?)+(?:[ \t]+|$)/gmi,
 				replacement: removeLeaveSpace,
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
 				replacement: "$1",
-				reason: "remove niceties"
+				reason: "remove niceties",
+				score: .5
 			},{
 				// No lower case at all
 				expr: /^((?=.*[A-Z])[^a-z]*)$/g,
 				replacement: ($0,$1) => $1[0] + $1.substring(1).toLowerCase(),
 				reason: "capitalization",
-				context: ["title"]
+				context: ["title"],
+				score: .5
 			},{
 				expr: /\[enter image description here\]/g,
 				replacement: "[]",
-				reason: "formatting"
+				reason: "formatting",
+				score: .1
 			},{
 				// Capitalize first letter of each line
 				expr: /^[a-z]+\s/gm,
 				replacement: $0 => $0[0].toUpperCase()+$0.substring(1),
 				reason: "capitalization",
-				context: ["title"]
+				context: ["title"],
+				score: .1
 			},{
 				expr: new RegExp(
 					PRE_CODE_FORMAT.source +
@@ -346,7 +367,8 @@
 				,'gmi'),
 				replacement: applyCodeFormat,
 				reason: "code format example URL",
-				context: ["text","url"]
+				context: ["text","url"],
+				score: .2
 			},{
 				expr: new RegExp(
 					PRE_CODE_FORMAT.source +
@@ -372,19 +394,22 @@
 				,"gmi"),
 				replacement: applyCodeFormat,
 				reason: "code format file name",
-				context: ["text"]
+				context: ["text"],
+				score: .2
 			},{
 				// Remove trailing white space
 				expr: /[ \t]+(\r\n|\n|$)/gm,
 				replacement: "$1",
 				reason: "formatting",
-				context: ["fullbody","title"]
+				context: ["fullbody","title"],
+				score: .01
 			},{
 				// Remove multiple new lines
 				expr: /(?:\r|\n|\r\n){3,}/gm,
 				replacement: "\n\n",
 				reason: "formatting",
-				context: ["fullbody"]
+				context: ["fullbody"],
+				score: .01
 			}
 		])
 	}
@@ -413,6 +438,24 @@
 		return d.replace(/\\/g,"").toLowerCase()
 	}
 
+	function spellingReason(i, o){
+		i = i.toLowerCase()
+		o = o.toLowerCase()
+		if (o == i){
+			return "capitalization"
+		} else if (o.replace(/[^a-zA-Z0-9]/g,"") == i.replace(/[^a-zA-Z0-9]/g,"")){
+			return "grammar"
+		}
+		return "spelling"
+	}
+	function spellingScore(r, i, o){
+		switch (r){
+			case "capitalization": return 0.3
+			case "grammar": return 0.5
+		}
+		return 1
+	}
+
 	function removeLeaveSpace(s){
 		var start = "", end=""
 		if (/^[\.\!\?]/.test(s)){
@@ -438,7 +481,8 @@
 		return {
 			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+POST_CODE_FORMAT.source,"igm"),
 			replacement: "$1"+word+"$2",
-			reason: "spelling"
+			reason: spellingReason,
+			score: .1
 		}
 	}
 
@@ -453,7 +497,8 @@
 		return {
 			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)"+POST_CODE_FORMAT.source,"igm"),
 			replacement: "$1"+word+separator+"$2$3",
-			reason: "spelling"
+			reason: spellingReason,
+			score: .1
 		}
 	}
 	function tokenizeMarkdown(str){
@@ -527,8 +572,21 @@
 
 	function getDefaultData(){
 		return {
-			editCount:0, reasons:[], replacements:[]
+			editCount:0, reasons:[], replacements:[], score:0
 		}
+	}
+
+	function getReason(rule, i, o){
+		if (typeof rule.reason === 'function') return rule.reason(i,o)
+		return rule.reason
+	}
+
+	function getScore(rule, r, i, o){
+		switch (typeof(rule.score)){
+			case "undefined": return 1
+			case 'function': return rule.score(r,i,o)
+		}
+		return rule.score
 	}
 
 	function applyRules(d, input, type){
@@ -541,23 +599,29 @@
 					var o = rule.edit(input)
 					output = o[0]
 					for (var i=0; i<o[1].length; i++){
-						o[1][i].r = rule.reason;
+						o[1][i].r = getReason(rule, o[1][i].i, o[1][i].o)
+						d.reasons.push(o[1][i].r)
 						d.replacements.push(o[1][i])
+						o[1][i].s=getScore(rule, o[1][i].r, o[1][i].i, o[1][i].o)
+						d.score+=o[1][i].s
 					}
 				} else {
 					for(let m of input.matchAll(rule.expr)){
 						var a = m[0]
 						var b = a.replace(rule.expr, rule.replacement)
 						if (a != b){
-							d.replacements.push({i:a,o:b,r:rule.reason})
+							var rep = {i:a,o:b,r:getReason(rule,a,b)}
+							rep.s=getScore(rule,rep.r,a,b)
+							d.replacements.push(rep)
+							d.reasons.push(rep.r)
 							ruleEditCount++
+							d.score+=rep.s
 						}
 					}
 					output = input.replace(rule.expr, rule.replacement)
 				}
 				if (output != input){
 					d.editCount+=ruleEditCount
-					d.reasons.push(rule.reason)
 					input = output
 				}
 			}

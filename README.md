@@ -23,7 +23,6 @@ This user script adds a button when editing Stack Exchange sites that automatica
 
 This script performs the following actions automatically:
 
- - Expands some acronyms such as "SO" and "SE"
  - Corrects commonly misspelled words such as "untill" → "until"
  - Capitalizes commonly used technologies names and acronyms such as "javascript" → "JavaScript"
  - Fixes contractions with a missing apostrophe such as  such as "dont" → "don't"

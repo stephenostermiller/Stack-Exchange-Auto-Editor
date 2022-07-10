@@ -6,10 +6,9 @@
 const readline = require('readline')
 const fs = require('fs')
 const { exec } = require("child_process")
+const xml = require('./parse-xml')
 
 const ROW = /^ *<row /
-const TITLE = /Title="([^"]+)"/
-const BODY = /Body="([^"]+)"/
 const EN_WORDS = {}
 const MISSPELLINGS = {}
 
@@ -50,15 +49,15 @@ var rl = readline.createInterface({
   })
 rl.on('line', function(line){
 	if (ROW.test(line)){
-		var m, title="", body=""
-		if (m=TITLE.exec(line)){
-			printWords(decodeEntities(m[1]))
+		var attrs = xml.getAttributes(line)
+		if (attrs.Title){
+			printWords(attrs.Title)
 		}
-		if (m=BODY.exec(line)){
-		   body = tokenizeMarkdown(decodeEntities(m[1]))
+		if (attrs.Body){
+		   body = tokenizeMarkdown(attrs.Body)
 		   for (var i=0; i<body.length; i++){
 			   if (body[i].type=="text"){
-				   printWords(decodeEntities(body[i].content))
+				   printWords(xml.decodeEntities(body[i].content))
 			   }
 		   }
 		}
@@ -76,26 +75,5 @@ function printWords(s){
 			}
 			console.log(word)
 		}
-	})
-}
-
-// https://stackoverflow.com/a/44195856
-function decodeEntities(encodedString) {
-	var translate_re = /&(nbsp|amp|quot|lt|gt);/g;
-	var translate = {
-		"nbsp": " ",
-		"amp" : "&",
-		"quot": '"',
-		"lt"  : "<",
-		"gt"  : ">"
-	};
-	return encodedString.replace(translate_re, function(match, entity) {
-		return translate[entity];
-	}).replace(/&#(\d+);/gi, function(match, numStr) {
-		var num = parseInt(numStr, 10);
-		return String.fromCharCode(num);
-	}).replace(/&#x([0-9A-Fa-f]+);/gi, function(match, numStr) {
-		var num = parseInt(numStr, 16);
-		return String.fromCharCode(num);
 	})
 }
