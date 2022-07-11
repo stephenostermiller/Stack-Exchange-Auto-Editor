@@ -1,11 +1,11 @@
 function getAttributes(tag){
-    var ATTR = /([a-zA-Z0-9]+)="([^"]+)"/g,
-    m,
-    attrs = {}
-    while(m = ATTR.exec(tag)){
-        attrs[m[1]] = decodeEntities(m[2])
-    }
-    return attrs
+	var ATTR = /([a-zA-Z0-9]+)="([^"]+)"/g,
+	m,
+	attrs = {}
+	while(m = ATTR.exec(tag)){
+		attrs[m[1]] = decodeEntities(m[2])
+	}
+	return attrs
 }
 
 // https://stackoverflow.com/a/44195856
