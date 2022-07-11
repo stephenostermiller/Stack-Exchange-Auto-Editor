@@ -312,19 +312,21 @@
 				replacement: ($0,$1) => $1[0] + $1.substring(1).toLowerCase(),
 				reason: "capitalization",
 				context: ["title"],
-				score: .5
+				score: .5,
+				rounds: "0"
 			},{
 				expr: /\[enter image description here\]/g,
 				replacement: "[]",
 				reason: "formatting",
 				score: .1
 			},{
-				// Capitalize first letter of each line
+				// Capitalize first letter
 				expr: /^[a-z]+\s/gm,
 				replacement: $0 => $0[0].toUpperCase()+$0.substring(1),
 				reason: "capitalization",
 				context: ["title"],
-				score: .1
+				score: .1,
+				rounds: "0"
 			},{
 				expr: new RegExp(
 					PRE_CODE_FORMAT.source +
@@ -589,10 +591,11 @@
 		return rule.score
 	}
 
-	function applyRules(d, input, type){
+	function applyRules(d, input, type, round){
 		rules.forEach(rule=>{
 			var context = rule.context || ["title","text"]
-			if (context.includes(type)){
+			var inRound = typeof rule.rounds == 'undefined' || rule.rounds.includes(''+round)
+			if (context.includes(type) && inRound){
 				var ruleEditCount = 0,
 				output = input
 				if (rule.edit){
@@ -655,20 +658,26 @@
 	function edit(d){
 		context = d
 		d.exampleDomains = {}
+		var tries = 0
 		do {
 			var editsMade = d.replacements.length
 
-			d.body = applyRules(d, d.body, "fullbody")
+			d.body = applyRules(d, d.body, "fullbody", tries)
 			d.bodyTokens = tokenizeMarkdown(d.body)
 			if (!Object.keys(d.exampleDomains).length) recordExampleDomains(d)
 			for (var i=0; i<d.bodyTokens.length; i++){
-				d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type)
+				d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type, tries)
 			}
 			d.body = d.bodyTokens.map(t=>t.content).join("")
 
-			if (d.title) d.title = applyRules(d, d.title, "title")
+			if (d.title) d.title = applyRules(d, d.title, "title", tries)
 
 			editsMade = d.replacements.length - editsMade
+			tries++
+			if (tries>=9){
+				d.error="Ten rounds of edits"
+				throw d
+			}
 		} while(editsMade>0)
 
 		return d
