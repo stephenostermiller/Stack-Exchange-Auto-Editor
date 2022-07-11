@@ -513,7 +513,6 @@ seperated:separated
 seperate:separate
 SERPs
 serverfault:Server Fault
-stackexchange:Stack Exchange
 shant:shan't
 share point:SharePoint
 shes:she's
@@ -526,7 +525,6 @@ skilfull:skilful
 SMS
 SMTP
 Solr
-stackoverflow:Stack Overflow
 speach,speeche:speech
 sprite kit:SpriteKit
 SQL
@@ -536,6 +534,8 @@ square space:Squarespace
 SSH
 SSIS
 SSL
+stackexchange:Stack Exchange
+stackoverflow:Stack Overflow
 STL
 strech:stretch
 strenght:strength

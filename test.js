@@ -157,6 +157,14 @@ function runTests() {
 		}
 	})
 
+	// Not auto-edit, even in title
+	;[
+		'XML',
+		'jQuery'
+	].forEach(r=>{
+		testEdit(r, r)
+	})
+
 	;[
 		// Removals
 		'Any ideas?',
