@@ -403,7 +403,7 @@
 				expr: /[ \t]+(\r\n|\n|$)/gm,
 				replacement: "$1",
 				reason: "formatting",
-				context: ["fullbody","title"],
+				context: ["title"],
 				score: .01
 			},{
 				// Remove multiple new lines
