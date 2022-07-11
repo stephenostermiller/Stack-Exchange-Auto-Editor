@@ -16,6 +16,7 @@ bad
 bah
 banks?
 bar
+be
 blah?
 cdns?
 child
@@ -27,9 +28,11 @@ custom
 customers?
 def
 default
+delete[sd]?
 dev
 development
 domains?
+dummy
 emails?
 end
 ever
@@ -57,6 +60,7 @@ hosters?
 hosts?
 info
 information
+is
 last
 list
 local
@@ -74,6 +78,7 @@ of
 old
 other
 our
+own
 package
 pages?
 parents?
@@ -85,6 +90,7 @@ protected
 proxy
 public
 recipients?
+remove[ds]?
 safe
 samples?
 second
@@ -110,6 +116,7 @@ tls
 unique
 unsafe
 urls?
+was
 web
 what
 where
