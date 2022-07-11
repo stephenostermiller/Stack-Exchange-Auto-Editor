@@ -2,9 +2,9 @@
 
 if git branch | grep -q -E ' master$'
 then
-	if [ "z`git diff origin HEAD editor.user.js`" != "z" ]
+	if [ "z`git diff origin HEAD editor.user.js spelling-corrections.txt content-free-words.txt example-domain-words.txt file-extensions.txt top-level-domains.txt`" != "z" ]
 	then
-		# editor.user.js has been updated
+		# editor.user.js or included files have been updated
 		if [ "z`git diff origin HEAD version`" == "z" ]
 		then
 			# version has not been updated

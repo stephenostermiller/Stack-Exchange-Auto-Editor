@@ -1,14 +1,14 @@
 #!/bin/sh
 set -e
 
-diffs=`git diff --cached --name-only --diff-filter=ACMTUXB editor.user.js editor.meta.js version`
+diffs=`git diff --cached --name-only --diff-filter=ACMTUXB editor.user.js editor.meta.js version spelling-corrections.txt content-free-words.txt example-domain-words.txt file-extensions.txt top-level-domains.txt`
 if [ "z$diffs" != "z" ]
 then
 	echo "Local changes detected, commit changes before bumping version"
 	exit 0
 fi
 
-diffs=`git diff --cached --name-only --diff-filter=ACMTUXB origin editor.user.js`
+diffs=`git diff --cached --name-only --diff-filter=ACMTUXB origin editor.user.js spelling-corrections.txt content-free-words.txt example-domain-words.txt file-extensions.txt top-level-domains.txt`
 if [ "z$diffs" == "z" ]
 then
 	echo "No changes compared to origin, version does not need to be bumped"
