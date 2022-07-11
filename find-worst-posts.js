@@ -16,7 +16,7 @@ rl.on('line', function(line){
 		var attrs = xml.getAttributes(line)
 		if(attrs.Body){
 			var d=getDefaultData()
-			d.body=attrs.Body
+            d.bodyTokens = xml.tokenizeHTML(attrs.Body)
 			if (attrs.Title) d.title=attrs.Title
 			edit(d)
 			var score = Math.ceil(Math.max(Math.log10(parseInt(attrs.Score)),1)*d.score)
