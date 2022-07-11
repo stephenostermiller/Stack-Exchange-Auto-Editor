@@ -29,5 +29,41 @@ function decodeEntities(encodedString) {
 	})
 }
 
+
+function tokenizeHTML(str){
+    var tokens=[], m,
+    startRx = new RegExp("(" + [
+        /\<(?:[^\>\r\n]+)[\>\r\n]/, // HTML tag (group 1)
+    ].map(r=>r.source).join(')|(') + ")","gim"),
+    codeRx = new RegExp("((?:" + [
+        /<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
+    ].map(r=>r.source).join(')|(?:') + "))","gi"),
+    lastEnd=0
+    while(m = (startRx.exec(str))){
+        var thisStart=m.index
+        if (m.index-lastEnd>0){
+            tokens.push({type:"text",content:str.slice(lastEnd,m.index)})
+            lastEnd=m.index
+        }
+        if (m[1]){
+            // html tag OR indented code OR single backtick code
+            codeRx.lastIndex = lastEnd
+            var codeM=codeRx.exec(str)
+            if (codeM && codeM.index == lastEnd){
+                tokens.push({type:"code",content:codeM[1]})
+                lastEnd+=codeM[1].length
+            } else {
+                // Other HTML tags
+                tokens.push({type:"tag",content:m[1]})
+                lastEnd+=m[1].length
+            }
+        }
+        startRx.lastIndex=lastEnd
+    }
+    if (lastEnd<str.length)tokens.push({type:"text",content:str.substr(lastEnd,str.length)})
+    return tokens
+}
+
 exports.decodeEntities = decodeEntities
 exports.getAttributes = getAttributes
+exports.tokenizeHTML = tokenizeHTML
