@@ -662,13 +662,17 @@
 		do {
 			var editsMade = d.replacements.length
 
-			d.body = applyRules(d, d.body, "fullbody", tries)
-			d.bodyTokens = tokenizeMarkdown(d.body)
+			if (d.body){
+				d.body = applyRules(d, d.body, "fullbody", tries)
+				d.bodyTokens = tokenizeMarkdown(d.body)
+			}
 			if (!Object.keys(d.exampleDomains).length) recordExampleDomains(d)
 			for (var i=0; i<d.bodyTokens.length; i++){
 				d.bodyTokens[i].content = applyRules(d, d.bodyTokens[i].content, d.bodyTokens[i].type, tries)
 			}
-			d.body = d.bodyTokens.map(t=>t.content).join("")
+			if (d.body){
+				d.body = d.bodyTokens.map(t=>t.content).join("")
+			}
 
 			if (d.title) d.title = applyRules(d, d.title, "title", tries)
 
@@ -844,7 +848,7 @@
 			$('.wmd-button-bar').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					editContainer = $(this).parents('.inline-editor, .post-form, .post-editor').last(),
+					editContainer = $(this).parents('.inline-editor, .post-form, .post-editor, .js-review-editor').last(),
 					bodyBox = editContainer.find('.js-post-body-field'),
 					summaryBox = editContainer.find('.js-post-edit-comment-field'),
 					titleBox = editContainer.find('.js-post-title-field')
@@ -877,7 +881,7 @@
 			$('.js-stacks-editor-container').each(function(){
 				if (needsButton(this)){
 					var d = getDefaultData(),
-					editContainer = $(this).parents('.inline-editor, .post-form, .post-editor').last(),
+					editContainer = $(this).parents('.inline-editor, .post-form, .post-editor, .js-review-editor').last(),
 					editArea = editContainer.find('.js-post-body-field'),
 					summaryBox = editContainer.find('.js-post-edit-comment-field')
 					d.getTitle = function(){
