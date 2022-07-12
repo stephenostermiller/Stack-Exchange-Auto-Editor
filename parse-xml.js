@@ -29,7 +29,6 @@ function decodeEntities(encodedString) {
 	})
 }
 
-
 function tokenizeHTML(str){
 	var tokens=[], m,
 	startRx = new RegExp("(" + [
@@ -52,6 +51,9 @@ function tokenizeHTML(str){
 			if (codeM && codeM.index == lastEnd){
 				tokens.push({type:"code",content:codeM[1]})
 				lastEnd+=codeM[1].length
+			} else if(/^<a .*href=/.test(m[1])){
+				tokens.push({type:"url",content:m[1]})
+				lastEnd+=m[1].length
 			} else {
 				// Other HTML tags
 				tokens.push({type:"tag",content:m[1]})
