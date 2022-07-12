@@ -111,7 +111,10 @@ function runTests() {
 		{i:'C:\\path\\file.ppk',o:'`C:\\path\\file.ppk`',t:'C:\\path\\file.ppk'},
 		{i:'<tag>',o:'`<tag>`',t:'<tag>'},
 		{i:'<code>email@domain.com</code>', o:'<code>email@example.com</code>'},
-		{i:'Lorum:\n    email@domain.com',o:'Lorum:\n    email@example.com'}
+		{i:'Lorum:\n    email@domain.com',o:'Lorum:\n    email@example.com'},
+		{i:'Edit:\nLorum',o:'Lorum'},
+		{i:'Edit1:\nLorum',o:'Lorum'},
+		{i:'Edit:Edit:Edit:Edit:Edit:Edit:Edit:Edit:Edit:Edit:Edit:Edit:\nLorum',o:'Lorum'}
 	].forEach(io=>{
 		testEdit(io.i, io.o, io.t)
 	})
@@ -218,7 +221,7 @@ function runTests() {
 		'Thx for your help :)',
 		'Thanks to everyone.',
 		'Thanks works for me, good luck!',
-		'ty in advance'
+		'ty in advance',
 	].forEach(r=>{
 		testEdit(r,"")
 		testEdit("Lorum ipsum. "+r,"Lorum ipsum.")

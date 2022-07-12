@@ -48,16 +48,15 @@
 	ENVIRONMENT.file("file-extensions.txt",x=>DATA.fileExtensions=x)
 	ENVIRONMENT.file("top-level-domains.txt",x=>DATA.topLevelDomains=x)
 
-	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?=\s|$))/
 	const rules = []
-	var EXAMPLE_DOMAIN,
-	DOMAIN_NAME
 
 	function waitForData(){
 		if (Object.keys(DATA).length != 5){
 			setTimeout(waitForData,50)
 			return
 		}
+
+		DATA.POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?=\s|$))/
 
 		const MISSPELLINGS = Object.assign({},...(
 			DATA.spellingCorrections.trim().split(/[\n\|]/).map(l=>{
@@ -84,13 +83,13 @@
 		const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
 		const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|ideas?|point|pointers?|tips?|suggestions?)/
 		const BETWEEN_WORDS = "[, \\-\\/]+"
-		EXAMPLE_DOMAIN = new RegExp("^((?:.*\\.)?)(" +
+		DATA.EXAMPLE_DOMAIN = new RegExp("^((?:.*\\.)?)(" +
 				// Made entirely of example-like words
 				// Followed by an optional number or single letter
 				"(?:(?:(?:"+DATA.exampleDomainWords.trim().replace(/\n/g,"|")+"|(?:(?<=[a-zA-Z\\-])co)|(?:a(?=[a-zA-Z\\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)" +
 			')('+TLD.source +')$'
 		,'i')
-		DOMAIN_NAME = /(?<=^|[^A-Za-z0-9\\-\\.])(\.?(?:(?:[a-zA-Z0-9\-_]+|[\*\%])\\?\.)+[a-zA-Z]+)(?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$))/gmi
+		DATA.DOMAIN_NAME = /(?<=^|[^A-Za-z0-9\\-\\.])(\.?(?:(?:[a-zA-Z0-9\-_]+|[\*\%])\\?\.)+[a-zA-Z]+)(?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$))/gmi
 		const WORD_OR_NON=/(?:[0-9a-zA-Z]+)|(?:[^0-9a-zA-Z]+)/gm
 		const WORD=/^[0-9a-zA-Z]+$/
 
@@ -108,9 +107,9 @@
 				context: ["fullbody"],
 				score: .1
 			},{
-				expr: DOMAIN_NAME,
+				expr: DATA.DOMAIN_NAME,
 				replacement: (domain)=>{
-					var m = EXAMPLE_DOMAIN.exec(domain)
+					var m = DATA.EXAMPLE_DOMAIN.exec(domain)
 					if (!m) return domain
 					var pre=m[1],
 					name=m[2],
@@ -148,13 +147,13 @@
 					}
 					return "`"+m+"`"
 				},
-				reason: 'Code format HTML',
+				reason: 'code format HTML',
 				context: ["html"],
 				score: 0
 			},{
 				expr: /^``$/g,
 				replacement: "",
-				reason: "Remove empty code",
+				reason: "remove empty code",
 				context: ["code"],
 				score: .2
 			},{
@@ -182,7 +181,7 @@
 			capitalizeWordAndVersion("SQLite"),
 			capitalizeWord("UTF-8"),
 			{
-				expr: new RegExp(/((?:^|\s)\(?)([A-Za-z0-9'\-]+)/.source + POST_CODE_FORMAT.source, "gm"),
+				expr: new RegExp(/((?:^|\s)\(?)([A-Za-z0-9'\-]+)/.source + DATA.POST_CODE_FORMAT.source, "gm"),
 				replacement: (p0,p1,w,p3)=>{
 					if (MISSPELLINGS.hasOwnProperty(w)){
 						w = MISSPELLINGS[w] // abbreviations or all lower case
@@ -231,7 +230,7 @@
 				reason: spellingReason,
 				score: spellingScore
 			},{
-				expr: new RegExp(/((?:^|\s)\(?)[Ii]'?(m|ve)/.source + POST_CODE_FORMAT.source, "gm"),
+				expr: new RegExp(/((?:^|\s)\(?)[Ii]'?(m|ve)/.source + DATA.POST_CODE_FORMAT.source, "gm"),
 				replacement: "$1I'$2$3",
 				reason: spellingReason,
 				score: spellingScore
@@ -308,9 +307,9 @@
 				reason: "remove niceties",
 				score: .5
 			},{
-				expr: /(^|[\.\!\?])[ \\t]*(?:^\**)(edit|edited|updated?):?(?:[\*\:]+)[ \t]*/gmi,
-				replacement: "$1",
-				reason: "remove niceties",
+				expr: /(?<=^|[\.\!\?\:])[ \t]*(?:(?:\**)(edit|edited|updated?)[ \t]*[0-9]*:?(?:[\*\:]+)[ \t]*)+/gmi,
+				replacement: "",
+				reason: "remove edit indicator",
 				score: .5
 			},{
 				// No lower case at all
@@ -371,7 +370,7 @@
 							'[a-zA-Z0-9\\-_]+\\@(?:[a-zA-Z0-9\\-]+\\.)*[a-zA-Z]+' +
 						')' +
 					')'+
-					POST_CODE_FORMAT.source
+					DATA.POST_CODE_FORMAT.source
 				,'gmi'),
 				replacement: applyCodeFormat,
 				reason: "code format example URL",
@@ -398,7 +397,7 @@
 							'(?:[A-Z]\\:\\\\)[a-zA-Z0-9\\._\\-\\~\\\\]+'+
 						')' +
 					')' +
-					POST_CODE_FORMAT.source
+					DATA.POST_CODE_FORMAT.source
 				,"gmi"),
 				replacement: applyCodeFormat,
 				reason: "code format file name",
@@ -487,7 +486,7 @@
 		re = re.replace(/[ \-]+/g, "[\\s\\-]*")
 		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
 		return {
-			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+POST_CODE_FORMAT.source,"igm"),
+			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+DATA.POST_CODE_FORMAT.source,"igm"),
 			replacement: "$1"+word+"$2",
 			reason: spellingReason,
 			score: .1
@@ -503,7 +502,7 @@
 		re = re.replace(/ /g, "\\s*")
 		re = re.replace(/([A-Z][a-z]+)([A-Z])/g, "$1\\s*$2")
 		return {
-			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)"+POST_CODE_FORMAT.source,"igm"),
+			expr: new RegExp("((?:^|\\s)\\(?)(?:"+re+")"+(separator==" "?"\\s*":"")+"([0-9]+)"+DATA.POST_CODE_FORMAT.source,"igm"),
 			replacement: "$1"+word+separator+"$2$3",
 			reason: spellingReason,
 			score: .1
@@ -640,9 +639,9 @@
 
 	function recordExampleDomainsInput(d,input){
 		if (!input) return;
-		var domains = input.match(DOMAIN_NAME)
+		var domains = input.match(DATA.DOMAIN_NAME)
 		for (var i=0; domains && i<domains.length; i++){
-			var m = EXAMPLE_DOMAIN.exec(domains[i])
+			var m = DATA.EXAMPLE_DOMAIN.exec(domains[i])
 			if (m){
 				var name=normalizeDomain(m[2]), tld=normalizeDomain(m[3]),domain=name+tld
 				if (!(domain in d.exampleDomains)){
