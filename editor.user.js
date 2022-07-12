@@ -50,7 +50,8 @@
 
 	const POST_CODE_FORMAT = /([_\*\"\'\`\;\,\.\?\:\!\)\>]*(?=\s|$))/
 	const rules = []
-	var EXAMPLE_DOMAIN
+	var EXAMPLE_DOMAIN,
+	DOMAIN_NAME
 
 	function waitForData(){
 		if (Object.keys(DATA).length != 5){
@@ -83,14 +84,13 @@
 		const PRE_CODE_FORMAT = /(^|\s)([_\*\"\'\(\<]*)/
 		const ANSWER_WORDS = /(?:answers?|assistance|advice|examples?|fix|help|hints?|guidance|ideas?|point|pointers?|tips?|suggestions?)/
 		const BETWEEN_WORDS = "[, \\-\\/]+"
-		EXAMPLE_DOMAIN = new RegExp(
-			'((?:^|[^A-Za-z0-9\\-\\.])' + SUBDOM.source + ')(' +
+		EXAMPLE_DOMAIN = new RegExp("^((?:.*\\.)?)(" +
 				// Made entirely of example-like words
 				// Followed by an optional number or single letter
 				"(?:(?:(?:"+DATA.exampleDomainWords.trim().replace(/\n/g,"|")+"|(?:(?<=[a-zA-Z\\-])co)|(?:a(?=[a-zA-Z\\-]{3,})))-?)+(?:-?(?:[0-9]+|[A-Za-z]))?)" +
-			')('+TLD.source +')'+
-			/((?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$)))/.source
-		,'gmi')
+			')('+TLD.source +')$'
+		,'i')
+		DOMAIN_NAME = /(?<=^|[^A-Za-z0-9\\-\\.])(\.?(?:(?:[a-zA-Z0-9\-_]+|[\*\%])\\?\.)+[a-zA-Z]+)(?=\.?(?:[\;\,\:\/_\"\*'\)\<\>\?\!\` \t\$]|$))/gmi
 		const WORD_OR_NON=/(?:[0-9a-zA-Z]+)|(?:[^0-9a-zA-Z]+)/gm
 		const WORD=/^[0-9a-zA-Z]+$/
 
@@ -108,8 +108,14 @@
 				context: ["fullbody"],
 				score: .1
 			},{
-				expr: EXAMPLE_DOMAIN,
-				replacement: (m,pre,name,tld,post)=>{
+				expr: DOMAIN_NAME,
+				replacement: (domain)=>{
+					var m = EXAMPLE_DOMAIN.exec(domain)
+					if (!m) return domain
+					var pre=m[1],
+					name=m[2],
+					tld=m[3]
+
 					var escape = "";
 					if (/^\\/.test(tld)){
 						escape="\\"
@@ -123,7 +129,7 @@
 							name = "example"
 						}
 					}
-					return pre+name+escape+tld+post
+					return pre+name+escape+tld
 				},
 				reason: "use example domain",
 				context: ["title","text","code","url"],
@@ -634,12 +640,16 @@
 
 	function recordExampleDomainsInput(d,input){
 		if (!input) return;
-		for(let m of input.matchAll(EXAMPLE_DOMAIN)){
-			var name=normalizeDomain(m[2]), tld=normalizeDomain(m[3]),domain=name+tld
-			if (!d.exampleDomains.hasOwnProperty(domain)){
-				d.exampleDomains[domain] = 1
-				if (!d.exampleDomains.hasOwnProperty(tld)) d.exampleDomains[tld]=0
-				d.exampleDomains[tld]++
+		var domains = input.match(DOMAIN_NAME)
+		for (var i=0; domains && i<domains.length; i++){
+			var m = EXAMPLE_DOMAIN.exec(domains[i])
+			if (m){
+				var name=normalizeDomain(m[2]), tld=normalizeDomain(m[3]),domain=name+tld
+				if (!(domain in d.exampleDomains)){
+					d.exampleDomains[domain] = 1
+					if (!(tld in d.exampleDomains)) d.exampleDomains[tld]=0
+					d.exampleDomains[tld]++
+				}
 			}
 		}
 	}
