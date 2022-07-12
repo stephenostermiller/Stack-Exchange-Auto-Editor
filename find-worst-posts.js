@@ -17,11 +17,13 @@ rl.on('line', function(line){
 		if(attrs.Body){
 			var d=getDefaultData()
 			d.bodyTokens = xml.tokenizeHTML(attrs.Body)
+			//console.log(d.bodyTokens)
 			if (attrs.Title) d.title=attrs.Title
 			edit(d)
+			var summary = buildSummary("",d.reasons)
 			var score = Math.ceil(Math.max(Math.log10(parseInt(attrs.Score)),1)*d.score)
-			if (score > 3) {
-				console.log(score + " = log10("+ attrs.Score + ")*" + d.score.toFixed(2) + " /"+(attrs.ParentId?'a':'q')+'/'+attrs.Id)
+			if (score >= 15) {
+				console.log(score + " /"+(attrs.ParentId?'a':'q')+'/'+attrs.Id + " " + summary)
 				//console.log(d.replacements)
 			}
 		}
