@@ -661,6 +661,7 @@ Xamarin
 XAML
 XAMPP
 Xcode
+XHTML
 XIB
 XLSX
 XML
