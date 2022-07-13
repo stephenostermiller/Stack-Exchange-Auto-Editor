@@ -36,6 +36,7 @@ function tokenizeHTML(str){
 	].map(r=>r.source).join(')|(') + ")","gim"),
 	codeRx = new RegExp("((?:" + [
 		/<\s*code(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*code\s*>/, // HTML code tags
+		/<\s*pre(?:\s[^>]*)?>[\s\S]*?<\s*\/\s*pre\s*>/, // HTML code tags
 	].map(r=>r.source).join(')|(?:') + "))","gi"),
 	lastEnd=0
 	while(m = (startRx.exec(str))){
